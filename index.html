@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>UsTrip Asset Manager | Powered by Firefly Logic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root { --main-blue: #4b6cb7; --asset-green: #10b981; }
+    body { font-family: "Noto Sans SC", sans-serif; background-color: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+    
+    /* 容器控制 */
+    #scroll-container { max-width: 480px; margin: 0 auto; min-height: 100vh; padding-bottom: 120px; position: relative; }
+    .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); sticky: top; z-index: 50; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    
+    /* 动画与交互 */
+    .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+    .fade-enter-from, .fade-leave-to { opacity: 0; }
+    
+    /* 地图与卡片 */
+    #map { width: 100%; height: 100%; border-radius: 1.5rem; }
+    .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    
+    /* 底部导航 */
+    .nav-active { color: var(--main-blue); transform: translateY(-2px); }
+    .nav-active i { filter: drop-shadow(0 4px 6px rgba(75, 108, 183, 0.3)); }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="fixed inset-0 z-[-1] bg-slate-50">
+    <div class="absolute inset-0 opacity-10" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+  </div>
+
+  <div id="scroll-container">
+    <header class="glass-header sticky top-0 px-6 py-4 flex justify-between items-center rounded-b-3xl shadow-sm">
+      <div>
+        <h1 class="text-xl font-black tracking-tight text-slate-800">UsTrip <span class="text-blue-600">Assets</span></h1>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Double-Entry Logic</p>
+      </div>
+      <div class="text-right">
+        <div class="bg-blue-50 px-3 py-1 rounded-full inline-block">
+          <span class="text-xs font-bold text-blue-600">1 MYR ≈ {{ settings.liveRate }} TWD</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="p-4 space-y-6">
+      <section v-if="currentTab === 'money'" class="space-y-4 animate-fade-in">
+        <div class="bg-gradient-to-br from-emerald-500 to-teal-700 p-6 rounded-[2rem] text-white card-shadow relative overflow-hidden">
+          <div class="relative z-10">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[10px] font-bold opacity-80 uppercase">台湾现金账户 (TWD)</p>
+                <h2 class="text-4xl font-black mt-1">{{ Math.round(twdBalance) }}</h2>
+              </div>
+              <button @click="openModal('exchange')" class="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition">
+                <i class="fas fa-exchange-alt"></i>
+              </button>
+            </div>
+            <div class="mt-6 flex gap-4 text-xs font-bold opacity-90">
+              <span class="bg-black/10 px-3 py-1 rounded-full text-emerald-100">平均汇率: {{ averageRate }}</span>
+              <span class="bg-black/10 px-3 py-1 rounded-full text-emerald-100">已消费: {{ totalCashSpent }}</span>
+            </div>
+          </div>
+          <i class="fas fa-wallet absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
+        </div>
+
+        <div class="bg-white p-5 rounded-[2rem] border border-slate-100 card-shadow flex justify-between items-center">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl">
+              <i class="fas fa-credit-card"></i>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase">马币卡消费 (MYR)</p>
+              <h3 class="text-xl font-black text-slate-700">{{ totalCardSpent }}</h3>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] font-bold text-slate-400">折合台币</p>
+            <p class="text-sm font-bold text-slate-500">≈ {{ Math.round(totalCardSpent * settings.liveRate) }}</p>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex justify-between items-center px-2">
+            <h3 class="font-black text-slate-800 tracking-tight text-lg">最近交易记录</h3>
+            <button @click="openModal('money')" class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">+ 记一笔</button>
+          </div>
+          
+          <div v-for="tran in allTransactions" :key="tran.id" class="bg-white p-4 rounded-2xl border border-slate-50 flex justify-between items-center hover:scale-[1.02] transition duration-300">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" :class="tran.type === 'exchange' ? 'bg-emerald-50 text-emerald-500' : (tran.method === 'card' ? 'bg-purple-50 text-purple-500' : 'bg-orange-50 text-orange-500')">
+                <i :class="tran.type === 'exchange' ? 'fas fa-sync' : (tran.method === 'card' ? 'fas fa-credit-card' : 'fas fa-utensils')"></i>
+              </div>
+              <div>
+                <p class="font-bold text-slate-800 text-sm">{{ tran.item || '货币兑换' }}</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase">{{ tran.date }} · {{ tran.type === 'exchange' ? 'Internal Transfer' : (tran.method === 'card' ? 'Card Pay' : 'Cash Pay') }}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-black text-sm" :class="tran.type === 'exchange' ? 'text-emerald-600' : 'text-slate-800'">
+                {{ tran.type === 'exchange' ? '+' + tran.targetAmount : '-' + tran.amount }}
+                <span class="text-[9px]">{{ tran.currency }}</span>
+              </p>
+              <button @click="deleteTransaction(tran)" class="text-[9px] text-slate-300 uppercase font-bold tracking-tighter">Delete</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentTab === 'schedule'" class="space-y-4 animate-fade-in">
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+           <button v-for="day in tripDates" :key="day.date" @click="selectedDate = day.date" class="flex-shrink-0 px-5 py-3 rounded-2xl font-bold transition-all text-sm" :class="selectedDate === day.date ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100'">
+             {{ day.day }}
+           </button>
+        </div>
+        <div ref="sortableList" class="space-y-3">
+          <div v-for="item in dailyItinerary" :key="item.id" class="bg-white p-4 rounded-3xl border border-slate-100 flex gap-4 items-center">
+            <div class="text-center">
+              <p class="text-xs font-black text-blue-600">{{ item.time }}</p>
+              <div class="w-1 h-8 bg-blue-100 mx-auto my-1 rounded-full"></div>
+            </div>
+            <div class="flex-1">
+              <h4 class="font-bold text-slate-800">{{ item.location }}</h4>
+              <p class="text-[10px] text-slate-400 line-clamp-1">{{ item.note || '暂无备注' }}</p>
+            </div>
+            <button @click="deleteSchedule(item.id)" class="text-slate-200 hover:text-red-400 transition"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
+        <button @click="openModal('schedule')" class="w-full py-4 bg-slate-100 rounded-3xl border-2 border-dashed border-slate-200 text-slate-400 font-bold">+ 规划新行程</button>
+      </section>
+
+      <section v-show="currentTab === 'map'" class="animate-fade-in h-[60vh]">
+        <div id="map" class="shadow-2xl"></div>
+      </section>
+    </main>
+
+    <nav class="fixed bottom-6 left-6 right-6 bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-2 flex justify-around items-center shadow-2xl border border-slate-100">
+      <button v-for="tab in [{id:'schedule', icon:'fa-map-signs'}, {id:'map', icon:'fa-location-dot'}, {id:'money', icon:'fa-vault'}, {id:'settings', icon:'fa-sliders'}]" 
+              :key="tab.id" @click="switchTab(tab.id)" class="flex-1 py-3 transition-all duration-300" :class="currentTab === tab.id ? 'nav-active' : 'text-slate-300'">
+        <i class="fas text-xl" :class="tab.icon"></i>
+      </button>
+    </nav>
+
+    <transition name="fade">
+      <div v-if="showModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="closeModal"></div>
+        <div class="bg-white w-full sm:max-w-sm rounded-t-[3rem] sm:rounded-[3rem] p-8 relative z-10 shadow-2xl transition-all transform animate-fade-in">
+          <div class="w-12 h-1.5 bg-slate-100 mx-auto mb-6 rounded-full"></div>
+          <h3 class="text-2xl font-black text-slate-800 mb-6">{{ modalTitle }}</h3>
+
+          <div v-if="modalType === 'exchange'" class="space-y-4">
+            <div><label class="text-[10px] font-bold text-slate-400 uppercase">从 MYR 账户转出</label><input v-model.number="newItem.baseAmount" type="number" class="w-full bg-slate-50 p-4 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition font-bold"></div>
+            <div class="text-center"><i class="fas fa-arrow-down text-slate-300"></i></div>
+            <div><label class="text-[10px] font-bold text-slate-400 uppercase">存入 TWD 现金池</label><input v-model.number="newItem.targetAmount" type="number" class="w-full bg-slate-50 p-4 rounded-2xl outline-none border-2 border-transparent focus:border-emerald-500 transition font-bold text-emerald-600"></div>
+          </div>
+
+          <div v-if="modalType === 'money'" class="space-y-4">
+            <div class="flex gap-2">
+              <button v-for="m in ['cash', 'card']" :key="m" @click="newItem.method = m" class="flex-1 py-3 rounded-2xl font-bold border-2 transition" :class="newItem.method === m ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-100 text-slate-400'">{{ m === 'cash' ? '💵 现金' : '💳 刷卡' }}</button>
+            </div>
+            <input v-model="newItem.item" type="text" placeholder="消费内容" class="w-full bg-slate-50 p-4 rounded-2xl outline-none">
+            <input v-model.number="newItem.amount" type="number" placeholder="金额" class="w-full bg-slate-50 p-4 rounded-2xl outline-none text-2xl font-black">
+          </div>
+
+          <div v-if="modalType === 'schedule'" class="space-y-4">
+            <input v-model="newItem.time" type="time" class="w-full bg-slate-50 p-4 rounded-2xl outline-none font-bold">
+            <input v-model="newItem.location" type="text" placeholder="去哪儿？" class="w-full bg-slate-50 p-4 rounded-2xl outline-none">
+            <textarea v-model="newItem.note" placeholder="小提示..." class="w-full bg-slate-50 p-4 rounded-2xl outline-none h-24"></textarea>
+          </div>
+
+          <div class="flex gap-3 mt-8">
+            <button @click="closeModal" class="flex-1 py-4 text-slate-400 font-bold hover:bg-slate-50 rounded-2xl transition">取消</button>
+            <button @click="handleSave" class="flex-[2] py-4 bg-slate-800 text-white font-black rounded-2xl shadow-xl hover:bg-slate-700 transition">完成录入</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+createApp({
+  setup() {
+    const STORAGE_KEY = "ustrip_firefly_v1";
+    const currentTab = ref("money");
+    const selectedDate = ref("2026-01-08");
+    const showModal = ref(false);
+    const modalType = ref("");
+    const newItem = ref({});
+    const mapObj = ref(null);
+
+    // 核心数据仓
+    const settings = ref({ liveRate: 7.12, tripStartDate: "2026-01-08", tripDays: 6 });
+    const exchangeRecords = ref([]); // 换汇池
+    const expenseRecords = ref([]);  // 消费记录
+    const scheduleRecords = ref([]); // 行程记录
+
+    // --- Firefly III 核心逻辑：加权资产平衡 ---
+    
+    // TWD 余额 = 总换汇量 - 现金总支出
+    const twdBalance = computed(() => {
+      const totalIn = exchangeRecords.value.reduce((s, r) => s + (r.targetAmount || 0), 0);
+      const totalOut = expenseRecords.value.filter(e => e.method === 'cash').reduce((s, e) => s + (e.amount || 0), 0);
+      return totalIn - totalOut;
+    });
+
+    // 平均成本 = 总马币投入 / 总台币换取量
+    const averageRate = computed(() => {
+      const myrIn = exchangeRecords.value.reduce((s, r) => s + (r.baseAmount || 0), 0);
+      const twdIn = exchangeRecords.value.reduce((s, r) => s + (r.targetAmount || 0), 0);
+      return twdIn > 0 ? (twdIn / myrIn).toFixed(3) : settings.value.liveRate;
+    });
+
+    const totalCardSpent = computed(() => expenseRecords.value.filter(e => e.method === 'card').reduce((s, e) => s + (e.amount || 0), 0));
+    const totalCashSpent = computed(() => expenseRecords.value.filter(e => e.method === 'cash').reduce((s, e) => s + (e.amount || 0), 0));
+
+    // 合并流水展示
+    const allTransactions = computed(() => {
+      const ex = exchangeRecords.value.map(r => ({ ...r, type: 'exchange', currency: 'TWD' }));
+      const ep = expenseRecords.value.map(r => ({ ...r, type: 'expense', currency: r.method === 'card' ? 'MYR' : 'TWD' }));
+      return [...ex, ...ep].sort((a, b) => b.id - a.id);
+    });
+
+    // --- 行程逻辑 ---
+    const tripDates = computed(() => {
+      const arr = []; const start = new Date(settings.value.tripStartDate);
+      for (let i = 0; i < settings.value.tripDays; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + i);
+        arr.push({ date: d.toISOString().split('T')[0], day: `Day ${i+1}` });
+      }
+      return arr;
+    });
+    const dailyItinerary = computed(() => scheduleRecords.value.filter(i => i.date === selectedDate.value).sort((a,b) => a.time.localeCompare(b.time)));
+
+    // --- 功能函数 ---
+    const openModal = (type) => {
+      modalType.value = type;
+      if(type === 'money') newItem.value = { method: 'cash', amount: null, item: '' };
+      else if(type === 'exchange') newItem.value = { baseAmount: null, targetAmount: null };
+      else if(type === 'schedule') newItem.value = { time: '12:00', location: '', note: '' };
+      showModal.value = true;
+    };
+
+    const handleSave = () => {
+      const id = Date.now();
+      const date = new Date().toLocaleDateString('zh-CN', { month:'2-digit', day:'2-digit' });
+      
+      if(modalType.value === 'exchange') exchangeRecords.value.push({ ...newItem.value, id, date });
+      else if(modalType.value === 'money') expenseRecords.value.push({ ...newItem.value, id, date });
+      else if(modalType.value === 'schedule') scheduleRecords.value.push({ ...newItem.value, id, date: selectedDate.value });
+      
+      saveToStorage();
+      closeModal();
+    };
+
+    const deleteTransaction = (tran) => {
+      if(tran.type === 'exchange') exchangeRecords.value = exchangeRecords.value.filter(i => i.id !== tran.id);
+      else expenseRecords.value = expenseRecords.value.filter(i => i.id !== tran.id);
+      saveToStorage();
+    };
+
+    const deleteSchedule = (id) => {
+      scheduleRecords.value = scheduleRecords.value.filter(i => i.id !== id);
+      saveToStorage();
+    };
+
+    const switchTab = (tab) => {
+      currentTab.value = tab;
+      if (tab === 'map') nextTick(() => initMap());
+      if (tab === 'schedule') nextTick(() => { if(document.querySelector('[ref="sortableList"]')) Sortable.create(document.querySelector('[ref="sortableList"]'), { animation: 150 }); });
+    };
+
+    const initMap = () => {
+      if (mapObj.value) { mapObj.value.invalidateSize(); return; }
+      mapObj.value = L.map("map", { zoomControl: false }).setView([25.0478, 121.5319], 13);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png").addTo(mapObj.value);
+    };
+
+    const saveToStorage = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ex: exchangeRecords.value, ep: expenseRecords.value, sc: scheduleRecords.value, st: settings.value
+    }));
+
+    onMounted(() => {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      exchangeRecords.value = data.ex || [];
+      expenseRecords.value = data.ep || [];
+      scheduleRecords.value = data.sc || [];
+      if(data.st) settings.value = data.st;
+    });
+
+    return {
+      currentTab, selectedDate, twdBalance, averageRate, totalCardSpent, totalCashSpent,
+      allTransactions, tripDates, dailyItinerary, settings, showModal, modalType, newItem,
+      openModal, closeModal: () => showModal.value = false, handleSave, deleteTransaction, 
+      deleteSchedule, switchTab, modalTitle: computed(() => ({ exchange:'货币换汇', money:'记账支出', schedule:'添加行程' }[modalType.value]))
+    };
+  }
+}).mount("#app");
+</script>
+</body>
+</html>
