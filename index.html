@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 台湾行资产管家</title>
+  <title>UsTrip Finance | 资产管家 + 实时换算</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -19,6 +19,7 @@
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     
+    .converter-float { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow: 0 -10px 40px -10px rgba(0,0,0,0.1); border-top: 1px solid rgba(0,0,0,0.05); }
     .transaction-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
     .item-cash { border-left-color: #fb923c; }
     .item-card { border-left-color: #6366f1; }
@@ -26,18 +27,18 @@
   </style>
 </head>
 <body>
-<div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
+<div id="app" class="max-w-md mx-auto min-h-screen relative pb-40">
 
   <header class="glass-nav sticky top-0 px-6 py-4 flex justify-between items-center z-50">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+      <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-lg">
         <i class="fas fa-wallet text-sm"></i>
       </div>
-      <h1 class="text-lg font-black tracking-tighter">台币金库 <span class="text-emerald-500 text-xs italic">Asset Ledger</span></h1>
+      <h1 class="text-lg font-black tracking-tighter">台币金库 <span class="text-emerald-500 text-xs italic">Finance</span></h1>
     </div>
     <div class="flex gap-4 text-slate-400">
-      <button @click="exportData" title="备份数据"><i class="fas fa-download"></i></button>
-      <button @click="triggerImport" title="恢复数据"><i class="fas fa-upload"></i></button>
+      <button @click="exportData"><i class="fas fa-download"></i></button>
+      <button @click="triggerImport"><i class="fas fa-upload"></i></button>
     </div>
   </header>
 
@@ -90,7 +91,6 @@
       <div class="flex justify-between items-center px-2">
         <h3 class="font-bold text-slate-400 text-xs uppercase tracking-widest">账单流水 · Timeline</h3>
       </div>
-      
       <div class="space-y-2">
         <div v-for="item in allTransactions" :key="item.id" class="transaction-item bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm" :class="getTranClass(item)">
           <div class="flex items-center gap-4">
@@ -112,6 +112,27 @@
       </div>
     </section>
   </main>
+
+  <section class="fixed bottom-0 left-0 right-0 z-[60] converter-float p-6 rounded-t-[2.5rem]">
+    <div class="max-w-md mx-auto">
+      <div class="flex items-center justify-between mb-3 px-2">
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest"><i class="fas fa-bolt text-yellow-500 mr-1"></i> 汇率透视镜</p>
+        <p class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">基于成本 1:{{ averageRate }}</p>
+      </div>
+      <div class="flex items-center gap-4 bg-slate-100 p-2 rounded-2xl">
+        <div class="flex-1 relative">
+          <input v-model.number="quickTwd" type="number" class="w-full bg-white p-3 rounded-xl outline-none font-black text-lg shadow-sm" placeholder="输入台币 TWD">
+          <span class="absolute right-3 top-3.5 text-[10px] font-black text-slate-300">TWD</span>
+        </div>
+        <div class="text-slate-300"><i class="fas fa-equals"></i></div>
+        <div class="flex-1 relative">
+          <div class="w-full bg-emerald-500 p-3 rounded-xl font-black text-lg text-white shadow-lg shadow-emerald-200 truncate">
+            {{ quickMyr }} <span class="text-[10px] opacity-60">MYR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <input type="file" ref="importInput" class="hidden" @change="handleImport" accept=".json">
 
@@ -138,7 +159,7 @@
               {{ m === 'cash' ? '付台币现金' : '刷马币卡' }}
             </button>
           </div>
-          <input v-model="newItem.name" type="text" placeholder="消费项目 (如：饶河夜市小吃)" class="w-full bg-slate-50 p-4 rounded-2xl outline-none font-bold">
+          <input v-model="newItem.name" type="text" placeholder="消费项目" class="w-full bg-slate-50 p-4 rounded-2xl outline-none font-bold">
           <div class="bg-slate-50 p-4 rounded-2xl flex items-center">
             <input v-model.number="newItem.amount" type="number" placeholder="0.00" class="flex-1 bg-transparent text-2xl font-black outline-none">
             <span class="text-xs font-black text-slate-400">{{ newItem.method === 'card' ? 'MYR' : 'TWD' }}</span>
@@ -164,8 +185,8 @@ createApp({
     const modalType = ref("");
     const newItem = ref({});
     const importInput = ref(null);
+    const quickTwd = ref(null);
 
-    // 换汇记录 & 消费记录
     const exchangeRecords = ref([]);
     const expenseRecords = ref([]);
 
@@ -179,7 +200,14 @@ createApp({
     const averageRate = computed(() => {
       const totalBase = exchangeRecords.value.reduce((s, r) => s + (parseFloat(r.baseAmount) || 0), 0);
       const totalTarget = exchangeRecords.value.reduce((s, r) => s + (parseFloat(r.targetAmount) || 0), 0);
-      return totalBase > 0 ? (totalTarget / totalBase).toFixed(3) : "0.000";
+      return totalBase > 0 ? (totalTarget / totalBase).toFixed(3) : "7.100";
+    });
+
+    // 🌟 计算属性：透视镜换算逻辑
+    const quickMyr = computed(() => {
+      if (!quickTwd.value || quickTwd.value <= 0) return "0.00";
+      // MYR = TWD / 汇率
+      return (quickTwd.value / parseFloat(averageRate.value)).toFixed(2);
     });
 
     const totalCardSpent = computed(() => expenseRecords.value.filter(e => e.method === 'card').reduce((s, e) => s + (parseFloat(e.amount) || 0), 0).toFixed(2));
@@ -196,7 +224,6 @@ createApp({
     const getIcon = (i) => i.type === 'exchange' ? 'fas fa-repeat' : (i.method === 'card' ? 'fas fa-credit-card' : 'fas fa-wallet');
     const getIconColor = (i) => i.type === 'exchange' ? 'bg-emerald-50 text-emerald-500' : (i.method === 'card' ? 'bg-indigo-50 text-indigo-500' : 'bg-orange-50 text-orange-400');
 
-    // --- 操作 ---
     const openModal = (type) => {
       modalType.value = type;
       newItem.value = type === 'exchange' ? { baseAmount: null, targetAmount: null } : { method: 'cash', amount: null, name: '' };
@@ -216,7 +243,7 @@ createApp({
     };
 
     const deleteItem = (item) => {
-      if (!confirm("确定移除这条记录吗？")) return;
+      if (!confirm("确定移除吗？")) return;
       if (item.type === 'exchange') exchangeRecords.value = exchangeRecords.value.filter(i => i.id !== item.id);
       else expenseRecords.value = expenseRecords.value.filter(i => i.id !== item.id);
       saveToStore();
@@ -226,7 +253,7 @@ createApp({
 
     const exportData = () => {
       const blob = new Blob([localStorage.getItem(STORAGE_KEY)], { type: "application/json" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `UsTrip_Finance_${Date.now()}.json`; a.click();
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `UsTrip_Finance.json`; a.click();
     };
 
     const triggerImport = () => importInput.value.click();
@@ -247,7 +274,6 @@ createApp({
       exchangeRecords.value = data.ex || [];
       expenseRecords.value = data.ep || [];
 
-      // 初始化：录入那一笔 402.55 马币换 3200 台币
       if (exchangeRecords.value.length === 0 && expenseRecords.value.length === 0) {
         exchangeRecords.value.push({
           id: 1700000000000,
@@ -262,7 +288,7 @@ createApp({
 
     return {
       showModal, modalType, newItem, twdBalance, averageRate, 
-      totalCardSpent, totalCashSpent, allTransactions, importInput,
+      quickTwd, quickMyr, totalCardSpent, totalCashSpent, allTransactions, importInput,
       openModal, closeModal: () => showModal.value = false, saveItem, deleteItem, 
       getTranClass, getIcon, getIconColor, exportData, triggerImport, handleImport
     };
