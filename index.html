@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 智能换汇版</title>
+  <title>UsTrip Finance | 弹窗修复版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -18,7 +18,7 @@
   <style>
     html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
     body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-    #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; }
+    #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; position: relative; }
     
     .mono { font-family: 'JetBrains Mono', monospace; }
     .glass-nav { @apply bg-white/95 border-b border-slate-100; }
@@ -219,7 +219,7 @@
     <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div>
       
-      <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[2rem] p-6 relative z-10 animate-up shadow-2xl transition-colors">
+      <div class="bg-white dark:bg-slate-800 w-full max-w-[380px] rounded-[2rem] p-6 relative z-10 animate-up shadow-2xl transition-colors">
         
         <h3 class="text-xl font-black mb-4 text-slate-800 dark:text-white">{{ modalType==='exchange'?'存入资金':'记录支出' }}</h3>
         
@@ -268,7 +268,7 @@
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v9_bi_directional";
+      const STORAGE_KEY = "ustrip_v9_1_modal_fix";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -286,26 +286,10 @@
       const exchangeRecords = ref([]); const expenseRecords = ref([]);
       const calcInput = ref("0"); const calcExpr = ref(""); const calcNote = ref(""); const calcHistory = ref([]);
       
-      // 双向计算逻辑
       const jagsRate = ref(12.63);
-      
-      // 输入马币 -> 算台币
-      const calcFromMYR = () => {
-        if(newItem.value.baseAmount && jagsRate.value) {
-          // 公式: (MYR / Rate) * 100
-          newItem.value.targetAmount = ((newItem.value.baseAmount / jagsRate.value) * 100).toFixed(0);
-        }
-      };
-      
-      // 输入台币 -> 算马币
-      const calcFromTWD = () => {
-        if(newItem.value.targetAmount && jagsRate.value) {
-          // 公式: (TWD / 100) * Rate
-          newItem.value.baseAmount = ((newItem.value.targetAmount / 100) * jagsRate.value).toFixed(2);
-        }
-      };
+      const calcFromMYR = () => { if(newItem.value.baseAmount && jagsRate.value) newItem.value.targetAmount = ((newItem.value.baseAmount / jagsRate.value) * 100).toFixed(0); };
+      const calcFromTWD = () => { if(newItem.value.targetAmount && jagsRate.value) newItem.value.baseAmount = ((newItem.value.targetAmount / 100) * jagsRate.value).toFixed(2); };
 
-      // 核心计算
       const twdBalance = computed(() => {
         const i = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
         const o = expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
@@ -361,11 +345,9 @@
         const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
         exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; calcHistory.value=d.ch||[]; isDark.value=d.dark||false;
         if(d.jrate) jagsRate.value = d.jrate;
-        
         const meta = document.getElementById('theme-color');
         if(isDark.value) { document.documentElement.classList.add('dark'); if(meta) meta.setAttribute('content', '#0f172a'); }
         else { if(meta) meta.setAttribute('content', '#ffffff'); }
-
         if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1,date:'02-04',baseAmount:402.55,targetAmount:3200}); save(); }
       });
 
@@ -376,7 +358,7 @@
         getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-cash'),
         getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
         getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : (i.method==='card'?'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400':'bg-orange-50 dark:bg-orange-900/40 text-orange-400'),
-        jagsRate, calcFromMYR, calcFromTWD // 绑定新方法
+        jagsRate, calcFromMYR, calcFromTWD 
       };
     }
   }).mount("#app");
