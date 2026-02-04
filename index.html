@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 视觉增强版</title>
+  <title>UsTrip Finance | 修复版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#ffffff">
   
@@ -16,19 +16,15 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet" />
 
   <style>
-    body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; overflow: hidden; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
+    /* 强制全屏高度，防止塌陷 */
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+    body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+    #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; }
     
-    /* 玻璃拟态 */
+    .mono { font-family: 'JetBrains Mono', monospace; }
     .glass-nav { @apply bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800; }
     
-    /* 动画 */
-    .slide-enter-active, .slide-leave-active { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .slide-enter-from, .slide-leave-to { transform: translateY(20px); opacity: 0; }
-    .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
-    .fade-enter-from, .fade-leave-to { opacity: 0; }
-
-    /* 计算器键盘 - 紧凑版 */
+    /* 键盘网格 */
     .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; height: 100%; }
     .calc-btn { 
       @apply rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm transition-all duration-75 active:scale-95 active:bg-slate-200 dark:active:bg-slate-600; 
@@ -38,15 +34,21 @@
     .btn-ac { @apply bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 text-lg; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-emerald-200 dark:shadow-none text-2xl; }
 
+    /* 动画 */
+    .slide-enter-active, .slide-leave-active { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .slide-enter-from, .slide-leave-to { transform: translateY(20px); opacity: 0; }
+    .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+    .fade-enter-from, .fade-leave-to { opacity: 0; }
+
     .transaction-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
     .item-cash { border-left-color: #fb923c; }
     .item-card { border-left-color: #6366f1; }
     .item-exchange { border-left-color: #10b981; }
   </style>
 </head>
-<body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300 h-[100dvh] flex flex-col">
+<body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
 
-<div id="app" class="flex flex-col h-full w-full max-w-md mx-auto relative bg-white dark:bg-slate-950">
+<div id="app">
 
   <header class="glass-nav flex-none px-5 py-3 flex justify-between items-center z-50">
     <div class="flex items-center gap-2">
@@ -64,7 +66,7 @@
     </div>
   </header>
 
-  <main class="flex-1 overflow-hidden relative flex flex-col">
+  <main class="flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-950">
     
     <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24 bg-slate-50 dark:bg-slate-900">
       <section class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
@@ -112,27 +114,27 @@
       </div>
     </div>
 
-    <div v-if="currentTab === 'calculator'" class="flex flex-col h-full pb-20">
+    <div v-if="currentTab === 'calc'" class="flex flex-col h-full pb-20 bg-slate-50 dark:bg-slate-900">
       
       <div class="flex-1 flex flex-col p-6 z-10">
         
         <div class="flex justify-between items-center mb-4">
-           <button @click="toggleHistory" class="text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1 active:scale-95 transition">
+           <button @click="toggleHistory" class="text-xs font-bold px-3 py-1.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1 active:scale-95 transition">
              <i class="fas fa-history"></i> {{ showHistory ? '隐藏' : '历史' }}
            </button>
-           <span class="text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-slate-400 px-2 py-1 rounded text-right">
+           <span class="text-[10px] font-black bg-slate-200 dark:bg-slate-800 text-slate-400 px-2 py-1 rounded text-right">
              1 MYR = {{ averageRate }} TWD
            </span>
         </div>
 
         <div class="mb-2 relative">
-          <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-300 dark:placeholder-slate-700 outline-none" placeholder="输入备注 (可选)...">
+          <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-300 dark:placeholder-slate-700 outline-none" placeholder="输入备注...">
         </div>
 
         <div class="mt-auto flex flex-col items-end gap-2">
           <div class="h-6 text-slate-400 font-bold text-lg mono">{{ calcExpression }}</div>
           
-          <div class="text-[4rem] leading-none font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full" style="word-break: break-all;">
+          <div class="text-[3.5rem] leading-none font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full" style="word-break: break-all;">
             {{ currentInput || '0' }}
             <span class="text-lg text-slate-300 font-bold ml-1">TWD</span>
           </div>
@@ -140,7 +142,7 @@
           <div class="w-full bg-emerald-500 text-white rounded-2xl p-4 shadow-lg shadow-emerald-200 dark:shadow-none flex justify-between items-end mt-2 transition-transform active:scale-[0.99]" @click="saveCalculation">
             <div class="flex flex-col">
               <span class="text-[10px] font-bold opacity-80 uppercase">折合马币</span>
-              <span class="text-xs font-bold opacity-60">点击保存记录</span>
+              <span class="text-xs font-bold opacity-60">点击保存</span>
             </div>
             <div class="text-4xl font-black mono tracking-tight">
               {{ calcResult }} <span class="text-sm font-bold opacity-80">MYR</span>
@@ -149,13 +151,16 @@
         </div>
       </div>
 
-      <div class="h-[40vh] bg-slate-50 dark:bg-slate-900 rounded-t-[2rem] p-4 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div class="h-[42vh] bg-slate-100 dark:bg-slate-950 rounded-t-[2rem] p-4 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         
         <transition name="slide">
-          <div v-if="showHistory" class="absolute inset-0 bg-slate-100 dark:bg-slate-900 rounded-t-[2rem] z-30 p-4 overflow-y-auto">
+          <div v-if="showHistory" class="absolute inset-0 bg-slate-100 dark:bg-slate-950 rounded-t-[2rem] z-30 p-4 overflow-y-auto">
             <div class="flex justify-between items-center mb-4 px-2">
-              <h3 class="font-bold text-slate-400 text-xs">History List</h3>
-              <button @click="clearHistory" class="text-xs text-red-400 font-bold">清空</button>
+              <h3 class="font-bold text-slate-400 text-xs uppercase">History List</h3>
+              <div class="flex gap-2">
+                <button @click="exportHistoryCSV" class="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded font-bold">导出</button>
+                <button @click="clearHistory" class="text-[10px] text-red-400 font-bold">清空</button>
+              </div>
             </div>
             <div v-for="(rec,i) in calcHistory" :key="i" class="bg-white dark:bg-slate-800 p-3 rounded-xl mb-2 flex justify-between items-center shadow-sm">
               <div>
@@ -170,7 +175,7 @@
           </div>
         </transition>
 
-        <div class="calc-grid h-full pb-6">
+        <div class="calc-grid h-full pb-4">
           <button @click="key('AC')" class="calc-btn btn-ac">AC</button>
           <button @click="key('DEL')" class="calc-btn btn-op"><i class="fas fa-backspace"></i></button>
           <button @click="key('/')" class="calc-btn btn-op">÷</button>
@@ -213,11 +218,13 @@
 </div>
 
 <script>
+  // PWA 注册
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v7_visual";
+      const STORAGE_KEY = "ustrip_v7_1_fix";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -229,6 +236,7 @@
       const exchangeRecords = ref([]); const expenseRecords = ref([]);
       const calcInput = ref("0"); const calcExpr = ref(""); const calcNote = ref(""); const calcHistory = ref([]);
 
+      // 核心计算
       const twdBalance = computed(() => {
         const i = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
         const o = expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
@@ -246,6 +254,7 @@
       const totalCashSpent = computed(() => expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0));
       const allTransactions = computed(() => [...exchangeRecords.value.map(r=>({...r,type:'exchange'})), ...expenseRecords.value.map(r=>({...r,type:'expense'}))].sort((a,b)=>b.id-a.id));
 
+      // 计算器逻辑
       const key = (k) => {
         if(k==='AC'){calcInput.value="0";calcExpr.value="";return;}
         if(k==='DEL'){calcInput.value=calcInput.value.length>1?calcInput.value.slice(0,-1):"0";return;}
@@ -260,6 +269,13 @@
         calcNote.value=""; calcInput.value="0"; calcExpr.value=""; save(); showHistory.value=true;
       };
       const clearHistory = () => { if(confirm("清空?")){calcHistory.value=[];save();} };
+      const exportHistoryCSV = () => {
+        let csv = "Time,Note,TWD,MYR,Rate\n";
+        calcHistory.value.forEach(r => csv += `${r.time},${r.note},${r.twd},${r.myr},${averageRate.value}\n`);
+        const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8,\uFEFF"+csv); link.download = "shopping_list.csv"; link.click();
+      };
+
+      // 弹窗逻辑
       const openModal = (t) => { modalType.value=t; newItem.value=t==='exchange'?{baseAmount:null,targetAmount:null}:{method:'cash',amount:null,name:''}; showModal.value=true; };
       const saveItem = () => {
         const id=Date.now(); const d=new Date().toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}).replace('/','-');
@@ -278,16 +294,17 @@
         const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
         exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; calcHistory.value=d.ch||[]; isDark.value=d.dark||false;
         if(isDark.value) document.documentElement.classList.add('dark');
+        // 初始化一条数据，让用户知道怎么用
         if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1,date:'02-04',baseAmount:402.55,targetAmount:3200}); save(); }
       });
 
       return { 
         currentTab, isDark, toggleDark, showHistory, toggleHistory, showModal, modalType, newItem, twdBalance, averageRate, 
         totalCardSpent, totalCashSpent, allTransactions, calcInput, calcExpr, calcResult, calcNote, calcHistory, 
-        key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput,
+        key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput, exportHistoryCSV,
         getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-cash'),
         getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
-        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 text-emerald-500':(i.method==='card'?'bg-indigo-50 text-indigo-500':'bg-orange-50 text-orange-500')
+        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500' : (i.method==='card'?'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500':'bg-orange-50 dark:bg-orange-900/20 text-orange-400')
       };
     }
   }).mount("#app");
