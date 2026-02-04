@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 完美输入版</title>
+  <title>UsTrip Finance | 流体设计版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -34,16 +34,21 @@
     .btn-ac { @apply bg-red-50/80 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg border-red-100 dark:border-transparent; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-md shadow-emerald-200/50 dark:shadow-none text-2xl border-transparent active:bg-emerald-600; }
 
-    /* 弹窗输入框 - 单位后置布局 */
-    .input-wrapper {
-      @apply relative flex items-center bg-slate-50 dark:bg-slate-900/80 border-2 border-slate-100 dark:border-slate-700 rounded-2xl px-4 py-3 transition-all focus-within:border-emerald-400 dark:focus-within:border-emerald-500 focus-within:bg-white dark:focus-within:bg-slate-800;
+    /* 🌟 新版输入框 - 极简流体风 */
+    .fluid-input-group {
+      @apply flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-3xl px-5 py-4 transition-all focus-within:ring-2 focus-within:ring-emerald-100 dark:focus-within:ring-emerald-900 focus-within:bg-white dark:focus-within:bg-slate-900;
     }
-    .input-clean {
-      @apply flex-1 bg-transparent font-black text-2xl text-left outline-none text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-600;
+    .fluid-input {
+      @apply w-32 bg-transparent text-right font-black text-3xl outline-none text-slate-800 dark:text-white placeholder-slate-200 dark:placeholder-slate-700 tracking-tight;
     }
-    .input-suffix {
-      @apply text-sm font-bold text-slate-400 dark:text-slate-500 ml-2;
+    .fluid-label {
+      @apply text-xs font-bold text-slate-400 uppercase tracking-wider mb-1;
     }
+    .currency-tag {
+      @apply px-3 py-1.5 rounded-xl text-xs font-black tracking-wide shadow-sm;
+    }
+    .tag-myr { @apply bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300; }
+    .tag-twd { @apply bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400; }
 
     /* 动画 */
     .fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
@@ -189,22 +194,18 @@
           <button @click="key('DEL')" class="calc-btn btn-op"><i class="fas fa-backspace text-xl"></i></button>
           <button @click="key('/')" class="calc-btn btn-op">÷</button>
           <button @click="key('*')" class="calc-btn btn-op">×</button>
-          
           <button @click="key('7')" class="calc-btn btn-num">7</button>
           <button @click="key('8')" class="calc-btn btn-num">8</button>
           <button @click="key('9')" class="calc-btn btn-num">9</button>
           <button @click="key('-')" class="calc-btn btn-op">-</button>
-
           <button @click="key('4')" class="calc-btn btn-num">4</button>
           <button @click="key('5')" class="calc-btn btn-num">5</button>
           <button @click="key('6')" class="calc-btn btn-num">6</button>
           <button @click="key('+')" class="calc-btn btn-op">+</button>
-
           <button @click="key('1')" class="calc-btn btn-num">1</button>
           <button @click="key('2')" class="calc-btn btn-num">2</button>
           <button @click="key('3')" class="calc-btn btn-num">3</button>
-          <button @click="key('=')" class="calc-btn btn-eq row-span-2">=</button>
-
+          <button @click="key('=')" class="calc-btn btn-eq row-span-2 shadow-lg shadow-emerald-100 dark:shadow-none">=</button>
           <button @click="key('0')" class="calc-btn btn-num col-span-2">0</button>
           <button @click="key('.')" class="calc-btn btn-num">.</button>
         </div>
@@ -226,76 +227,69 @@
   
   <transition name="fade">
     <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6">
-      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity" @click="showModal=false"></div>
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] transition-opacity" @click="showModal=false"></div>
       
       <transition name="slide" appear>
-      <div class="bg-white dark:bg-slate-900 w-full max-w-[360px] rounded-[2.5rem] p-8 relative z-10 shadow-2xl shadow-slate-200/50 dark:shadow-none transition-colors border border-slate-100 dark:border-slate-800">
+      <div class="bg-white dark:bg-slate-950 w-full max-w-[360px] rounded-[2.5rem] p-8 relative z-10 shadow-2xl shadow-slate-200/50 dark:shadow-black/50 transition-colors border border-slate-100 dark:border-slate-800">
         
         <h3 class="text-xl font-black mb-8 text-slate-900 dark:text-white flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm" :class="modalType==='exchange'?'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400':'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'">
              <i class="fas" :class="modalType==='exchange'?'fa-sync-alt':'fa-pen'"></i>
           </div>
-          {{ modalType==='exchange'?'存入资金':'记录支出' }}
+          {{ modalType==='exchange'?'存入资金 (换汇)':'记录支出 (消费)' }}
         </h3>
         
-        <div v-if="modalType==='exchange'" class="mb-8 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
-          <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-50 dark:border-slate-700">
+        <div v-if="modalType==='exchange'" class="mb-8">
+          <div class="bg-slate-50 dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800">
               <div class="flex justify-between items-center mb-3">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1"><i class="fas fa-chart-line"></i> JagsMoney Rate</span>
-                <a href="https://www.jagsmoney.com/daily-rates/" target="_blank" class="text-[10px] text-blue-500 font-bold bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full hover:underline">官网</a>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1"><i class="fas fa-chart-line text-emerald-500"></i> Jags Rate</span>
+                <a href="https://www.jagsmoney.com/daily-rates/" target="_blank" class="text-[10px] text-blue-500 font-bold px-2 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100">查看官网</a>
               </div>
-              <div class="flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                <div class="text-sm font-black text-slate-500 dark:text-slate-400">100 TWD =</div>
-                <div class="flex-1 flex items-center gap-2 justify-end">
-                    <input type="number" v-model="jagsRate" class="w-24 bg-transparent text-2xl font-black outline-none text-right text-slate-900 dark:text-white" placeholder="12.63">
-                    <span class="text-sm font-bold text-slate-400">MYR</span>
-                </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-400">100 TWD =</span>
+                <input type="number" v-model="jagsRate" class="flex-1 bg-white dark:bg-slate-800 p-2.5 rounded-xl text-xl font-black outline-none text-center shadow-sm dark:text-white border border-slate-100 dark:border-slate-700" placeholder="12.63">
+                <span class="text-xs font-bold text-slate-400">MYR</span>
               </div>
           </div>
         </div>
 
-        <div v-if="modalType==='exchange'" class="space-y-5">
-          <div>
-            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 block ml-1">付出</label>
-            <div class="input-wrapper">
-              <input type="number" v-model.number="newItem.baseAmount" @input="calcFromMYR" class="input-clean" placeholder="0">
-              <span class="input-suffix">MYR</span>
-            </div>
-          </div>
+        <div class="space-y-4">
           
-          <div class="flex justify-center -my-3 relative z-10"><div class="bg-white dark:bg-slate-900 p-1.5 rounded-full border-2 border-slate-50 dark:border-slate-800 shadow-sm"><i class="fas fa-arrow-down text-slate-300 dark:text-slate-600 text-lg"></i></div></div>
-          
-          <div>
-            <label class="text-xs font-bold text-emerald-500 mb-2 block ml-1">换回</label>
-            <div class="input-wrapper !border-emerald-100 dark:!border-emerald-900/30">
-              <input type="number" v-model.number="newItem.targetAmount" @input="calcFromTWD" class="input-clean !text-emerald-500" placeholder="0">
-              <span class="input-suffix !text-emerald-500">TWD</span>
+          <div class="fluid-input-group">
+            <div class="flex flex-col">
+              <span class="fluid-label">{{ modalType==='exchange'?'付出':'金额' }}</span>
+              <span class="currency-tag" :class="modalType==='exchange'?'tag-myr':(newItem.method==='card'?'tag-myr':'tag-twd')">{{ modalType==='exchange'?'MYR':(newItem.method==='card'?'MYR':'TWD') }}</span>
             </div>
+            <input type="number" v-model.number="newItem.baseAmount" v-if="modalType==='exchange'" @input="calcFromMYR" class="fluid-input" placeholder="0">
+            <input type="number" v-model.number="newItem.amount" v-else class="fluid-input" placeholder="0">
           </div>
+
+          <div class="flex justify-center -my-2 relative z-10" v-if="modalType==='exchange'">
+            <div class="bg-white dark:bg-slate-950 p-2 rounded-full border-4 border-slate-50 dark:border-slate-900 shadow-sm"><i class="fas fa-arrow-down text-slate-300 text-sm"></i></div>
+          </div>
+
+          <div class="fluid-input-group" v-if="modalType==='exchange'">
+            <div class="flex flex-col">
+              <span class="fluid-label">换回</span>
+              <span class="currency-tag tag-twd">TWD</span>
+            </div>
+            <input type="number" v-model.number="newItem.targetAmount" @input="calcFromTWD" class="fluid-input !text-emerald-500" placeholder="0">
+          </div>
+
+          <div v-if="modalType==='expense'" class="space-y-4">
+            <div class="flex bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl">
+              <button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2" :class="newItem.method===m?'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white':'text-slate-400 hover:text-slate-500'">
+                  <i class="fas" :class="m==='cash'?'fa-coins':'fa-credit-card'"></i>{{m==='cash'?'现金支付':'刷卡支付'}}
+              </button>
+            </div>
+            <input v-model="newItem.name" class="w-full bg-slate-50 dark:bg-slate-900 rounded-3xl px-5 py-4 font-bold text-lg outline-none text-slate-800 dark:text-white placeholder-slate-300" placeholder="消费内容 (如: 晚餐)">
+          </div>
+
         </div>
 
-        <div v-if="modalType==='expense'" class="space-y-5">
-          <div class="flex bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-2xl border border-slate-50 dark:border-slate-800">
-            <button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2" :class="newItem.method===m?'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white':'text-slate-400 hover:text-slate-500'">
-                <i class="fas" :class="m==='cash'?'fa-coins':'fa-credit-card'"></i>{{m==='cash'?'现金':'刷卡'}}
-            </button>
-          </div>
-          <div>
-             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 block ml-1">消费内容</label>
-             <div class="input-wrapper">
-               <input v-model="newItem.name" class="input-clean text-base" placeholder="例如: 晚餐">
-             </div>
-          </div>
-          <div>
-             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 block ml-1">金额</label>
-             <div class="input-wrapper">
-               <input type="number" v-model.number="newItem.amount" class="input-clean" placeholder="0.00">
-               <span class="input-suffix">{{newItem.method==='card'?'MYR':'TWD'}}</span>
-             </div>
-          </div>
-        </div>
-
-        <button @click="saveItem" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 rounded-2xl mt-8 shadow-xl shadow-slate-200/50 dark:shadow-none active:scale-95 transition-all hover:bg-slate-800 dark:hover:bg-slate-100 text-lg">确认保存</button>
+        <button @click="saveItem" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 rounded-3xl mt-8 shadow-xl shadow-slate-200/50 dark:shadow-none active:scale-95 transition-all hover:bg-slate-800 dark:hover:bg-slate-100 text-lg flex items-center justify-center gap-2">
+          <i class="fas fa-check-circle"></i> 确认保存
+        </button>
       </div>
       </transition>
     </div>
@@ -307,7 +301,7 @@
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v9_4_ui_suffix";
+      const STORAGE_KEY = "ustrip_v10_fluid";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -396,7 +390,7 @@
         key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput, exportHistoryCSV,
         getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-cash'),
         getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
-        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : (i.method==='card'?'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400':'bg-orange-50 dark:bg-orange-900/40 text-orange-400'),
+        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : (i.method==='card'?'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400':'bg-orange-100 text-orange-500 dark:bg-orange-900/30 dark:text-orange-400'),
         jagsRate, calcFromMYR, calcFromTWD 
       };
     }
