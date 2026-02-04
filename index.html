@@ -2,9 +2,8 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance</title>
+  <title>UsTrip Finance | 自定义汇率版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
   <link rel="manifest" href="manifest.json">
@@ -17,41 +16,27 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet" />
 
   <style>
-    /* 基础设置 */
     html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
     body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
     #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; }
     
     .mono { font-family: 'JetBrains Mono', monospace; }
-    
-    /* 玻璃拟态导航栏 (针对黑白模式深度优化) */
-    .glass-nav { 
-      @apply bg-white/95 border-b border-slate-100; 
-    }
-    html.dark .glass-nav {
-      background-color: rgba(15, 23, 42, 0.9); /* Slate-900 with opacity */
-      border-bottom-color: rgba(30, 41, 59, 0.5); /* Slate-800 */
-      backdrop-filter: blur(12px);
-    }
+    .glass-nav { @apply bg-white/95 border-b border-slate-100; }
+    html.dark .glass-nav { background-color: rgba(15, 23, 42, 0.95); border-bottom-color: rgba(30, 41, 59, 0.5); backdrop-filter: blur(12px); }
 
-    /* 键盘网格 */
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; height: 100%; padding-bottom: 20px; }
-    .calc-btn { 
-      @apply rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm transition-all duration-75 active:scale-95 active:bg-slate-200 dark:active:bg-slate-600; 
-    }
-    /* 键盘颜色适配 */
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; height: 100%; padding-bottom: 30px; }
+    .calc-btn { @apply rounded-2xl flex items-center justify-center text-2xl font-bold shadow-sm transition-all duration-75 active:scale-95 active:bg-slate-200 dark:active:bg-slate-600; }
+    
     .btn-num { @apply bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100; }
     .btn-op { @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 text-2xl; }
     .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-emerald-200 dark:shadow-none text-2xl; }
 
-    /* 列表动画 */
     .transaction-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
     .item-cash { border-left-color: #fb923c; }
     .item-card { border-left-color: #6366f1; }
     .item-exchange { border-left-color: #10b981; }
     
-    /* 过渡动画 */
     .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
     .slide-enter-active, .slide-leave-active { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -72,12 +57,8 @@
         {{ currentTab === 'assets' ? '我的金库' : '汇率计算' }}
       </h1>
     </div>
-    
     <div class="flex gap-3 text-slate-400">
-      <button @click="toggleDark" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 dark:text-slate-200 flex items-center justify-center transition-colors active:scale-90">
-        <i class="fas text-xs" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon'"></i>
-      </button>
-      
+      <button @click="toggleDark" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 dark:text-slate-200 flex items-center justify-center transition-colors active:scale-90"><i class="fas text-xs" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon'"></i></button>
       <template v-if="currentTab === 'assets'">
         <button @click="exportAllData" class="w-9 h-9 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors"><i class="fas fa-save"></i></button>
         <button @click="triggerImport" class="w-9 h-9 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors"><i class="fas fa-upload"></i></button>
@@ -87,7 +68,7 @@
 
   <main class="flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-950 transition-colors duration-300">
     
-    <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24">
+    <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24 bg-slate-50 dark:bg-slate-900">
       <section class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
         <div class="relative z-10">
           <div class="flex justify-between items-start mb-6">
@@ -133,15 +114,15 @@
       </div>
     </div>
 
-    <div v-if="currentTab === 'calc'" class="flex flex-col h-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div v-if="currentTab === 'calc'" class="flex flex-col h-full pb-20 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
       
       <div class="flex-1 flex flex-col p-6 z-10 justify-end pb-4">
         
         <div class="flex justify-between items-center mb-auto pt-2">
            <button @click="toggleHistory" class="text-xs font-bold px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 flex items-center gap-2 active:scale-95 transition shadow-sm">
-             <i class="fas fa-history"></i> {{ showHistory ? '关闭' : '历史' }}
+             <i class="fas fa-history"></i> {{ showHistory ? '隐藏' : '历史' }}
            </button>
-           <span class="text-[10px] font-bold bg-white dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full shadow-sm">
+           <span class="text-[10px] font-black bg-white dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full shadow-sm">
              汇率 1 : {{ averageRate }}
            </span>
         </div>
@@ -233,7 +214,21 @@
   </nav>
 
   <input type="file" ref="importInput" class="hidden" @change="handleImport" accept=".json">
-  <transition name="fade"><div v-if="showModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 pb-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div><div class="bg-white dark:bg-slate-800 w-full rounded-[2rem] p-6 relative z-10 animate-up shadow-2xl transition-colors"><h3 class="text-xl font-black mb-4 text-slate-800 dark:text-white">{{ modalType==='exchange'?'存入资金':'记录支出' }}</h3><div v-if="modalType==='exchange'" class="space-y-3"><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl"><div class="text-[10px] font-bold text-slate-400 uppercase">付出 MYR</div><input type="number" v-model.number="newItem.baseAmount" class="w-full bg-transparent font-bold text-xl outline-none dark:text-white" placeholder="0"></div><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl border border-emerald-500"><div class="text-[10px] font-bold text-emerald-500 uppercase">换回 TWD</div><input type="number" v-model.number="newItem.targetAmount" class="w-full bg-transparent font-bold text-xl outline-none text-emerald-600 dark:text-emerald-400" placeholder="0"></div></div><div v-if="modalType==='expense'" class="space-y-3"><div class="flex gap-2"><button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-3 rounded-xl font-bold text-xs border transition" :class="newItem.method===m?'bg-slate-800 dark:bg-slate-600 text-white border-transparent':'text-slate-400 border-slate-200 dark:border-slate-700'">{{m==='cash'?'现金':'刷卡'}}</button></div><input v-model="newItem.name" class="w-full bg-slate-50 dark:bg-slate-700 p-4 rounded-xl font-bold outline-none dark:text-white" placeholder="项目名称"><div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl flex items-center"><input type="number" v-model.number="newItem.amount" class="flex-1 bg-transparent text-xl font-bold outline-none dark:text-white" placeholder="0"><span class="text-xs font-bold text-slate-400">{{newItem.method==='card'?'MYR':'TWD'}}</span></div></div><button @click="saveItem" class="w-full bg-slate-800 dark:bg-slate-600 text-white font-bold py-4 rounded-xl mt-6 shadow-lg active:scale-95 transition">确认保存</button></div></div></transition>
+  <transition name="fade"><div v-if="showModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 pb-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div><div class="bg-white dark:bg-slate-800 w-full rounded-[2rem] p-6 relative z-10 animate-up shadow-2xl transition-colors"><h3 class="text-xl font-black mb-4 text-slate-800 dark:text-white">{{ modalType==='exchange'?'存入资金':'记录支出' }}</h3>
+  
+  <div v-if="modalType==='exchange'" class="mb-4 bg-slate-50 dark:bg-slate-700 p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-600">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-[10px] font-bold text-slate-400">JagsMoney 卖出价 (每100单位)</span>
+      <a href="https://www.jagsmoney.com/daily-rates/" target="_blank" class="text-[10px] text-blue-500 font-bold underline">查看官网</a>
+    </div>
+    <div class="flex gap-2">
+      <input type="number" v-model="jagsRate" class="flex-1 bg-white dark:bg-slate-800 p-3 rounded-xl text-lg font-bold outline-none text-center shadow-sm" placeholder="12.63">
+      <button @click="applyJagsRate" class="text-xs bg-slate-800 dark:bg-slate-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg">自动计算</button>
+    </div>
+    <p class="text-[9px] text-slate-400 mt-2 text-center">输入网站上的 "We Sell" 价格 (例如 12.63)</p>
+  </div>
+
+  <div v-if="modalType==='exchange'" class="space-y-3"><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl"><div class="text-[10px] font-bold text-slate-400 uppercase">付出 MYR</div><input type="number" v-model.number="newItem.baseAmount" class="w-full bg-transparent font-bold text-xl outline-none dark:text-white" placeholder="0"></div><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl border border-emerald-500"><div class="text-[10px] font-bold text-emerald-500 uppercase">换回 TWD</div><input type="number" v-model.number="newItem.targetAmount" class="w-full bg-transparent font-bold text-xl outline-none text-emerald-600 dark:text-emerald-400" placeholder="0"></div></div><div v-if="modalType==='expense'" class="space-y-3"><div class="flex gap-2"><button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-3 rounded-xl font-bold text-xs border transition" :class="newItem.method===m?'bg-slate-800 dark:bg-slate-600 text-white border-transparent':'text-slate-400 border-slate-200 dark:border-slate-700'">{{m==='cash'?'现金':'刷卡'}}</button></div><input v-model="newItem.name" class="w-full bg-slate-50 dark:bg-slate-700 p-4 rounded-xl font-bold outline-none dark:text-white" placeholder="项目名称"><div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl flex items-center"><input type="number" v-model.number="newItem.amount" class="flex-1 bg-transparent text-xl font-bold outline-none dark:text-white" placeholder="0"><span class="text-xs font-bold text-slate-400">{{newItem.method==='card'?'MYR':'TWD'}}</span></div></div><button @click="saveItem" class="w-full bg-slate-800 dark:bg-slate-600 text-white font-bold py-4 rounded-xl mt-6 shadow-lg active:scale-95 transition">确认保存</button></div></div></transition>
 </div>
 
 <script>
@@ -241,7 +236,7 @@
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v7_3_visual";
+      const STORAGE_KEY = "ustrip_v8_1_custom_rate";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -249,23 +244,25 @@
       const toggleDark = () => { 
         isDark.value = !isDark.value; 
         const meta = document.getElementById('theme-color');
-        if(isDark.value) {
-          document.documentElement.classList.add('dark');
-          if(meta) meta.setAttribute('content', '#0f172a'); // 更新状态栏为深色
-        } else {
-          document.documentElement.classList.remove('dark');
-          if(meta) meta.setAttribute('content', '#ffffff'); // 更新状态栏为白色
-        }
+        if(isDark.value) { document.documentElement.classList.add('dark'); if(meta) meta.setAttribute('content', '#0f172a'); }
+        else { document.documentElement.classList.remove('dark'); if(meta) meta.setAttribute('content', '#ffffff'); }
         save(); 
       };
-      
       const toggleHistory = () => showHistory.value = !showHistory.value;
 
       const showModal = ref(false); const modalType = ref(""); const newItem = ref({}); const importInput = ref(null);
       const exchangeRecords = ref([]); const expenseRecords = ref([]);
       const calcInput = ref("0"); const calcExpr = ref(""); const calcNote = ref(""); const calcHistory = ref([]);
+      
+      // JagsMoney Logic
+      const jagsRate = ref(12.63);
+      const applyJagsRate = () => {
+        if(newItem.value.baseAmount && jagsRate.value) {
+          newItem.value.targetAmount = ((newItem.value.baseAmount / jagsRate.value) * 100).toFixed(0);
+        }
+      };
 
-      // 计算逻辑
+      // 核心计算
       const twdBalance = computed(() => {
         const i = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
         const o = expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
@@ -312,7 +309,7 @@
       };
       const deleteItem = (i) => { if(!confirm("删?"))return; if(i.type==='exchange')exchangeRecords.value=exchangeRecords.value.filter(r=>r.id!==i.id); else expenseRecords.value=expenseRecords.value.filter(r=>r.id!==i.id); save(); };
       
-      const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({ex:exchangeRecords.value, ep:expenseRecords.value, ch:calcHistory.value, dark:isDark.value}));
+      const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({ex:exchangeRecords.value, ep:expenseRecords.value, ch:calcHistory.value, dark:isDark.value, jrate:jagsRate.value}));
       const exportAllData = () => { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORAGE_KEY)],{type:"application/json"})); a.download="UsTrip.json"; a.click(); };
       const triggerImport = () => importInput.value.click();
       const handleImport = (e) => { const r=new FileReader(); r.onload=(ev)=>{try{const d=JSON.parse(ev.target.result);exchangeRecords.value=d.ex||[];expenseRecords.value=d.ep||[];calcHistory.value=d.ch||[];save();alert("OK");}catch{alert("Err");}}; r.readAsText(e.target.files[0]); };
@@ -320,15 +317,12 @@
       onMounted(() => {
         const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
         exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; calcHistory.value=d.ch||[]; isDark.value=d.dark||false;
+        // 恢复上次输入的 Jags 汇率
+        if(d.jrate) jagsRate.value = d.jrate;
         
-        // 初始化主题
         const meta = document.getElementById('theme-color');
-        if(isDark.value) {
-          document.documentElement.classList.add('dark');
-          if(meta) meta.setAttribute('content', '#0f172a');
-        } else {
-          if(meta) meta.setAttribute('content', '#ffffff');
-        }
+        if(isDark.value) { document.documentElement.classList.add('dark'); if(meta) meta.setAttribute('content', '#0f172a'); }
+        else { if(meta) meta.setAttribute('content', '#ffffff'); }
 
         if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1,date:'02-04',baseAmount:402.55,targetAmount:3200}); save(); }
       });
@@ -339,7 +333,8 @@
         key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput, exportHistoryCSV,
         getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-cash'),
         getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
-        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : (i.method==='card'?'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400':'bg-orange-50 dark:bg-orange-900/40 text-orange-400')
+        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : (i.method==='card'?'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400':'bg-orange-50 dark:bg-orange-900/40 text-orange-400'),
+        jagsRate, applyJagsRate
       };
     }
   }).mount("#app");
