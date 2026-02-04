@@ -1,332 +1,296 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 修复版</title>
+  <title>UsTrip Finance | 视觉增强版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ffffff">
   
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10543/10543323.png">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet" />
+
   <style>
-    /* 2. 强制修复高度塌陷问题 */
-    html, body { height: 100%; margin: 0; padding: 0; }
-    body { background-color: #f1f5f9; color: #1e293b; font-family: system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; overflow: hidden; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
     
-    /* 确保容器有高度 */
-    #app { display: flex; flex-direction: column; height: 100%; max-width: 480px; margin: 0 auto; background: #fff; position: relative; }
+    /* 玻璃拟态 */
+    .glass-nav { @apply bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800; }
     
-    /* 简单的过渡动画 */
+    /* 动画 */
+    .slide-enter-active, .slide-leave-active { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .slide-enter-from, .slide-leave-to { transform: translateY(20px); opacity: 0; }
     .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-    /* 样式美化 */
-    .asset-card { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: white; border-radius: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-    .btn-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-    
-    /* 计算器键盘布局 */
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px; flex: 1; }
-    .calc-btn { border-radius: 1rem; font-size: 1.5rem; font-weight: bold; border-bottom: 2px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; transition: all 0.1s; }
-    .calc-btn:active { transform: scale(0.96); }
-    
-    /* 颜色定义 */
-    .bg-num { background: #f8fafc; color: #334155; }
-    .bg-op { background: #e0e7ff; color: #4f46e5; }
-    .bg-eq { background: #10b981; color: white; border-bottom: 2px solid #059669; }
-    .bg-ac { background: #fee2e2; color: #ef4444; }
+    /* 计算器键盘 - 紧凑版 */
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; height: 100%; }
+    .calc-btn { 
+      @apply rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm transition-all duration-75 active:scale-95 active:bg-slate-200 dark:active:bg-slate-600; 
+    }
+    .btn-num { @apply bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200; }
+    .btn-op { @apply bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 text-2xl; }
+    .btn-ac { @apply bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 text-lg; }
+    .btn-eq { @apply bg-emerald-500 text-white shadow-emerald-200 dark:shadow-none text-2xl; }
+
+    .transaction-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
+    .item-cash { border-left-color: #fb923c; }
+    .item-card { border-left-color: #6366f1; }
+    .item-exchange { border-left-color: #10b981; }
   </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300 h-[100dvh] flex flex-col">
 
-<div id="app">
-  
-  <div v-if="false" style="padding: 20px; text-align: center; color: red;">
-    如果是空白，请检查网络是否屏蔽了 cdnjs / unpkg。
-  </div>
+<div id="app" class="flex flex-col h-full w-full max-w-md mx-auto relative bg-white dark:bg-slate-950">
 
-  <div class="px-5 py-4 flex justify-between items-center bg-white/90 backdrop-blur sticky top-0 z-20 border-b border-slate-100">
+  <header class="glass-nav flex-none px-5 py-3 flex justify-between items-center z-50">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold" :class="currentTab === 'assets' ? 'bg-slate-800' : 'bg-emerald-500'">
-        <i class="fas" :class="currentTab === 'assets' ? 'fa-wallet' : 'fa-calculator'"></i>
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-md transition-colors duration-300" :class="currentTab === 'assets' ? 'bg-slate-800 dark:bg-slate-700' : 'bg-emerald-500'">
+        <i class="fas text-xs" :class="currentTab === 'assets' ? 'fa-wallet' : 'fa-calculator'"></i>
       </div>
-      <h1 class="text-lg font-black tracking-tight text-slate-800">
-        {{ currentTab === 'assets' ? '我的金库' : '购物计算器' }}
+      <h1 class="text-base font-black tracking-tight dark:text-white">
+        {{ currentTab === 'assets' ? '我的金库' : '汇率计算' }}
       </h1>
     </div>
-    <div class="flex gap-4 text-slate-400">
-      <button @click="exportData" v-if="currentTab === 'assets'"><i class="fas fa-download"></i></button>
+    <div class="flex gap-3 text-slate-400">
+      <button @click="toggleDark" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fas text-xs" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon text-slate-500'"></i></button>
+      <button @click="exportAllData" v-if="currentTab === 'assets'"><i class="fas fa-save"></i></button>
       <button @click="triggerImport" v-if="currentTab === 'assets'"><i class="fas fa-upload"></i></button>
-      <button @click="clearHistory" v-if="currentTab === 'calc'" class="text-xs font-bold text-red-400">清空</button>
     </div>
-  </div>
+  </header>
 
-  <div class="flex-1 overflow-y-auto relative bg-slate-50">
+  <main class="flex-1 overflow-hidden relative flex flex-col">
     
-    <div v-if="currentTab === 'assets'" class="p-5 space-y-5 pb-24">
-      <div class="asset-card p-6 relative overflow-hidden">
-        <div class="flex justify-between items-start mb-6">
-          <div>
-            <div class="text-xs opacity-60 font-bold uppercase tracking-wider">剩余台币 (TWD)</div>
-            <div class="text-5xl font-black mt-1 leading-none">{{ Math.round(twdBalance) }}</div>
-          </div>
-          <div class="text-right">
-            <div class="text-xs opacity-50 font-bold uppercase">持仓成本</div>
-            <div class="text-emerald-300 font-bold font-mono">1:{{ averageRate }}</div>
-          </div>
-        </div>
-        <div class="flex gap-6 border-t border-white/10 pt-4">
-          <div><div class="text-xs opacity-50 uppercase">现金支出</div><div class="font-bold text-lg">{{ totalCashSpent }}</div></div>
-          <div><div class="text-xs opacity-50 uppercase">刷卡支出</div><div class="font-bold text-lg">{{ totalCardSpent }}</div></div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <button @click="openModal('exchange')" class="bg-white p-4 rounded-2xl btn-shadow flex items-center gap-3 active:scale-95 transition">
-          <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fas fa-sync"></i></div>
-          <div class="text-left"><div class="font-bold text-sm text-slate-700">去换钱</div><div class="text-[10px] text-slate-400 font-bold">Exchange</div></div>
-        </button>
-        <button @click="openModal('expense')" class="bg-white p-4 rounded-2xl btn-shadow flex items-center gap-3 active:scale-95 transition">
-          <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag"></i></div>
-          <div class="text-left"><div class="font-bold text-sm text-slate-700">记开销</div><div class="text-[10px] text-slate-400 font-bold">Expense</div></div>
-        </button>
-      </div>
-
-      <div class="space-y-3">
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">最近流水</h3>
-        <div v-for="item in allTransactions" :key="item.id" class="bg-white p-3 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm" :class="item.type==='exchange'?'bg-emerald-50 text-emerald-500':(item.method==='card'?'bg-indigo-50 text-indigo-500':'bg-orange-50 text-orange-500')">
-              <i :class="item.type==='exchange'?'fas fa-sync':(item.method==='card'?'fas fa-credit-card':'fas fa-wallet')"></i>
-            </div>
+    <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24 bg-slate-50 dark:bg-slate-900">
+      <section class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+        <div class="relative z-10">
+          <div class="flex justify-between items-start mb-6">
             <div>
-              <div class="font-bold text-slate-700 text-sm">{{ item.type === 'exchange' ? '换台币' : item.name }}</div>
-              <div class="text-[10px] text-slate-400 font-bold">{{ item.date }} · {{ item.method==='card'?'卡':'现' }}</div>
+              <p class="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-1">台币剩余 (TWD)</p>
+              <h2 class="text-5xl font-black mono leading-none">{{ Math.round(twdBalance) }}</h2>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-bold opacity-40 uppercase mb-1">平均汇率</p>
+              <span class="text-sm font-bold mono text-emerald-400">1:{{ averageRate }}</span>
             </div>
           </div>
-          <div class="text-right">
-            <div class="font-black text-sm" :class="item.type==='exchange'?'text-emerald-500':'text-slate-800'">
-              {{ item.type==='exchange'?'+':'-' }}{{ item.type==='exchange'?item.targetAmount:item.amount }}
-            </div>
-            <button @click="deleteItem(item)" class="text-[10px] text-slate-300 underline">删除</button>
+          <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4">
+            <div><p class="text-[10px] opacity-40 uppercase mb-1">现金已花</p><p class="text-lg font-bold mono opacity-90">{{ totalCashSpent }}</p></div>
+            <div><p class="text-[10px] opacity-40 uppercase mb-1">卡片已花</p><p class="text-lg font-bold mono opacity-90">{{ totalCardSpent }}</p></div>
           </div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-2 gap-3">
+        <button @click="openModal('exchange')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm flex items-center gap-3 active:scale-95 transition">
+          <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center"><i class="fas fa-sync"></i></div>
+          <div><p class="text-sm font-bold dark:text-white">去换钱</p><p class="text-[9px] text-slate-400 font-bold uppercase">Exchange</p></div>
+        </button>
+        <button @click="openModal('expense')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm flex items-center gap-3 active:scale-95 transition">
+          <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag"></i></div>
+          <div><p class="text-sm font-bold dark:text-white">记开销</p><p class="text-[9px] text-slate-400 font-bold uppercase">Expense</p></div>
+        </button>
+      </section>
+
+      <div v-for="item in allTransactions" :key="item.id" class="transaction-item bg-white dark:bg-slate-800 p-3 rounded-xl flex justify-between items-center shadow-sm" :class="getTranClass(item)">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm" :class="getIconColor(item)"><i :class="getIcon(item)"></i></div>
+          <div>
+            <p class="font-bold text-slate-800 dark:text-slate-100 text-sm">{{ item.type === 'exchange' ? '换台币' : item.name }}</p>
+            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mono">{{ item.date }} · {{ item.method === 'card' ? 'Card' : 'Cash' }}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-black mono" :class="item.type === 'exchange' ? 'text-emerald-500' : 'text-slate-800 dark:text-slate-200'">{{ item.type === 'exchange' ? '+' : '-' }}{{ item.type === 'exchange' ? item.targetAmount : item.amount }}</p>
+          <button @click="deleteItem(item)" class="text-[9px] text-slate-300 hover:text-red-400 underline font-bold">DEL</button>
         </div>
       </div>
     </div>
 
-    <div v-if="currentTab === 'calc'" class="flex flex-col h-full bg-slate-100">
+    <div v-if="currentTab === 'calculator'" class="flex flex-col h-full pb-20">
       
-      <div class="bg-white p-5 pb-2 shadow-sm z-10 rounded-b-3xl">
-        <div class="flex justify-between mb-1">
-          <button @click="toggleHistory" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-500 flex items-center gap-1">
-            <i class="fas fa-history"></i> {{ showHistory ? '关闭记录' : '历史记录' }}
-          </button>
-          <div class="text-[10px] font-bold bg-emerald-50 text-emerald-600 px-2 py-1 rounded">汇率 1:{{ averageRate }}</div>
+      <div class="flex-1 flex flex-col p-6 z-10">
+        
+        <div class="flex justify-between items-center mb-4">
+           <button @click="toggleHistory" class="text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1 active:scale-95 transition">
+             <i class="fas fa-history"></i> {{ showHistory ? '隐藏' : '历史' }}
+           </button>
+           <span class="text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-slate-400 px-2 py-1 rounded text-right">
+             1 MYR = {{ averageRate }} TWD
+           </span>
         </div>
-        <div class="text-right h-6 text-slate-400 text-sm font-bold">{{ calcExpr }}</div>
-        <div class="text-right text-5xl font-black text-slate-800 mb-2 truncate">{{ calcInput || '0' }}</div>
-        <div class="border-t border-dashed border-slate-200 pt-2 flex justify-between items-end">
-          <span class="text-xs font-bold text-slate-400">折合马币 (MYR)</span>
-          <span class="text-3xl font-black text-emerald-500">{{ calcResult }}</span>
+
+        <div class="mb-2 relative">
+          <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-300 dark:placeholder-slate-700 outline-none" placeholder="输入备注 (可选)...">
         </div>
-        <div class="flex gap-2 mt-3 mb-2">
-          <input v-model="calcNote" class="flex-1 bg-slate-50 rounded-xl px-3 py-2 text-sm font-bold outline-none border border-slate-200" placeholder="备注...">
-          <button @click="saveCalc" class="bg-slate-800 text-white px-4 rounded-xl font-bold text-sm shadow-lg active:scale-95"><i class="fas fa-save"></i></button>
+
+        <div class="mt-auto flex flex-col items-end gap-2">
+          <div class="h-6 text-slate-400 font-bold text-lg mono">{{ calcExpression }}</div>
+          
+          <div class="text-[4rem] leading-none font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full" style="word-break: break-all;">
+            {{ currentInput || '0' }}
+            <span class="text-lg text-slate-300 font-bold ml-1">TWD</span>
+          </div>
+
+          <div class="w-full bg-emerald-500 text-white rounded-2xl p-4 shadow-lg shadow-emerald-200 dark:shadow-none flex justify-between items-end mt-2 transition-transform active:scale-[0.99]" @click="saveCalculation">
+            <div class="flex flex-col">
+              <span class="text-[10px] font-bold opacity-80 uppercase">折合马币</span>
+              <span class="text-xs font-bold opacity-60">点击保存记录</span>
+            </div>
+            <div class="text-4xl font-black mono tracking-tight">
+              {{ calcResult }} <span class="text-sm font-bold opacity-80">MYR</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="flex-1 relative overflow-hidden">
-        <transition name="fade">
-          <div v-if="showHistory" class="absolute inset-0 bg-slate-50 z-20 overflow-y-auto p-4">
-            <div v-if="calcHistory.length===0" class="text-center text-slate-300 mt-10">暂无记录</div>
-            <div v-for="(rec,i) in calcHistory" :key="i" class="bg-white p-3 rounded-xl mb-2 flex justify-between items-center shadow-sm">
-              <div class="flex gap-3 items-center">
-                <div class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400">{{ i+1 }}</div>
-                <div>
-                  <div class="font-bold text-sm text-slate-700">{{ rec.note || '未备注' }}</div>
-                  <div class="text-xs text-slate-400">{{ rec.twd }} TWD</div>
-                </div>
+      <div class="h-[40vh] bg-slate-50 dark:bg-slate-900 rounded-t-[2rem] p-4 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+        
+        <transition name="slide">
+          <div v-if="showHistory" class="absolute inset-0 bg-slate-100 dark:bg-slate-900 rounded-t-[2rem] z-30 p-4 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 px-2">
+              <h3 class="font-bold text-slate-400 text-xs">History List</h3>
+              <button @click="clearHistory" class="text-xs text-red-400 font-bold">清空</button>
+            </div>
+            <div v-for="(rec,i) in calcHistory" :key="i" class="bg-white dark:bg-slate-800 p-3 rounded-xl mb-2 flex justify-between items-center shadow-sm">
+              <div>
+                <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '无备注' }}</div>
+                <div class="text-xs text-slate-400">{{ rec.twd }} TWD</div>
               </div>
               <div class="text-right">
-                <div class="font-black text-emerald-600">{{ rec.myr }} <span class="text-[9px]">MYR</span></div>
+                <div class="font-black text-emerald-600 dark:text-emerald-400">{{ rec.myr }}</div>
                 <div class="text-[9px] text-slate-300">{{ rec.time }}</div>
               </div>
             </div>
           </div>
         </transition>
 
-        <div class="calc-grid h-full pb-24">
-          <button @click="key('AC')" class="calc-btn bg-ac">AC</button>
-          <button @click="key('DEL')" class="calc-btn bg-op"><i class="fas fa-backspace"></i></button>
-          <button @click="key('/')" class="calc-btn bg-op">÷</button>
-          <button @click="key('*')" class="calc-btn bg-op">×</button>
+        <div class="calc-grid h-full pb-6">
+          <button @click="key('AC')" class="calc-btn btn-ac">AC</button>
+          <button @click="key('DEL')" class="calc-btn btn-op"><i class="fas fa-backspace"></i></button>
+          <button @click="key('/')" class="calc-btn btn-op">÷</button>
+          <button @click="key('*')" class="calc-btn btn-op">×</button>
           
-          <button @click="key('7')" class="calc-btn bg-num">7</button>
-          <button @click="key('8')" class="calc-btn bg-num">8</button>
-          <button @click="key('9')" class="calc-btn bg-num">9</button>
-          <button @click="key('-')" class="calc-btn bg-op">-</button>
+          <button @click="key('7')" class="calc-btn btn-num">7</button>
+          <button @click="key('8')" class="calc-btn btn-num">8</button>
+          <button @click="key('9')" class="calc-btn btn-num">9</button>
+          <button @click="key('-')" class="calc-btn btn-op">-</button>
 
-          <button @click="key('4')" class="calc-btn bg-num">4</button>
-          <button @click="key('5')" class="calc-btn bg-num">5</button>
-          <button @click="key('6')" class="calc-btn bg-num">6</button>
-          <button @click="key('+')" class="calc-btn bg-op">+</button>
+          <button @click="key('4')" class="calc-btn btn-num">4</button>
+          <button @click="key('5')" class="calc-btn btn-num">5</button>
+          <button @click="key('6')" class="calc-btn btn-num">6</button>
+          <button @click="key('+')" class="calc-btn btn-op">+</button>
 
-          <button @click="key('1')" class="calc-btn bg-num">1</button>
-          <button @click="key('2')" class="calc-btn bg-num">2</button>
-          <button @click="key('3')" class="calc-btn bg-num">3</button>
-          <button @click="key('=')" class="calc-btn bg-eq row-span-2">=</button>
+          <button @click="key('1')" class="calc-btn btn-num">1</button>
+          <button @click="key('2')" class="calc-btn btn-num">2</button>
+          <button @click="key('3')" class="calc-btn btn-num">3</button>
+          <button @click="key('=')" class="calc-btn btn-eq row-span-2">=</button>
 
-          <button @click="key('0')" class="calc-btn bg-num col-span-2">0</button>
-          <button @click="key('.')" class="calc-btn bg-num">.</button>
+          <button @click="key('0')" class="calc-btn btn-num col-span-2">0</button>
+          <button @click="key('.')" class="calc-btn btn-num">.</button>
         </div>
       </div>
     </div>
 
-  </div>
+  </main>
 
-  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around pb-6 pt-3 z-30 max-w-[480px] mx-auto">
-    <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition" :class="currentTab==='assets'?'text-emerald-600 transform -translate-y-1':'text-slate-300'">
+  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-around pb-6 pt-3 z-50 max-w-md mx-auto">
+    <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition active:scale-90" :class="currentTab==='assets'?'text-slate-800 dark:text-white':'text-slate-300 dark:text-slate-600'">
       <i class="fas fa-wallet text-xl"></i><span class="text-[10px] font-bold">金库</span>
     </button>
-    <button @click="currentTab='calc'" class="flex flex-col items-center gap-1 transition" :class="currentTab==='calc'?'text-emerald-600 transform -translate-y-1':'text-slate-300'">
+    <button @click="currentTab='calc'" class="flex flex-col items-center gap-1 transition active:scale-90" :class="currentTab==='calc'?'text-emerald-500':'text-slate-300 dark:text-slate-600'">
       <i class="fas fa-calculator text-xl"></i><span class="text-[10px] font-bold">换算</span>
     </button>
-  </div>
-
-  <div v-if="showModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4">
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div>
-    <div class="bg-white w-full rounded-2xl p-6 relative z-10 animate-up shadow-2xl">
-      <h3 class="text-xl font-black mb-4 text-slate-800">{{ modalType==='exchange'?'存入资金':'记录支出' }}</h3>
-      
-      <div v-if="modalType==='exchange'" class="space-y-3">
-        <div class="bg-slate-50 p-3 rounded-xl"><div class="text-[10px] font-bold text-slate-400">付出 MYR</div><input type="number" v-model.number="newItem.baseAmount" class="w-full bg-transparent font-bold text-xl outline-none" placeholder="0"></div>
-        <div class="bg-slate-50 p-3 rounded-xl border border-emerald-500"><div class="text-[10px] font-bold text-emerald-500">得到 TWD</div><input type="number" v-model.number="newItem.targetAmount" class="w-full bg-transparent font-bold text-xl outline-none text-emerald-600" placeholder="0"></div>
-      </div>
-
-      <div v-if="modalType==='expense'" class="space-y-3">
-        <div class="flex gap-2"><button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-2 rounded-lg font-bold text-xs border" :class="newItem.method===m?'bg-slate-800 text-white':'text-slate-400'">{{m==='cash'?'现金':'刷卡'}}</button></div>
-        <input v-model="newItem.name" class="w-full bg-slate-50 p-3 rounded-xl font-bold outline-none" placeholder="项目名称">
-        <div class="bg-slate-50 p-3 rounded-xl flex items-center"><input type="number" v-model.number="newItem.amount" class="flex-1 bg-transparent text-xl font-bold outline-none" placeholder="0"><span class="text-xs font-bold text-slate-400">{{newItem.method==='card'?'MYR':'TWD'}}</span></div>
-      </div>
-
-      <button @click="saveItem" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl mt-6 shadow-lg">确认保存</button>
-    </div>
-  </div>
+  </nav>
 
   <input type="file" ref="importInput" class="hidden" @change="handleImport" accept=".json">
+  <transition name="fade"><div v-if="showModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 pb-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div><div class="bg-white dark:bg-slate-800 w-full rounded-[2rem] p-6 relative z-10 animate-up shadow-2xl"><h3 class="text-xl font-black mb-4 text-slate-800 dark:text-white">{{ modalType==='exchange'?'存入资金':'记录支出' }}</h3><div v-if="modalType==='exchange'" class="space-y-3"><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl"><div class="text-[10px] font-bold text-slate-400 uppercase">付出 MYR</div><input type="number" v-model.number="newItem.baseAmount" class="w-full bg-transparent font-bold text-xl outline-none dark:text-white" placeholder="0"></div><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl border border-emerald-500"><div class="text-[10px] font-bold text-emerald-500 uppercase">换回 TWD</div><input type="number" v-model.number="newItem.targetAmount" class="w-full bg-transparent font-bold text-xl outline-none text-emerald-600 dark:text-emerald-400" placeholder="0"></div></div><div v-if="modalType==='expense'" class="space-y-3"><div class="flex gap-2"><button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-3 rounded-xl font-bold text-xs border transition" :class="newItem.method===m?'bg-slate-800 dark:bg-slate-600 text-white border-transparent':'text-slate-400 border-slate-200 dark:border-slate-700'">{{m==='cash'?'现金':'刷卡'}}</button></div><input v-model="newItem.name" class="w-full bg-slate-50 dark:bg-slate-700 p-4 rounded-xl font-bold outline-none dark:text-white" placeholder="项目名称"><div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl flex items-center"><input type="number" v-model.number="newItem.amount" class="flex-1 bg-transparent text-xl font-bold outline-none dark:text-white" placeholder="0"><span class="text-xs font-bold text-slate-400">{{newItem.method==='card'?'MYR':'TWD'}}</span></div></div><button @click="saveItem" class="w-full bg-slate-800 dark:bg-slate-600 text-white font-bold py-4 rounded-xl mt-6 shadow-lg active:scale-95 transition">确认保存</button></div></div></transition>
 </div>
 
 <script>
-const { createApp, ref, computed, onMounted } = Vue;
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  const { createApp, ref, computed, onMounted, watch } = Vue;
+  createApp({
+    setup() {
+      const STORAGE_KEY = "ustrip_v7_visual";
+      const currentTab = ref("assets");
+      const isDark = ref(false);
+      const showHistory = ref(false);
+      
+      const toggleDark = () => { isDark.value = !isDark.value; if(isDark.value) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); save(); };
+      const toggleHistory = () => showHistory.value = !showHistory.value;
 
-createApp({
-  setup() {
-    const STORAGE_KEY = "ustrip_v6_fix";
-    const currentTab = ref("assets");
-    const showHistory = ref(false);
-    
-    // Data
-    const exchangeRecords = ref([]);
-    const expenseRecords = ref([]);
-    const calcHistory = ref([]);
-    const showModal = ref(false);
-    const modalType = ref("");
-    const newItem = ref({});
-    const importInput = ref(null);
+      const showModal = ref(false); const modalType = ref(""); const newItem = ref({}); const importInput = ref(null);
+      const exchangeRecords = ref([]); const expenseRecords = ref([]);
+      const calcInput = ref("0"); const calcExpr = ref(""); const calcNote = ref(""); const calcHistory = ref([]);
 
-    // Calc Data
-    const calcInput = ref("0");
-    const calcExpr = ref("");
-    const calcNote = ref("");
+      const twdBalance = computed(() => {
+        const i = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
+        const o = expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+        return Math.max(0, i-o);
+      });
+      const averageRate = computed(() => {
+        const b = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.baseAmount)||0),0);
+        const t = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
+        return b>0?(t/b).toFixed(3):"7.100";
+      });
+      const calcResult = computed(() => {
+        try { return (eval(calcInput.value.replace(/[^-()\d/*+.]/g,''))/parseFloat(averageRate.value)).toFixed(2); } catch { return "0.00"; }
+      });
+      const totalCardSpent = computed(() => expenseRecords.value.filter(e=>e.method==='card').reduce((s,e)=>s+(parseFloat(e.amount)||0),0).toFixed(2));
+      const totalCashSpent = computed(() => expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0));
+      const allTransactions = computed(() => [...exchangeRecords.value.map(r=>({...r,type:'exchange'})), ...expenseRecords.value.map(r=>({...r,type:'expense'}))].sort((a,b)=>b.id-a.id));
 
-    // --- Core Logic ---
-    const twdBalance = computed(() => {
-      const totalIn = exchangeRecords.value.reduce((s, r) => s + (parseFloat(r.targetAmount)||0), 0);
-      const totalOut = expenseRecords.value.filter(e => e.method === 'cash').reduce((s, e) => s + (parseFloat(e.amount)||0), 0);
-      return Math.max(0, totalIn - totalOut);
-    });
+      const key = (k) => {
+        if(k==='AC'){calcInput.value="0";calcExpr.value="";return;}
+        if(k==='DEL'){calcInput.value=calcInput.value.length>1?calcInput.value.slice(0,-1):"0";return;}
+        if(k==='='){try{calcInput.value=String(eval(calcInput.value.replace(/[^-()\d/*+.]/g,'')));calcExpr.value="";}catch{}return;}
+        if(['+','-','*','/'].includes(k)){calcExpr.value=calcInput.value;calcInput.value+=k;}
+        else{calcInput.value=(calcInput.value==='0'&&k!=='.')?k:calcInput.value+k;}
+      };
+      const saveCalculation = () => {
+        const v = parseFloat(calcInput.value); if(!v)return;
+        const d = new Date();
+        calcHistory.value.unshift({twd:v, myr:calcResult.value, note:calcNote.value, time:`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`});
+        calcNote.value=""; calcInput.value="0"; calcExpr.value=""; save(); showHistory.value=true;
+      };
+      const clearHistory = () => { if(confirm("清空?")){calcHistory.value=[];save();} };
+      const openModal = (t) => { modalType.value=t; newItem.value=t==='exchange'?{baseAmount:null,targetAmount:null}:{method:'cash',amount:null,name:''}; showModal.value=true; };
+      const saveItem = () => {
+        const id=Date.now(); const d=new Date().toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}).replace('/','-');
+        if(modalType.value==='exchange') exchangeRecords.value.unshift({...newItem.value,id,date:d});
+        else expenseRecords.value.unshift({...newItem.value,id,date:d});
+        save(); showModal.value=false;
+      };
+      const deleteItem = (i) => { if(!confirm("删?"))return; if(i.type==='exchange')exchangeRecords.value=exchangeRecords.value.filter(r=>r.id!==i.id); else expenseRecords.value=expenseRecords.value.filter(r=>r.id!==i.id); save(); };
+      
+      const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({ex:exchangeRecords.value, ep:expenseRecords.value, ch:calcHistory.value, dark:isDark.value}));
+      const exportAllData = () => { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORAGE_KEY)],{type:"application/json"})); a.download="UsTrip.json"; a.click(); };
+      const triggerImport = () => importInput.value.click();
+      const handleImport = (e) => { const r=new FileReader(); r.onload=(ev)=>{try{const d=JSON.parse(ev.target.result);exchangeRecords.value=d.ex||[];expenseRecords.value=d.ep||[];calcHistory.value=d.ch||[];save();alert("OK");}catch{alert("Err");}}; r.readAsText(e.target.files[0]); };
 
-    const averageRate = computed(() => {
-      const b = exchangeRecords.value.reduce((s, r) => s + (parseFloat(r.baseAmount)||0), 0);
-      const t = exchangeRecords.value.reduce((s, r) => s + (parseFloat(r.targetAmount)||0), 0);
-      return b > 0 ? (t / b).toFixed(3) : "7.100";
-    });
+      onMounted(() => {
+        const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+        exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; calcHistory.value=d.ch||[]; isDark.value=d.dark||false;
+        if(isDark.value) document.documentElement.classList.add('dark');
+        if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1,date:'02-04',baseAmount:402.55,targetAmount:3200}); save(); }
+      });
 
-    const calcResult = computed(() => {
-      let val = 0;
-      try { val = eval(calcInput.value.replace(/[^-()\d/*+.]/g, '')) || 0; } catch {}
-      return (val / parseFloat(averageRate.value)).toFixed(2);
-    });
-
-    const totalCashSpent = computed(() => expenseRecords.value.filter(e => e.method === 'cash').reduce((s, e) => s + (parseFloat(e.amount)||0), 0));
-    const totalCardSpent = computed(() => expenseRecords.value.filter(e => e.method === 'card').reduce((s, e) => s + (parseFloat(e.amount)||0), 0));
-    
-    const allTransactions = computed(() => {
-      const ex = exchangeRecords.value.map(r => ({ ...r, type: 'exchange' }));
-      const ep = expenseRecords.value.map(r => ({ ...r, type: 'expense' }));
-      return [...ex, ...ep].sort((a, b) => b.id - a.id);
-    });
-
-    // --- Actions ---
-    const key = (k) => {
-      if(k==='AC'){ calcInput.value="0"; calcExpr.value=""; return; }
-      if(k==='DEL'){ calcInput.value=calcInput.value.length>1?calcInput.value.slice(0,-1):"0"; return; }
-      if(k==='='){ try{ calcInput.value=String(eval(calcInput.value.replace(/[^-()\d/*+.]/g, ''))); calcExpr.value=""; }catch{} return; }
-      if(['+','-','*','/'].includes(k)){ calcExpr.value=calcInput.value; calcInput.value+=k; }
-      else { calcInput.value = (calcInput.value==='0'&&k!=='.') ? k : calcInput.value+k; }
-    };
-
-    const saveCalc = () => {
-      const val = parseFloat(calcInput.value);
-      if(!val) return;
-      const d = new Date();
-      calcHistory.value.unshift({ twd: val, myr: calcResult.value, note: calcNote.value, time: `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}` });
-      calcNote.value=""; calcInput.value="0"; save();
-      showHistory.value = true;
-    };
-
-    const openModal = (t) => { modalType.value=t; newItem.value = t==='exchange'?{baseAmount:null,targetAmount:null}:{method:'cash',amount:null,name:''}; showModal.value=true; };
-    
-    const saveItem = () => {
-      const id = Date.now();
-      const d = new Date().toLocaleDateString('zh-CN', {month:'2-digit',day:'2-digit'}).replace('/','-');
-      if(modalType.value==='exchange') exchangeRecords.value.unshift({...newItem.value, id, date:d});
-      else expenseRecords.value.unshift({...newItem.value, id, date:d});
-      save(); showModal.value=false;
-    };
-
-    const deleteItem = (item) => {
-      if(!confirm("删除?")) return;
-      if(item.type==='exchange') exchangeRecords.value = exchangeRecords.value.filter(i=>i.id!==item.id);
-      else expenseRecords.value = expenseRecords.value.filter(i=>i.id!==item.id);
-      save();
-    };
-
-    const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({ ex: exchangeRecords.value, ep: expenseRecords.value, ch: calcHistory.value }));
-    const exportData = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([localStorage.getItem(STORAGE_KEY)],{type:"application/json"})); a.download="UsTrip.json"; a.click(); };
-    const triggerImport = () => importInput.value.click();
-    const handleImport = (e) => {
-      const r = new FileReader();
-      r.onload = (ev) => { try{ const d=JSON.parse(ev.target.result); exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; calcHistory.value=d.ch||[]; save(); alert("导入成功"); }catch{alert("格式错误");} };
-      r.readAsText(e.target.files[0]);
-    };
-    const clearHistory = () => { if(confirm("清空?")) { calcHistory.value=[]; save(); } };
-
-    onMounted(() => {
-      const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
-      exchangeRecords.value = d.ex||[]; expenseRecords.value = d.ep||[]; calcHistory.value = d.ch||[];
-      if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1, date:'02-04', baseAmount:402.55, targetAmount:3200}); save(); }
-    });
-
-    return { 
-      currentTab, showHistory, toggleHistory:()=>showHistory.value=!showHistory.value,
-      twdBalance, averageRate, totalCashSpent, totalCardSpent, allTransactions,
-      calcInput, calcExpr, calcResult, calcNote, calcHistory, key, saveCalc, clearHistory,
-      showModal, modalType, newItem, openModal, saveItem, deleteItem,
-      exportData, triggerImport, handleImport, importInput
-    };
-  }
-}).mount("#app");
+      return { 
+        currentTab, isDark, toggleDark, showHistory, toggleHistory, showModal, modalType, newItem, twdBalance, averageRate, 
+        totalCardSpent, totalCashSpent, allTransactions, calcInput, calcExpr, calcResult, calcNote, calcHistory, 
+        key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput,
+        getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-cash'),
+        getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
+        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 text-emerald-500':(i.method==='card'?'bg-indigo-50 text-indigo-500':'bg-orange-50 text-orange-500')
+      };
+    }
+  }).mount("#app");
 </script>
 </body>
 </html>
