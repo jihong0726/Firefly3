@@ -2,9 +2,10 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 修复显示版</title>
+  <title>UsTrip Finance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#ffffff">
+  
+  <meta name="theme-color" content="#ffffff" id="theme-color">
   
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/10543/10543323.png">
@@ -16,132 +17,151 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet" />
 
   <style>
+    /* 基础设置 */
     html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
     body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
     #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; }
     
     .mono { font-family: 'JetBrains Mono', monospace; }
-    .glass-nav { @apply bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800; }
     
-    /* 键盘布局 */
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; height: 100%; }
+    /* 玻璃拟态导航栏 (针对黑白模式深度优化) */
+    .glass-nav { 
+      @apply bg-white/95 border-b border-slate-100; 
+    }
+    html.dark .glass-nav {
+      background-color: rgba(15, 23, 42, 0.9); /* Slate-900 with opacity */
+      border-bottom-color: rgba(30, 41, 59, 0.5); /* Slate-800 */
+      backdrop-filter: blur(12px);
+    }
+
+    /* 键盘网格 */
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; height: 100%; padding-bottom: 20px; }
     .calc-btn { 
       @apply rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm transition-all duration-75 active:scale-95 active:bg-slate-200 dark:active:bg-slate-600; 
     }
-    .btn-num { @apply bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200; }
-    .btn-op { @apply bg-indigo-50 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 text-2xl; }
-    .btn-ac { @apply bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 text-lg; }
+    /* 键盘颜色适配 */
+    .btn-num { @apply bg-slate-50 text-slate-800 dark:bg-slate-800 dark:text-slate-100; }
+    .btn-op { @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 text-2xl; }
+    .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-emerald-200 dark:shadow-none text-2xl; }
 
-    /* 动画 */
-    .slide-enter-active, .slide-leave-active { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .slide-enter-from, .slide-leave-to { transform: translateY(20px); opacity: 0; }
-    .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
-    .fade-enter-from, .fade-leave-to { opacity: 0; }
-
+    /* 列表动画 */
     .transaction-item { transition: all 0.2s ease; border-left: 4px solid transparent; }
     .item-cash { border-left-color: #fb923c; }
     .item-card { border-left-color: #6366f1; }
     .item-exchange { border-left-color: #10b981; }
+    
+    /* 过渡动画 */
+    .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+    .fade-enter-from, .fade-leave-to { opacity: 0; }
+    .slide-enter-active, .slide-leave-active { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .slide-enter-from, .slide-leave-to { transform: translateY(100%); }
   </style>
 </head>
-<body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+<body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
 
 <div id="app">
 
-  <header class="glass-nav flex-none px-5 py-3 flex justify-between items-center z-50">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-md transition-colors duration-300" :class="currentTab === 'assets' ? 'bg-slate-800 dark:bg-slate-700' : 'bg-emerald-500'">
-        <i class="fas text-xs" :class="currentTab === 'assets' ? 'fa-wallet' : 'fa-calculator'"></i>
+  <header class="glass-nav flex-none px-5 py-3 flex justify-between items-center z-50 transition-colors duration-300">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-md transition-all duration-300" 
+           :class="currentTab === 'assets' ? 'bg-slate-800 dark:bg-slate-700 dark:ring-1 dark:ring-slate-600' : 'bg-emerald-500 dark:bg-emerald-600'">
+        <i class="fas" :class="currentTab === 'assets' ? 'fa-wallet' : 'fa-calculator'"></i>
       </div>
-      <h1 class="text-base font-black tracking-tight dark:text-white">
+      <h1 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">
         {{ currentTab === 'assets' ? '我的金库' : '汇率计算' }}
       </h1>
     </div>
+    
     <div class="flex gap-3 text-slate-400">
-      <button @click="toggleDark" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fas text-xs" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon text-slate-500'"></i></button>
-      <button @click="exportAllData" v-if="currentTab === 'assets'"><i class="fas fa-save"></i></button>
-      <button @click="triggerImport" v-if="currentTab === 'assets'"><i class="fas fa-upload"></i></button>
+      <button @click="toggleDark" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 dark:text-slate-200 flex items-center justify-center transition-colors active:scale-90">
+        <i class="fas text-xs" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon'"></i>
+      </button>
+      
+      <template v-if="currentTab === 'assets'">
+        <button @click="exportAllData" class="w-9 h-9 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors"><i class="fas fa-save"></i></button>
+        <button @click="triggerImport" class="w-9 h-9 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors"><i class="fas fa-upload"></i></button>
+      </template>
     </div>
   </header>
 
-  <main class="flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-950">
+  <main class="flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-950 transition-colors duration-300">
     
-    <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24 bg-slate-50 dark:bg-slate-900">
+    <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-5 space-y-5 pb-24">
       <section class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
         <div class="relative z-10">
           <div class="flex justify-between items-start mb-6">
             <div>
-              <p class="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-1">台币剩余 (TWD)</p>
+              <p class="text-[10px] font-bold opacity-60 uppercase tracking-widest mb-1">台币剩余 (TWD)</p>
               <h2 class="text-5xl font-black mono leading-none">{{ Math.round(twdBalance) }}</h2>
             </div>
             <div class="text-right">
-              <p class="text-[10px] font-bold opacity-40 uppercase mb-1">平均汇率</p>
-              <span class="text-sm font-bold mono text-emerald-400">1:{{ averageRate }}</span>
+              <p class="text-[10px] font-bold opacity-50 uppercase mb-1">平均汇率</p>
+              <span class="text-sm font-bold mono text-emerald-400 bg-white/10 px-2 py-1 rounded">1 : {{ averageRate }}</span>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-4">
-            <div><p class="text-[10px] opacity-40 uppercase mb-1">现金已花</p><p class="text-lg font-bold mono opacity-90">{{ totalCashSpent }}</p></div>
-            <div><p class="text-[10px] opacity-40 uppercase mb-1">卡片已花</p><p class="text-lg font-bold mono opacity-90">{{ totalCardSpent }}</p></div>
+            <div><p class="text-[10px] opacity-50 uppercase mb-1">现金已花</p><p class="text-lg font-bold mono opacity-90">{{ totalCashSpent }}</p></div>
+            <div><p class="text-[10px] opacity-50 uppercase mb-1">卡片已花</p><p class="text-lg font-bold mono opacity-90">{{ totalCardSpent }}</p></div>
           </div>
         </div>
       </section>
 
       <section class="grid grid-cols-2 gap-3">
-        <button @click="openModal('exchange')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm flex items-center gap-3 active:scale-95 transition">
-          <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center"><i class="fas fa-sync"></i></div>
-          <div><p class="text-sm font-bold dark:text-white">去换钱</p><p class="text-[9px] text-slate-400 font-bold uppercase">Exchange</p></div>
+        <button @click="openModal('exchange')" class="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-3 active:scale-95 transition">
+          <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center"><i class="fas fa-sync"></i></div>
+          <div><p class="text-sm font-bold dark:text-white">去换钱</p><p class="text-[9px] text-slate-400 font-bold uppercase">Input</p></div>
         </button>
-        <button @click="openModal('expense')" class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm flex items-center gap-3 active:scale-95 transition">
-          <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag"></i></div>
-          <div><p class="text-sm font-bold dark:text-white">记开销</p><p class="text-[9px] text-slate-400 font-bold uppercase">Expense</p></div>
+        <button @click="openModal('expense')" class="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl flex items-center gap-3 active:scale-95 transition">
+          <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center"><i class="fas fa-shopping-bag"></i></div>
+          <div><p class="text-sm font-bold dark:text-white">记开销</p><p class="text-[9px] text-slate-400 font-bold uppercase">Output</p></div>
         </button>
       </section>
 
-      <div v-for="item in allTransactions" :key="item.id" class="transaction-item bg-white dark:bg-slate-800 p-3 rounded-xl flex justify-between items-center shadow-sm" :class="getTranClass(item)">
+      <div v-for="item in allTransactions" :key="item.id" class="transaction-item bg-slate-50 dark:bg-slate-900 p-3 rounded-xl flex justify-between items-center border border-slate-100 dark:border-slate-800" :class="getTranClass(item)">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm" :class="getIconColor(item)"><i :class="getIcon(item)"></i></div>
           <div>
-            <p class="font-bold text-slate-800 dark:text-slate-100 text-sm">{{ item.type === 'exchange' ? '换台币' : item.name }}</p>
+            <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ item.type === 'exchange' ? '换台币' : item.name }}</p>
             <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mono">{{ item.date }} · {{ item.method === 'card' ? 'Card' : 'Cash' }}</p>
           </div>
         </div>
         <div class="text-right">
-          <p class="text-sm font-black mono" :class="item.type === 'exchange' ? 'text-emerald-500' : 'text-slate-800 dark:text-slate-200'">{{ item.type === 'exchange' ? '+' : '-' }}{{ item.type === 'exchange' ? item.targetAmount : item.amount }}</p>
-          <button @click="deleteItem(item)" class="text-[9px] text-slate-300 hover:text-red-400 underline font-bold">DEL</button>
+          <p class="text-sm font-black mono" :class="item.type === 'exchange' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'">{{ item.type === 'exchange' ? '+' : '-' }}{{ item.type === 'exchange' ? item.targetAmount : item.amount }}</p>
+          <button @click="deleteItem(item)" class="text-[9px] text-slate-300 hover:text-red-400 font-bold px-1">删除</button>
         </div>
       </div>
     </div>
 
-    <div v-if="currentTab === 'calc'" class="flex flex-col h-full pb-20 bg-slate-50 dark:bg-slate-900">
+    <div v-if="currentTab === 'calc'" class="flex flex-col h-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       
       <div class="flex-1 flex flex-col p-6 z-10 justify-end pb-4">
         
         <div class="flex justify-between items-center mb-auto pt-2">
-           <button @click="toggleHistory" class="text-xs font-bold px-3 py-1.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center gap-1 active:scale-95 transition">
-             <i class="fas fa-history"></i> {{ showHistory ? '隐藏' : '历史' }}
+           <button @click="toggleHistory" class="text-xs font-bold px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 flex items-center gap-2 active:scale-95 transition shadow-sm">
+             <i class="fas fa-history"></i> {{ showHistory ? '关闭' : '历史' }}
            </button>
-           <span class="text-[10px] font-black bg-slate-200 dark:bg-slate-800 text-slate-400 px-2 py-1 rounded text-right">
-             1 MYR = {{ averageRate }} TWD
+           <span class="text-[10px] font-bold bg-white dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full shadow-sm">
+             汇率 1 : {{ averageRate }}
            </span>
         </div>
 
         <div class="mb-4 relative">
-          <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-300 dark:placeholder-slate-700 outline-none" placeholder="输入备注 (可选)...">
+          <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-300 dark:placeholder-slate-700 outline-none" placeholder="点击输入备注...">
         </div>
 
-        <div class="flex flex-col items-end gap-2">
-          <div class="h-6 text-slate-400 font-bold text-lg mono">{{ calcExpr }}</div>
+        <div class="flex flex-col items-end gap-1">
+          <div class="h-6 text-slate-400 font-bold text-lg mono opacity-60">{{ calcExpr }}</div>
           
-          <div class="text-[4rem] leading-none font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full" style="word-break: break-all;">
+          <div class="text-[4rem] leading-none font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full mb-2" style="word-break: break-all;">
             {{ calcInput || '0' }}
-            <span class="text-lg text-slate-300 font-bold ml-1">TWD</span>
+            <span class="text-xl text-slate-300 dark:text-slate-600 font-bold ml-1">TWD</span>
           </div>
 
-          <div class="w-full bg-emerald-500 text-white rounded-2xl p-4 shadow-lg shadow-emerald-200 dark:shadow-none flex justify-between items-end mt-2 transition-transform active:scale-[0.99]" @click="saveCalculation">
+          <div class="w-full bg-emerald-500 dark:bg-emerald-600 text-white rounded-2xl p-4 shadow-lg shadow-emerald-200 dark:shadow-none flex justify-between items-end mt-2 active:scale-[0.98] transition-transform cursor-pointer" @click="saveCalculation">
             <div class="flex flex-col">
               <span class="text-[10px] font-bold opacity-80 uppercase">折合马币</span>
-              <span class="text-xs font-bold opacity-60">点击保存</span>
+              <span class="text-xs font-bold opacity-60"><i class="fas fa-arrow-down mr-1"></i>点此保存</span>
             </div>
             <div class="text-4xl font-black mono tracking-tight">
               {{ calcResult }} <span class="text-sm font-bold opacity-80">MYR</span>
@@ -150,24 +170,24 @@
         </div>
       </div>
 
-      <div class="h-[42vh] bg-slate-100 dark:bg-slate-950 rounded-t-[2rem] p-4 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <div class="h-[45vh] bg-white dark:bg-slate-900 rounded-t-[2.5rem] p-5 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] dark:shadow-none transition-colors duration-300 border-t border-slate-100 dark:border-slate-800">
         
         <transition name="slide">
-          <div v-if="showHistory" class="absolute inset-0 bg-slate-100 dark:bg-slate-950 rounded-t-[2rem] z-30 p-4 overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 px-2">
-              <h3 class="font-bold text-slate-400 text-xs uppercase">History List</h3>
-              <div class="flex gap-2">
-                <button @click="exportHistoryCSV" class="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded font-bold">导出</button>
-                <button @click="clearHistory" class="text-[10px] text-red-400 font-bold">清空</button>
+          <div v-if="showHistory" class="absolute inset-0 bg-white dark:bg-slate-900 rounded-t-[2.5rem] z-30 p-5 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 px-2">
+              <h3 class="font-bold text-slate-400 text-xs uppercase tracking-widest">History Log</h3>
+              <div class="flex gap-3">
+                <button @click="exportHistoryCSV" class="text-xs bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg font-bold text-slate-600 dark:text-slate-300">导出 CSV</button>
+                <button @click="clearHistory" class="text-xs text-red-400 font-bold px-2">清空</button>
               </div>
             </div>
-            <div v-for="(rec,i) in calcHistory" :key="i" class="bg-white dark:bg-slate-800 p-3 rounded-xl mb-2 flex justify-between items-center shadow-sm">
+            <div v-for="(rec,i) in calcHistory" :key="i" class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-3 flex justify-between items-center">
               <div>
-                <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '无备注' }}</div>
-                <div class="text-xs text-slate-400">{{ rec.twd }} TWD</div>
+                <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '未备注' }}</div>
+                <div class="text-xs text-slate-400 mt-0.5">{{ rec.twd }} TWD</div>
               </div>
               <div class="text-right">
-                <div class="font-black text-emerald-600 dark:text-emerald-400">{{ rec.myr }}</div>
+                <div class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ rec.myr }}</div>
                 <div class="text-[9px] text-slate-300">{{ rec.time }}</div>
               </div>
             </div>
@@ -193,7 +213,7 @@
           <button @click="key('1')" class="calc-btn btn-num">1</button>
           <button @click="key('2')" class="calc-btn btn-num">2</button>
           <button @click="key('3')" class="calc-btn btn-num">3</button>
-          <button @click="key('=')" class="calc-btn btn-eq row-span-2">=</button>
+          <button @click="key('=')" class="calc-btn btn-eq row-span-2 shadow-lg shadow-emerald-100 dark:shadow-none">=</button>
 
           <button @click="key('0')" class="calc-btn btn-num col-span-2">0</button>
           <button @click="key('.')" class="calc-btn btn-num">.</button>
@@ -203,8 +223,8 @@
 
   </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-around pb-6 pt-3 z-50 max-w-md mx-auto">
-    <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition active:scale-90" :class="currentTab==='assets'?'text-slate-800 dark:text-white':'text-slate-300 dark:text-slate-600'">
+  <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-around pb-6 pt-3 z-50 max-w-md mx-auto transition-colors duration-300">
+    <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition active:scale-90" :class="currentTab==='assets'?'text-slate-900 dark:text-white':'text-slate-300 dark:text-slate-600'">
       <i class="fas fa-wallet text-xl"></i><span class="text-[10px] font-bold">金库</span>
     </button>
     <button @click="currentTab='calc'" class="flex flex-col items-center gap-1 transition active:scale-90" :class="currentTab==='calc'?'text-emerald-500':'text-slate-300 dark:text-slate-600'">
@@ -213,7 +233,7 @@
   </nav>
 
   <input type="file" ref="importInput" class="hidden" @change="handleImport" accept=".json">
-  <transition name="fade"><div v-if="showModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 pb-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div><div class="bg-white dark:bg-slate-800 w-full rounded-[2rem] p-6 relative z-10 animate-up shadow-2xl"><h3 class="text-xl font-black mb-4 text-slate-800 dark:text-white">{{ modalType==='exchange'?'存入资金':'记录支出' }}</h3><div v-if="modalType==='exchange'" class="space-y-3"><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl"><div class="text-[10px] font-bold text-slate-400 uppercase">付出 MYR</div><input type="number" v-model.number="newItem.baseAmount" class="w-full bg-transparent font-bold text-xl outline-none dark:text-white" placeholder="0"></div><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl border border-emerald-500"><div class="text-[10px] font-bold text-emerald-500 uppercase">换回 TWD</div><input type="number" v-model.number="newItem.targetAmount" class="w-full bg-transparent font-bold text-xl outline-none text-emerald-600 dark:text-emerald-400" placeholder="0"></div></div><div v-if="modalType==='expense'" class="space-y-3"><div class="flex gap-2"><button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-3 rounded-xl font-bold text-xs border transition" :class="newItem.method===m?'bg-slate-800 dark:bg-slate-600 text-white border-transparent':'text-slate-400 border-slate-200 dark:border-slate-700'">{{m==='cash'?'现金':'刷卡'}}</button></div><input v-model="newItem.name" class="w-full bg-slate-50 dark:bg-slate-700 p-4 rounded-xl font-bold outline-none dark:text-white" placeholder="项目名称"><div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl flex items-center"><input type="number" v-model.number="newItem.amount" class="flex-1 bg-transparent text-xl font-bold outline-none dark:text-white" placeholder="0"><span class="text-xs font-bold text-slate-400">{{newItem.method==='card'?'MYR':'TWD'}}</span></div></div><button @click="saveItem" class="w-full bg-slate-800 dark:bg-slate-600 text-white font-bold py-4 rounded-xl mt-6 shadow-lg active:scale-95 transition">确认保存</button></div></div></transition>
+  <transition name="fade"><div v-if="showModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center px-4 pb-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showModal=false"></div><div class="bg-white dark:bg-slate-800 w-full rounded-[2rem] p-6 relative z-10 animate-up shadow-2xl transition-colors"><h3 class="text-xl font-black mb-4 text-slate-800 dark:text-white">{{ modalType==='exchange'?'存入资金':'记录支出' }}</h3><div v-if="modalType==='exchange'" class="space-y-3"><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl"><div class="text-[10px] font-bold text-slate-400 uppercase">付出 MYR</div><input type="number" v-model.number="newItem.baseAmount" class="w-full bg-transparent font-bold text-xl outline-none dark:text-white" placeholder="0"></div><div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-xl border border-emerald-500"><div class="text-[10px] font-bold text-emerald-500 uppercase">换回 TWD</div><input type="number" v-model.number="newItem.targetAmount" class="w-full bg-transparent font-bold text-xl outline-none text-emerald-600 dark:text-emerald-400" placeholder="0"></div></div><div v-if="modalType==='expense'" class="space-y-3"><div class="flex gap-2"><button v-for="m in ['cash','card']" @click="newItem.method=m" class="flex-1 py-3 rounded-xl font-bold text-xs border transition" :class="newItem.method===m?'bg-slate-800 dark:bg-slate-600 text-white border-transparent':'text-slate-400 border-slate-200 dark:border-slate-700'">{{m==='cash'?'现金':'刷卡'}}</button></div><input v-model="newItem.name" class="w-full bg-slate-50 dark:bg-slate-700 p-4 rounded-xl font-bold outline-none dark:text-white" placeholder="项目名称"><div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl flex items-center"><input type="number" v-model.number="newItem.amount" class="flex-1 bg-transparent text-xl font-bold outline-none dark:text-white" placeholder="0"><span class="text-xs font-bold text-slate-400">{{newItem.method==='card'?'MYR':'TWD'}}</span></div></div><button @click="saveItem" class="w-full bg-slate-800 dark:bg-slate-600 text-white font-bold py-4 rounded-xl mt-6 shadow-lg active:scale-95 transition">确认保存</button></div></div></transition>
 </div>
 
 <script>
@@ -221,19 +241,31 @@
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v7_2_fix";
+      const STORAGE_KEY = "ustrip_v7_3_visual";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
       
-      const toggleDark = () => { isDark.value = !isDark.value; if(isDark.value) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); save(); };
+      const toggleDark = () => { 
+        isDark.value = !isDark.value; 
+        const meta = document.getElementById('theme-color');
+        if(isDark.value) {
+          document.documentElement.classList.add('dark');
+          if(meta) meta.setAttribute('content', '#0f172a'); // 更新状态栏为深色
+        } else {
+          document.documentElement.classList.remove('dark');
+          if(meta) meta.setAttribute('content', '#ffffff'); // 更新状态栏为白色
+        }
+        save(); 
+      };
+      
       const toggleHistory = () => showHistory.value = !showHistory.value;
 
       const showModal = ref(false); const modalType = ref(""); const newItem = ref({}); const importInput = ref(null);
       const exchangeRecords = ref([]); const expenseRecords = ref([]);
       const calcInput = ref("0"); const calcExpr = ref(""); const calcNote = ref(""); const calcHistory = ref([]);
 
-      // 核心计算
+      // 计算逻辑
       const twdBalance = computed(() => {
         const i = exchangeRecords.value.reduce((s,r)=>s+(parseFloat(r.targetAmount)||0),0);
         const o = expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
@@ -251,7 +283,6 @@
       const totalCashSpent = computed(() => expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0));
       const allTransactions = computed(() => [...exchangeRecords.value.map(r=>({...r,type:'exchange'})), ...expenseRecords.value.map(r=>({...r,type:'expense'}))].sort((a,b)=>b.id-a.id));
 
-      // 计算器逻辑
       const key = (k) => {
         if(k==='AC'){calcInput.value="0";calcExpr.value="";return;}
         if(k==='DEL'){calcInput.value=calcInput.value.length>1?calcInput.value.slice(0,-1):"0";return;}
@@ -272,7 +303,6 @@
         const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8,\uFEFF"+csv); link.download = "shopping_list.csv"; link.click();
       };
 
-      // 弹窗逻辑
       const openModal = (t) => { modalType.value=t; newItem.value=t==='exchange'?{baseAmount:null,targetAmount:null}:{method:'cash',amount:null,name:''}; showModal.value=true; };
       const saveItem = () => {
         const id=Date.now(); const d=new Date().toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}).replace('/','-');
@@ -290,7 +320,16 @@
       onMounted(() => {
         const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
         exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; calcHistory.value=d.ch||[]; isDark.value=d.dark||false;
-        if(isDark.value) document.documentElement.classList.add('dark');
+        
+        // 初始化主题
+        const meta = document.getElementById('theme-color');
+        if(isDark.value) {
+          document.documentElement.classList.add('dark');
+          if(meta) meta.setAttribute('content', '#0f172a');
+        } else {
+          if(meta) meta.setAttribute('content', '#ffffff');
+        }
+
         if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1,date:'02-04',baseAmount:402.55,targetAmount:3200}); save(); }
       });
 
@@ -300,7 +339,7 @@
         key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput, exportHistoryCSV,
         getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-cash'),
         getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
-        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500' : (i.method==='card'?'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500':'bg-orange-50 dark:bg-orange-900/20 text-orange-400')
+        getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : (i.method==='card'?'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400':'bg-orange-50 dark:bg-orange-900/40 text-orange-400')
       };
     }
   }).mount("#app");
