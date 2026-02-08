@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | v12 最终修正</title>
+  <title>UsTrip Finance | 强引导版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -27,8 +27,10 @@
     html.dark .glass-nav { background-color: rgba(15, 23, 42, 0.95); border-bottom-color: rgba(30, 41, 59, 0.5); }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-    /* 键盘 */
-    .calc-keyboard-area { @apply bg-slate-50 dark:bg-slate-900 rounded-t-[2.5rem] relative z-20 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300 shadow-[0_-5px_30px_rgba(0,0,0,0.02)] flex flex-col; }
+    /* 键盘区域 */
+    .calc-keyboard-area { 
+      @apply bg-slate-50 dark:bg-slate-900 rounded-t-[2rem] relative z-20 border-t border-slate-200 dark:border-slate-800 transition-colors duration-300 shadow-[0_-5px_30px_rgba(0,0,0,0.03)] flex flex-col; 
+    }
     .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 16px; flex: 1; }
     .calc-btn { @apply rounded-2xl flex items-center justify-center text-2xl font-bold transition-all duration-75 active:scale-90 active:bg-slate-200 dark:active:bg-slate-700 shadow-sm border border-slate-200/50 dark:border-slate-800; }
     .btn-num { @apply bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-200; }
@@ -36,15 +38,18 @@
     .btn-ac { @apply bg-red-50/80 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-md shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600; }
 
-    /* 历史记录条 - 按钮化 */
-    .history-handle {
-      @apply w-full flex justify-center items-center py-3 cursor-pointer active:opacity-60 transition-opacity;
+    /* 🌟 新版历史记录开关条 */
+    .history-trigger {
+      @apply w-full bg-slate-100 dark:bg-slate-800/80 rounded-t-[2rem] py-3 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-200/80 dark:hover:bg-slate-800 transition-colors border-b border-slate-200 dark:border-slate-800;
     }
-    .handle-pill {
-      @apply bg-slate-200 dark:bg-slate-700 w-12 h-1.5 rounded-full;
+    .trigger-icon {
+      @apply bg-slate-300 dark:bg-slate-600 w-10 h-1 rounded-full mb-1.5;
+    }
+    .trigger-text {
+      @apply text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5;
     }
 
-    /* 修复后的弹窗输入框 - 稳固布局 */
+    /* 弹窗输入框 */
     .fixed-input-box {
       @apply flex items-center bg-slate-50 dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 rounded-2xl px-4 py-3 transition-all focus-within:border-emerald-400 dark:focus-within:border-emerald-500;
     }
@@ -172,22 +177,24 @@
         </div>
       </div>
 
-      <div class="calc-keyboard-area h-[42vh] min-h-[320px]">
-        <div class="history-handle" @click="toggleHistory">
-          <div class="flex flex-col items-center gap-1">
-             <div class="handle-pill"></div>
-             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1" v-if="!showHistory">History Records</p>
+      <div class="calc-keyboard-area h-[42vh] min-h-[340px]">
+        
+        <div class="history-trigger" @click="toggleHistory">
+          <div class="trigger-icon"></div>
+          <div class="trigger-text">
+            <i class="fas fa-history text-slate-300"></i>
+            <span>{{ showHistory ? '点击收起记录' : '点击查看历史记录' }}</span>
+            <i class="fas text-slate-300" :class="showHistory ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
           </div>
         </div>
 
         <transition name="slide">
-          <div v-if="showHistory" class="absolute inset-0 bg-slate-50 dark:bg-slate-900 rounded-t-[2.5rem] z-30 p-6 overflow-y-auto border-t border-slate-200 dark:border-slate-800">
+          <div v-if="showHistory" class="absolute inset-0 bg-slate-50 dark:bg-slate-900 rounded-t-[2rem] z-30 p-6 overflow-y-auto border-t border-slate-200 dark:border-slate-800">
             <div class="flex justify-between items-center mb-6">
               <h3 class="font-black text-slate-400 text-xs uppercase tracking-widest">History Log</h3>
               <div class="flex gap-3">
                 <button @click="exportHistoryCSV" class="text-xs bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm">导出</button>
                 <button @click="clearHistory" class="text-xs text-red-400 font-bold px-2">清空</button>
-                <button @click="toggleHistory" class="text-xs bg-slate-200 dark:bg-slate-700 w-6 h-6 rounded-full flex items-center justify-center"><i class="fas fa-chevron-down"></i></button>
               </div>
             </div>
             <div class="space-y-3 pb-20">
@@ -326,7 +333,7 @@
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v12_final_fix";
+      const STORAGE_KEY = "ustrip_v13_history_btn";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
