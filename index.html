@@ -53,7 +53,7 @@
       position: relative;
       z-index: 10;
       /* 关键：在键盘区域内部也留出底部导航空间，这样“键盘会填满剩余空位且不被盖住” */
-      padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
     }
     html.dark .calc-keyboard-area { background: rgb(15 23 42); }
 
@@ -66,6 +66,7 @@
       grid-template-rows: repeat(5, 1fr);
       gap: 12px;
       padding: 0 16px 16px;
+      grid-template-rows: repeat(5, minmax(0, 1fr));
     }
 
     .calc-btn {
