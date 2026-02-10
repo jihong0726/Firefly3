@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 旗舰设计版</title>
+  <title>UsTrip Finance | 旗舰交互版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -27,18 +27,33 @@
     html.dark .glass-nav { background-color: rgba(15, 23, 42, 0.95); border-bottom-color: rgba(30, 41, 59, 0.5); }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-    /* 键盘区域 */
+    /* 🌟 键盘区域 - 弹性布局核心 */
     .calc-keyboard-area { 
-      @apply bg-slate-50 dark:bg-slate-900 rounded-t-[2.5rem] relative z-20 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] flex flex-col; 
+      @apply bg-slate-50 dark:bg-slate-950 rounded-t-[2.5rem] relative z-20 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] flex flex-col flex-1 min-h-[45vh]; 
     }
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 24px 16px 16px; flex: 1; }
-    .calc-btn { @apply rounded-3xl flex items-center justify-center text-2xl font-bold transition-all duration-75 active:scale-90 active:bg-slate-200 dark:active:bg-slate-700 shadow-sm border border-slate-200/60 dark:border-slate-800; }
-    .btn-num { @apply bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100; }
-    .btn-op { @apply bg-indigo-50/80 text-indigo-500 dark:bg-indigo-900/20 dark:text-indigo-300 text-2xl; }
-    .btn-ac { @apply bg-red-50/80 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg; }
-    .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600 border-transparent; }
+    
+    /* 🌟 按钮网格 - 自动撑满高度 */
+    .calc-grid { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 12px; 
+      padding: 24px 16px 16px; 
+      height: 100%; /* 关键：撑满父容器 */
+    }
+    
+    /* 🌟 超级按钮样式 */
+    .calc-btn { 
+      @apply rounded-[1.8rem] flex items-center justify-center text-3xl font-bold transition-all duration-100 active:scale-90 shadow-sm active:shadow-inner; 
+      height: 100%; /* 关键：撑满网格单元 */
+    }
+    
+    /* 按钮配色 - 去除边框，增强质感 */
+    .btn-num { @apply bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100 shadow-slate-200/50 dark:shadow-black/20; }
+    .btn-op { @apply bg-indigo-50/50 text-indigo-500 dark:bg-indigo-900/20 dark:text-indigo-300 text-2xl font-black; }
+    .btn-ac { @apply bg-red-50/50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-xl font-black; }
+    .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-3xl active:bg-emerald-600; }
 
-    /* 🌟 核心升级：历史记录悬浮胶囊 */
+    /* 悬浮胶囊 */
     .history-capsule {
       @apply absolute -top-5 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 px-5 py-2.5 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 flex items-center gap-2.5 cursor-pointer active:scale-95 transition-all z-30 hover:shadow-xl;
     }
@@ -46,7 +61,7 @@
     .capsule-text { @apply text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest; }
     .capsule-arrow { @apply text-slate-300 text-xs; }
 
-    /* 🌟 核心升级：金融级输入框 (Integrated Input Group) */
+    /* 输入框组 */
     .modern-input-group {
       @apply bg-slate-50 dark:bg-slate-900 rounded-2xl px-4 py-3 border-2 border-transparent transition-all focus-within:bg-white dark:focus-within:bg-black focus-within:border-emerald-100 dark:focus-within:border-emerald-900 focus-within:shadow-sm;
     }
@@ -142,7 +157,7 @@
 
     <div v-if="currentTab === 'calc'" class="flex flex-col h-full bg-white dark:bg-slate-950 transition-colors duration-300">
       
-      <div class="flex-1 flex flex-col p-6 z-10 justify-end pb-2 min-h-0">
+      <div class="flex-none flex flex-col p-6 z-10 justify-end pb-2">
         
         <div class="flex justify-between items-center mb-auto pt-1 opacity-80">
            <div></div>
@@ -156,9 +171,9 @@
         <div class="flex flex-col items-end gap-1">
           <div class="h-6 text-slate-400 font-bold text-lg mono opacity-50">{{ calcExpr }}</div>
           
-          <div class="text-[4.5rem] leading-none font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full mb-3" style="word-break: break-all;">
+          <div class="text-[4rem] leading-none font-black text-slate-900 dark:text-white tracking-tighter break-all text-right w-full mb-3" style="word-break: break-all;">
             {{ calcInput || '0' }}
-            <span class="text-2xl text-slate-300 dark:text-slate-600 font-bold ml-1">TWD</span>
+            <span class="text-xl text-slate-300 dark:text-slate-600 font-bold ml-1">TWD</span>
           </div>
 
           <div class="w-full bg-emerald-500 dark:bg-emerald-600 text-white rounded-[1.5rem] p-4 shadow-lg shadow-emerald-200/40 dark:shadow-none flex flex-col items-end justify-center active:scale-[0.98] transition-all cursor-pointer hover:shadow-xl hover:bg-emerald-500/90 gap-1" @click="saveCalculation">
@@ -173,7 +188,7 @@
         </div>
       </div>
 
-      <div class="calc-keyboard-area h-[42vh] min-h-[340px]">
+      <div class="calc-keyboard-area pb-safe">
         
         <div class="history-capsule" @click="toggleHistory">
           <i class="fas fa-history capsule-icon"></i>
@@ -203,7 +218,6 @@
                   </div>
                 </div>
             </div>
-            
             <div class="flex-none pt-4 pb-safe">
               <button @click="toggleHistory" class="w-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold py-3.5 rounded-2xl active:scale-95 transition flex items-center justify-center gap-2">
                 <i class="fas fa-chevron-down"></i> 收起列表
@@ -329,7 +343,7 @@
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v14_final_ux";
+      const STORAGE_KEY = "ustrip_v15_flagship";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
