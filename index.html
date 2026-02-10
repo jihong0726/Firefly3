@@ -3,1356 +3,1118 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>换算 & 金库</title>
+  <title>换算</title>
   <style>
     :root{
-      --bg:#f6f8fb;
-      --panel:#ffffffcc;
-      --panelSolid:#fff;
-      --ink:#0f172a;
-      --muted:#94a3b8;
-      --line:#e2e8f0;
-      --shadow:0 18px 45px rgba(15,23,42,.10);
-      --green:#10b981;
-      --green2:#0ea371;
-      --danger:#ef4444;
-      --chip:#f1f5f9;
-      --chip2:#eef2ff;
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --ink:#0b1324;
+      --muted:rgba(11,19,36,.55);
+      --line:rgba(11,19,36,.08);
+
+      --green:#14a874;
+      --green-weak:rgba(20,168,116,.10);
+
+      --blue:#2b6cff;
+      --blue-weak:rgba(43,108,255,.10);
+
+      --shadow:0 18px 40px rgba(0,0,0,.07);
       --radius:26px;
-      --radius2:18px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC","Hiragino Sans GB","Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif;
+
+      --tabH:78px; /* 底部tab高度 */
     }
-    html,body{height:100%;}
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --card:#121a2b;
+      --ink:#e9eefc;
+      --muted:rgba(233,238,252,.58);
+      --line:rgba(233,238,252,.10);
+
+      --green:#28d18f;
+      --green-weak:rgba(40,209,143,.12);
+
+      --blue:#5c8cff;
+      --blue-weak:rgba(92,140,255,.14);
+
+      --shadow:0 18px 40px rgba(0,0,0,.35);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family:var(--sans);
-      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 40%, var(--bg) 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", Arial;
+      background: radial-gradient(1000px 500px at 20% -10%, rgba(20,168,116,.18), transparent 55%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(43,108,255,.14), transparent 55%),
+                  var(--bg);
       color:var(--ink);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      overflow:hidden;
     }
 
-    /* Dark */
-    html.dark{
-      --bg:#0b1220;
-      --panel:rgba(15,23,42,.72);
-      --panelSolid:#0f172a;
-      --ink:#f1f5f9;
-      --muted:#94a3b8;
-      --line:rgba(51,65,85,.9);
-      --shadow:none;
-      --chip:rgba(30,41,59,.75);
-      --chip2:rgba(30,41,59,.75);
-      background:#0b1220;
-    }
-    html.dark body{
-      background: linear-gradient(180deg, #0b1220 0%, #0b1220 50%, #070b14 100%);
-    }
-
-    /* App layout */
-    .app{
-      height:100%;
-      display:flex;
-      justify-content:center;
-      align-items:stretch;
-      padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
-      box-sizing:border-box;
-    }
-    .phone{
-      width:min(430px, 100%);
-      height:100%;
-      border-radius: 34px;
-      position:relative;
-      overflow:hidden;
-      background: transparent;
-    }
-
-    /* Top bar */
+    /* 顶部栏 */
     .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding: 6px 6px 10px;
-      gap:10px;
+      padding:18px 18px 10px;
+      gap:14px;
     }
     .brand{
       display:flex;
       align-items:center;
       gap:12px;
-      padding: 8px 12px;
-      border-radius: 999px;
+      min-width:0;
     }
-    .brandIcon{
+    .appIcon{
       width:52px;height:52px;border-radius:18px;
-      background: linear-gradient(180deg, #10b981 0%, #0ea371 100%);
+      background: linear-gradient(145deg, rgba(20,168,116,1), rgba(20,168,116,.65));
       display:grid;place-items:center;
-      box-shadow: 0 18px 45px rgba(16,185,129,.25);
+      box-shadow: 0 14px 30px rgba(20,168,116,.25);
       flex:0 0 auto;
     }
-    .brandIcon svg{width:26px;height:26px;filter: drop-shadow(0 10px 16px rgba(0,0,0,.15));}
-    .brandTitle{
+    .appIcon svg{opacity:.95}
+    .titleWrap{min-width:0}
+    .title{
       font-size:38px;
-      font-weight:950;
-      letter-spacing:-.04em;
-      line-height:1;
-    }
-
-    .iconRow{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .iconBtn{
-      width:52px;height:52px;border-radius:999px;
-      border:1px solid var(--line);
-      background: var(--panel);
-      backdrop-filter: blur(12px);
-      display:grid;place-items:center;
-      box-shadow: var(--shadow);
-      cursor:pointer;
-      user-select:none;
-      transition: transform .08s, background .2s;
-    }
-    .iconBtn:active{ transform:scale(.98); }
-    .iconBtn svg{width:22px;height:22px;opacity:.8;fill:var(--muted)}
-    html.dark .iconBtn svg{fill:#cbd5e1;opacity:.85}
-
-    /* Pills */
-    .row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding: 0 6px;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 14px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: var(--panel);
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
-      color: var(--muted);
       font-weight:900;
-      letter-spacing:.01em;
-      user-select:none;
+      letter-spacing:-.5px;
+      line-height:1;
+      margin:0;
     }
-    .pill strong{color:var(--ink)}
-    .pill .zap{
-      width:18px;height:18px;border-radius:6px;
-      background: rgba(16,185,129,.12);
-      display:grid;place-items:center;
-    }
-    .pill .zap svg{width:12px;height:12px;fill:var(--green)}
-    .pillBtn{
-      cursor:pointer;
-      transition: transform .08s, background .2s;
-    }
-    .pillBtn:active{transform:scale(.99)}
-    .pillSmall{
-      padding: 8px 12px;
+    .subtitle{
+      margin-top:6px;
       font-size:13px;
-    }
-
-    /* Main pages container */
-    .pages{
-      height: calc(100% - 86px);
-      padding: 10px 6px 96px;
-      box-sizing:border-box;
-      position:relative;
-    }
-    .page{
-      height:100%;
-      display:none;
-    }
-    .page.active{ display:flex; flex-direction:column; gap:14px; }
-
-    /* Calc header + display */
-    .calcCard{
-      border:1px solid var(--line);
-      background: var(--panelSolid);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    html.dark .calcCard{ background: rgba(15,23,42,.72); backdrop-filter: blur(14px); }
-    .calcDisplay{
-      padding: 16px 16px 14px;
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
-    }
-    .labelRow{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:8px;
-      color: var(--muted);
-      font-weight:900;
-      font-size:12px;
-    }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 10px;
-      border-radius:999px;
-      background: var(--chip);
-      border:1px solid var(--line);
-      color: var(--muted);
-      font-size:11px;
-      font-weight:950;
-      user-select:none;
-    }
-    html.dark .badge{ background: rgba(30,41,59,.7); }
-    .badge svg{width:12px;height:12px;fill:currentColor;opacity:.8}
-    .twdValue{
-      font-size:64px;
-      font-weight:1000;
-      letter-spacing:-.04em;
-      line-height:1;
-      word-break:break-all;
-    }
-    .twdUnit{
-      font-size:16px;
-      font-weight:950;
-      color: rgba(148,163,184,.85);
-      margin-left:10px;
-    }
-    .myrWrap{ text-align:right; }
-    .myrValue{
-      font-size:56px;
-      font-weight:1000;
-      letter-spacing:-.02em;
-      line-height:1;
-      color: var(--green);
-      font-family: var(--mono);
-      word-break:break-all;
-    }
-    .myrUnit{
-      font-size:16px;
-      font-weight:950;
-      color: rgba(148,163,184,.85);
-      margin-left:10px;
-    }
-
-    /* Save bar */
-    .saveBar{
-      padding: 10px 12px;
-      border-top: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(16,185,129,.12) 0%, rgba(16,185,129,.06) 100%);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    html.dark .saveBar{
-      background: linear-gradient(180deg, rgba(16,185,129,.18) 0%, rgba(16,185,129,.08) 100%);
-    }
-    .saveText{
-      font-weight:950;
-      color: var(--ink);
-      opacity:.92;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex: 1;
-      min-width:0;
+      color:var(--muted);
+      font-weight:700;
+      letter-spacing:.2px;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .saveBtn{
-      border:none;
-      border-radius: 999px;
-      padding: 12px 16px;
-      background: linear-gradient(180deg, #10b981 0%, #0ea371 100%);
-      color:#fff;
-      font-weight:1000;
-      letter-spacing:.02em;
+
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex:0 0 auto;
+    }
+    .iconBtn{
+      width:54px;height:54px;border-radius:20px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      box-shadow: 0 10px 26px rgba(0,0,0,.05);
+      display:grid;place-items:center;
       cursor:pointer;
-      box-shadow: 0 18px 45px rgba(16,185,129,.25);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .iconBtn:active{transform:scale(.98)}
+    .pillRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:8px 18px 10px;
+    }
+    .ratePill{
       display:flex;
       align-items:center;
       gap:10px;
+      padding:14px 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      box-shadow: 0 12px 28px rgba(0,0,0,.05);
+      min-width:0;
+    }
+    .ratePill .bolt{
+      width:22px;height:22px;border-radius:10px;
+      background:var(--green-weak);
+      display:grid;place-items:center;
+      color:var(--green);
+      font-weight:900;
       flex:0 0 auto;
     }
-    .saveBtn:active{ transform: scale(.99); }
-    .saveBtn svg{width:16px;height:16px;fill:#fff;opacity:.95}
-
-    /* Keypad fills remaining space */
-    .keypadWrap{
-      flex:1;
-      min-height:0;
-      border: 1px solid var(--line);
-      background: rgba(241,245,249,.75);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      box-sizing:border-box;
+    .rateText{
+      font-weight:900;
+      letter-spacing:.2px;
+      color:var(--muted);
+      white-space:nowrap;
       overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .rateText b{color:var(--ink)}
+    .rightPill{
+      display:flex;align-items:center;gap:10px;
+    }
+    .histBtn{
+      padding:14px 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      box-shadow: 0 12px 28px rgba(0,0,0,.05);
+      font-weight:900;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+      display:flex;align-items:center;gap:10px;
+    }
+    .histBtn:active{transform:scale(.99)}
+
+    /* 主体布局：保证键盘永远不被 tab 覆盖 */
+    .screen{
+      height:calc(100vh - 0px);
       display:flex;
       flex-direction:column;
-      gap:12px;
-    }
-    html.dark .keypadWrap{
-      background: rgba(15,23,42,.55);
-      backdrop-filter: blur(14px);
-    }
-    .keypad{
-      flex:1;
-      min-height:0;
-      display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      grid-auto-rows: 1fr;
-      gap: 12px;
-    }
-    .kbtn{
-      border:1px solid rgba(226,232,240,.85);
-      background: rgba(255,255,255,.92);
-      border-radius: 999px;
-      box-shadow: 0 16px 35px rgba(15,23,42,.06);
-      font-weight:1000;
-      font-size:28px;
-      cursor:pointer;
-      user-select:none;
-      display:grid;
-      place-items:center;
-      transition: transform .08s, background .2s;
-      color: var(--ink);
-      min-height: 52px;
-    }
-    html.dark .kbtn{
-      background: rgba(30,41,59,.60);
-      border-color: rgba(51,65,85,.85);
-      box-shadow:none;
-      color: var(--ink);
-    }
-    .kbtn:active{ transform: scale(.99); }
-    .kbtn.soft{
-      background: rgba(238,242,255,.80);
-      color: #4f46e5;
-      border-color: rgba(199,210,254,.85);
-    }
-    html.dark .kbtn.soft{
-      background: rgba(30,41,59,.70);
-      border-color: rgba(51,65,85,.85);
-      color:#a5b4fc;
-    }
-    .kbtn.ac{
-      background: rgba(254,226,226,.75);
-      color: #ef4444;
-      border-color: rgba(254,202,202,.9);
-      font-size:22px;
-      letter-spacing:.02em;
-    }
-    html.dark .kbtn.ac{
-      background: rgba(127,29,29,.28);
-      border-color: rgba(127,29,29,.35);
-      color:#fecaca;
+      padding-bottom: calc(var(--tabH) + env(safe-area-inset-bottom));
     }
 
-    .kbtn.eq{
-      border-radius: 22px;
-      background: linear-gradient(180deg, #10b981 0%, #0ea371 100%);
-      color:#fff;
-      border:none;
-      font-size:30px;
-      box-shadow: 0 22px 55px rgba(16,185,129,.28);
-      grid-row: span 2;
-    }
-    html.dark .kbtn.eq{ box-shadow:none; }
-    .kbtn.wide{ grid-column: span 2; border-radius: 999px; }
-
-    /* Vault page */
-    .vaultHero{
-      border:1px solid var(--line);
-      background: linear-gradient(180deg, rgba(15,23,42,.98) 0%, rgba(15,23,42,.92) 55%, rgba(2,6,23,.92) 100%);
+    /* 输入/换算展示区（用颜色让用户秒懂左右） */
+    .fxPanel{
+      margin:6px 18px 10px;
       border-radius: var(--radius);
+      background:
+        linear-gradient(90deg, var(--blue-weak), transparent 55%),
+        linear-gradient(270deg, var(--green-weak), transparent 55%),
+        var(--card);
+      border:1px solid var(--line);
       box-shadow: var(--shadow);
-      padding: 18px 18px 16px;
-      color:#fff;
-      position:relative;
       overflow:hidden;
     }
-    html.dark .vaultHero{ box-shadow:none; }
-    .vaultHero:before{
-      content:"";
-      position:absolute; inset:-80px -120px auto auto;
-      width:260px;height:260px;border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, rgba(16,185,129,.35), rgba(16,185,129,0) 60%);
-      filter: blur(0px);
-      pointer-events:none;
-    }
-    .vaultTop{
+    .fxInner{
+      padding:18px 18px 14px;
       display:flex;
-      align-items:flex-start;
+      align-items:stretch;
+      gap:16px;
+    }
+    .col{
+      flex:1; min-width:0;
+      border-radius:22px;
+      padding:14px 14px;
+      display:flex;
+      flex-direction:column;
       justify-content:space-between;
-      gap:12px;
+      border:1px solid rgba(0,0,0,0);
     }
-    .vaultTitle{
-      font-weight:950;
-      letter-spacing:-.03em;
-      font-size:14px;
-      opacity:.85;
+    .col.left{
+      background: linear-gradient(180deg, rgba(43,108,255,.12), transparent 70%);
+      border:1px solid color-mix(in srgb, var(--blue) 18%, transparent);
     }
-    .vaultMain{
-      display:flex;
-      align-items:baseline;
+    .col.right{
+      background: linear-gradient(180deg, rgba(20,168,116,.12), transparent 70%);
+      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
+      text-align:right;
+    }
+    .miniRow{
+      display:flex;align-items:center;justify-content:space-between;
       gap:10px;
-      margin-top:8px;
+      margin-bottom:10px;
     }
-    .vaultAmount{
-      font-size:72px;
-      font-weight:1000;
-      letter-spacing:-.05em;
-      line-height:1;
-    }
-    .vaultUnit{
-      font-size:16px;
-      font-weight:950;
-      opacity:.65;
-    }
-    .rateTag{
+    .tag{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(148,163,184,.16);
-      border: 1px solid rgba(148,163,184,.20);
-      font-weight:950;
-      color: #a7f3d0;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      color:var(--muted);
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 75%, transparent);
       user-select:none;
+      white-space:nowrap;
     }
-    .rateTag span{ font-family: var(--mono); }
-    .vaultStats{
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(148,163,184,.22);
+    .tag .dot{
+      width:10px;height:10px;border-radius:999px;
+      background:var(--blue);
+      box-shadow:0 0 0 6px rgba(43,108,255,.10);
+    }
+    .right .tag .dot{
+      background:var(--green);
+      box-shadow:0 0 0 6px rgba(20,168,116,.10);
+    }
+    .hint{
+      font-size:12px;
+      font-weight:900;
+      color:rgba(11,19,36,.40);
+    }
+    [data-theme="dark"] .hint{color:rgba(233,238,252,.42)}
+    .bigLine{
       display:flex;
-      gap:14px;
-    }
-    .stat{
-      flex:1;
-      min-width:0;
-    }
-    .stat .k{font-size:12px; font-weight:900; opacity:.70;}
-    .stat .v{margin-top:6px; font-size:18px; font-weight:1000; font-family:var(--mono);}
-    .actions{
-      display:flex;
+      align-items:baseline;
       gap:12px;
     }
-    .actionCard{
-      flex:1;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.92);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 16px 16px;
+    .right .bigLine{justify-content:flex-end}
+    .bigNum{
+      font-size:64px;
+      font-weight:950;
+      letter-spacing:-1.8px;
+      line-height:1;
+      color:var(--ink);
+    }
+    .right .bigNum{color:var(--green)}
+    .unit{
+      font-size:18px;
+      font-weight:950;
+      color:rgba(11,19,36,.35);
+    }
+    [data-theme="dark"] .unit{color:rgba(233,238,252,.35)}
+
+    .saveBar{
       display:flex;
       align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px 14px;
+      border-top:1px solid var(--line);
+      background: linear-gradient(90deg, rgba(43,108,255,.06), rgba(20,168,116,.08));
+    }
+    .saveText{
+      font-weight:950;
+      letter-spacing:.2px;
+      color:var(--muted);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .saveText b{color:var(--ink)}
+    .saveBtn{
+      flex:0 0 auto;
+      display:flex;align-items:center;gap:10px;
+      padding:14px 18px;
+      border-radius:999px;
+      background: linear-gradient(135deg, rgba(20,168,116,1), rgba(20,168,116,.72));
+      color:white;
+      border:none;
+      font-weight:950;
+      cursor:pointer;
+      box-shadow: 0 18px 34px rgba(20,168,116,.28);
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+    }
+    .saveBtn:active{transform:scale(.99)}
+    .saveBtn svg{filter:drop-shadow(0 6px 14px rgba(0,0,0,.18))}
+
+    /* 键盘区域：自动填满剩余高度，不留空、不被tab压住 */
+    .padWrap{
+      flex:1;
+      display:flex;
+      padding:0 18px 18px;
+    }
+    .pad{
+      width:100%;
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--card) 90%, transparent);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding:14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr 1.05fr;
+      grid-template-rows: repeat(5, minmax(54px, 1fr));
       gap:14px;
+      align-items:stretch;
+      min-height: 340px;
+    }
+    .key{
+      border-radius:22px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:950;
+      font-size:28px;
       cursor:pointer;
       user-select:none;
-      transition: transform .08s, background .2s;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 12px 26px rgba(0,0,0,.05);
     }
-    html.dark .actionCard{
-      background: rgba(15,23,42,.60);
-      backdrop-filter: blur(14px);
-      box-shadow:none;
+    .key:active{transform:scale(.99)}
+    .key.op{
+      background: color-mix(in srgb, var(--blue-weak) 45%, var(--card));
+      color: color-mix(in srgb, var(--blue) 75%, var(--ink));
     }
-    .actionCard:active{ transform: scale(.99); }
-    .actionIcon{
-      width:56px;height:56px;border-radius:18px;
-      display:grid;place-items:center;
-      flex:0 0 auto;
+    .key.ac{
+      background: rgba(255,60,60,.10);
+      color:#ff3b30;
+      border-color: rgba(255,60,60,.18);
+    }
+    .key.eq{
+      background: linear-gradient(135deg, rgba(20,168,116,1), rgba(20,168,116,.72));
+      color:white;
+      border:none;
+      box-shadow: 0 18px 34px rgba(20,168,116,.28);
+      grid-row: 4 / span 2;
+      grid-column: 4;
+      font-size:34px;
+      border-radius:26px;
+    }
+    .key.zero{
+      grid-column: 1 / span 2;
+      justify-content:center;
+    }
+    .key.back{
+      font-size:22px;
+    }
+
+    /* 底部 tab：固定在底部，主内容已预留空间，不覆盖键盘 */
+    .tabbar{
+      position:fixed;
+      left:0;right:0;bottom:0;
+      height: calc(var(--tabH) + env(safe-area-inset-bottom));
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+    }
+    .tabInner{
+      width:min(520px, calc(100% - 24px));
+      background: color-mix(in srgb, var(--card) 92%, transparent);
       border:1px solid var(--line);
-      background: rgba(16,185,129,.10);
-    }
-    .actionIcon svg{width:22px;height:22px;fill:var(--green)}
-    .actionText .t{font-weight:1000; font-size:22px; letter-spacing:-.02em;}
-    .actionText .s{font-weight:950; font-size:12px; color:var(--muted); margin-top:2px; letter-spacing:.12em;}
-    .listBox{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.85);
-      border-radius: var(--radius);
+      border-radius: 26px;
       box-shadow: var(--shadow);
-      padding: 12px;
+      display:flex;
       overflow:hidden;
-      flex: 1;
-      min-height: 0;
+      pointer-events:auto;
+    }
+    .tab{
+      flex:1;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-weight:950;
+      color:rgba(11,19,36,.42);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    [data-theme="dark"] .tab{color:rgba(233,238,252,.48)}
+    .tab.active{
+      color:var(--ink);
+      background: linear-gradient(90deg, rgba(43,108,255,.08), rgba(20,168,116,.10));
+    }
+    .tab + .tab{border-left:1px solid var(--line)}
+    .tab svg{opacity:.9}
+
+    /* 弹窗（历史记录 / 详情） */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.38);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:50;
+    }
+    .overlay.show{display:flex}
+    .modal{
+      width:min(680px, 100%);
+      border-radius: 30px;
+      background: var(--card);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHead{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:18px 18px 10px;
+      gap:12px;
+    }
+    .modalTitle{
+      display:flex;align-items:center;gap:12px;min-width:0;
+    }
+    .modalTitle h2{
+      margin:0;
+      font-size:28px;
+      font-weight:950;
+      letter-spacing:-.4px;
+      line-height:1.1;
+    }
+    .modalTitle p{
+      margin:4px 0 0;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:850;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .modalIcon{
+      width:52px;height:52px;border-radius:18px;
+      background: var(--green-weak);
+      display:grid;place-items:center;
+      color:var(--green);
+      flex:0 0 auto;
+    }
+    .closeBtn{
+      width:52px;height:52px;border-radius:20px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      display:grid;place-items:center;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .closeBtn:active{transform:scale(.99)}
+    .modalActions{
+      display:flex;
+      gap:12px;
+      padding:10px 18px 14px;
+    }
+    .ghostBtn{
+      flex:1;
+      padding:16px 14px;
+      border-radius: 22px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      font-weight:950;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ghostBtn:active{transform:scale(.99)}
+    .dangerBtn{
+      flex:1;
+      padding:16px 14px;
+      border-radius: 22px;
+      border:1px solid rgba(255,60,60,.18);
+      background: rgba(255,60,60,.10);
+      color:#ff3b30;
+      font-weight:950;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dangerBtn:active{transform:scale(.99)}
+
+    .list{
+      padding:0 18px 18px;
       display:flex;
       flex-direction:column;
       gap:12px;
-    }
-    html.dark .listBox{
-      background: rgba(15,23,42,.55);
-      backdrop-filter: blur(14px);
-      box-shadow:none;
-    }
-    .listHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding: 2px 4px;
-    }
-    .listHead .h{
-      font-weight:1000;
-      letter-spacing:-.02em;
-      font-size:16px;
-    }
-    .listHead .sub{
-      font-weight:900;
-      color:var(--muted);
-      font-size:12px;
-    }
-    .items{
+      max-height: min(62vh, 560px);
       overflow:auto;
-      padding-right: 4px;
-      flex:1;
-      min-height:0;
     }
-    .items::-webkit-scrollbar{width:8px;}
-    .items::-webkit-scrollbar-thumb{background: rgba(148,163,184,.35); border-radius:999px;}
-    html.dark .items::-webkit-scrollbar-thumb{background: rgba(148,163,184,.22);}
-
-    /* Symmetric card */
-    .symCard{
+    .item{
+      border-radius: 24px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.92);
-      border-radius: 22px;
-      padding: 14px 14px;
+      background:
+        linear-gradient(90deg, var(--blue-weak), transparent 55%),
+        linear-gradient(270deg, var(--green-weak), transparent 55%),
+        color-mix(in srgb, var(--card) 96%, transparent);
+      padding:14px 14px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:12px;
       cursor:pointer;
       user-select:none;
-      transition: transform .08s, background .2s;
+      -webkit-tap-highlight-color: transparent;
     }
-    html.dark .symCard{
-      background: rgba(30,41,59,.65);
-      border-color: rgba(51,65,85,.85);
-    }
-    .symCard:active{ transform: scale(.99); }
-    .leftPack{ display:flex; align-items:center; gap:12px; min-width:0; }
-    .emoji{
-      width:46px;height:46px;border-radius:16px;
-      background: rgba(16,185,129,.10);
-      border:1px solid var(--line);
-      display:grid;place-items:center;
-      font-size:22px;
-      flex:0 0 auto;
-    }
-    html.dark .emoji{ border-color: rgba(51,65,85,.85); background: rgba(16,185,129,.12); }
-    .meta{
+    .item:active{transform:scale(.998)}
+    .itemLeft{
       min-width:0;
       display:flex;
       flex-direction:column;
       gap:6px;
     }
-    .metaTop{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      color: var(--muted);
+    .line1{
+      display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
       font-weight:950;
-      font-size:12px;
+      letter-spacing:-.2px;
     }
-    .metaTop .dot{opacity:.55}
-    .bigNums{
-      display:flex;
-      align-items:baseline;
-      gap:12px;
-      flex-wrap:wrap;
+    .line1 .twd{
+      color:var(--ink);
+      font-size:26px;
     }
-    .twdSmall{
-      font-weight:1000;
-      font-size:32px;
-      letter-spacing:-.03em;
-      color: var(--ink);
+    .line1 .twd small{
+      font-size:14px;
+      color:rgba(11,19,36,.40);
+      font-weight:950;
+      margin-left:6px;
     }
-    .twdSmall .u{
-      font-size:12px;
-      font-weight:1000;
-      color: rgba(148,163,184,.9);
-      margin-left:8px;
-    }
-    .myrSmall{
-      font-weight:1000;
-      font-size:36px;
-      letter-spacing:-.02em;
-      color: var(--green);
-      font-family: var(--mono);
-      text-align:right;
+    [data-theme="dark"] .line1 .twd small{color:rgba(233,238,252,.38)}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 78%, transparent);
+      font-size:13px;
+      color:var(--muted);
+      font-weight:950;
       white-space:nowrap;
     }
-    .myrSmall .u{
-      font-size:12px;
-      font-weight:1000;
-      color: rgba(148,163,184,.9);
-      margin-left:8px;
-      font-family: var(--sans);
+    .line2{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:850;
+      display:flex;gap:10px;flex-wrap:wrap;
+    }
+    .itemRight{
+      text-align:right;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex:0 0 auto;
+      align-items:flex-end;
+    }
+    .rm{
+      font-size:30px;
+      font-weight:950;
+      color:var(--green);
+      letter-spacing:-.4px;
+    }
+    .rm small{
+      font-size:14px;
+      color:rgba(11,19,36,.40);
+      font-weight:950;
+      margin-left:6px;
+    }
+    [data-theme="dark"] .rm small{color:rgba(233,238,252,.38)}
+    .empty{
+      border-radius: 24px;
+      border:1px dashed var(--line);
+      padding:18px;
+      color:var(--muted);
+      font-weight:900;
+      text-align:center;
+      background: color-mix(in srgb, var(--card) 92%, transparent);
     }
 
-    /* Bottom nav */
-    .bottom-nav{
-      position:absolute;
-      left:0;right:0;
-      bottom: 12px;
-      z-index:60;
-      display:flex;
-      justify-content:center;
-      pointer-events:none;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .bottom-nav .pillNav{
-      pointer-events:auto;
-      width: min(440px, calc(100% - 28px));
-      background: rgba(255,255,255,.92);
-      border: 1px solid var(--line);
-      backdrop-filter: blur(12px);
-      border-radius: 9999px;
-      padding: 10px 12px;
-      display:flex;
-      gap: 10px;
-      align-items: center;
-      box-shadow: var(--shadow);
-    }
-    html.dark .bottom-nav .pillNav{
-      background: rgba(15,23,42,.72);
-      border-color: rgba(51,65,85,.85);
-      box-shadow:none;
-    }
-    .navBtn{
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 12px 10px;
-      border-radius: 999px;
-      font-weight:1000;
-      font-size:15px;
-      color: rgb(148 163 184);
-      cursor:pointer;
-      user-select:none;
-      transition: transform .08s, background .2s;
-    }
-    .navBtn:active{ transform: scale(.98); }
-    .navBtn.active{
-      color: var(--ink);
-      background: rgba(16,185,129,.10);
-    }
-    html.dark .navBtn.active{
-      color: var(--ink);
-      background: rgba(16,185,129,.12);
-    }
-    .navDivider{
-      width:1px;height:26px;
-      background: var(--line);
-      opacity:.9;
-      margin: 0 2px;
-    }
-    html.dark .navDivider{ background: rgba(51,65,85,.9); }
-    .navBtn svg{width:18px;height:18px;fill: currentColor; opacity:.9}
-
-    /* Modal */
-    .overlay{
-      position:absolute;
-      inset:0;
-      background: rgba(2,6,23,.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 16px;
-      z-index: 80;
-    }
-    .overlay.show{ display:flex; }
-    .modal{
-      width:min(560px, 100%);
-      border-radius: 34px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.95);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 30px 80px rgba(2,6,23,.35);
-      overflow:hidden;
-    }
-    html.dark .modal{
-      background: rgba(15,23,42,.84);
-      border-color: rgba(51,65,85,.85);
-      box-shadow:none;
-    }
-    .modalHead{
-      padding: 16px 16px 12px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .modalTitle{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .modalTitle .ico{
-      width:50px;height:50px;border-radius:18px;
-      border:1px solid var(--line);
-      background: rgba(16,185,129,.12);
-      display:grid;place-items:center;
-    }
-    html.dark .modalTitle .ico{ border-color: rgba(51,65,85,.85); }
-    .modalTitle .ico svg{width:20px;height:20px;fill: var(--green)}
-    .modalTitle .txt .t{font-weight:1000;font-size:28px;letter-spacing:-.02em;line-height:1.1;}
-    .modalTitle .txt .s{font-weight:950;font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.02em;}
-    .closeX{
-      width:52px;height:52px;border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(241,245,249,.85);
-      display:grid;place-items:center;
-      cursor:pointer;
-      user-select:none;
-    }
-    html.dark .closeX{
-      background: rgba(30,41,59,.65);
-      border-color: rgba(51,65,85,.85);
-    }
-    .closeX svg{width:18px;height:18px;fill:var(--muted)}
-    html.dark .closeX svg{fill:#cbd5e1}
-
-    .modalBody{ padding: 0 16px 16px; }
-    .modalActions{
-      display:flex;
-      gap:12px;
-      padding: 12px 16px 16px;
-    }
-    .btn{
-      flex:1;
-      border-radius: 999px;
-      padding: 14px 14px;
-      font-weight:1000;
-      border:1px solid var(--line);
-      background: rgba(241,245,249,.85);
-      cursor:pointer;
-      user-select:none;
-    }
-    html.dark .btn{ background: rgba(30,41,59,.65); border-color: rgba(51,65,85,.85); color: var(--ink); }
-    .btn.danger{ background: rgba(239,68,68,.10); color: var(--danger); border-color: rgba(239,68,68,.25); }
-    html.dark .btn.danger{ background: rgba(239,68,68,.14); }
-    .btn.primary{
-      background: linear-gradient(180deg, #10b981 0%, #0ea371 100%);
-      color:#fff;border:none;
-      box-shadow: 0 18px 45px rgba(16,185,129,.22);
-    }
-    html.dark .btn.primary{ box-shadow:none; }
-
-    /* History list inside modal */
-    .historyTools{
-      display:flex;
-      gap:12px;
-      margin: 6px 0 14px;
-    }
-
-    /* Detail modal */
-    .detailGrid{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.92);
-      border-radius: 26px;
-      padding: 14px;
+    /* 详情弹窗 */
+    .detailBody{
+      padding:0 18px 18px;
       display:flex;
       flex-direction:column;
       gap:12px;
     }
-    html.dark .detailGrid{
-      background: rgba(30,41,59,.65);
-      border-color: rgba(51,65,85,.85);
+    .detailCard{
+      border-radius: 26px;
+      border:1px solid var(--line);
+      background:
+        linear-gradient(90deg, var(--blue-weak), transparent 55%),
+        linear-gradient(270deg, var(--green-weak), transparent 55%),
+        color-mix(in srgb, var(--card) 96%, transparent);
+      padding:16px 16px;
     }
-    .detailRow{
+    .detailTop{
       display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      color: var(--muted);
-      font-weight:950;
-      font-size:13px;
-    }
-    .detailRow strong{ color: var(--ink); font-weight:1000; }
-    .detailNums{
-      display:flex;
-      align-items:baseline;
       justify-content:space-between;
       gap:14px;
-      padding-top:6px;
-      border-top: 1px dashed rgba(148,163,184,.35);
+      align-items:flex-start;
     }
-    .dLeft,.dRight{flex:1; min-width:0;}
-    .dLeft .v{
-      font-size:44px;
-      font-weight:1000;
-      letter-spacing:-.04em;
-      color: var(--ink);
+    .detailTop .leftBlock{
+      display:flex;flex-direction:column;gap:8px;min-width:0;
     }
-    .dRight{ text-align:right; }
-    .dRight .v{
-      font-size:44px;
-      font-weight:1000;
-      letter-spacing:-.02em;
-      color: var(--green);
-      font-family: var(--mono);
+    .detailTop .rightBlock{
+      text-align:right;
+      display:flex;flex-direction:column;gap:8px;align-items:flex-end;
     }
-    .dUnit{
-      font-size:12px;
-      font-weight:1000;
-      color: rgba(148,163,184,.9);
-      margin-left:8px;
+    .bigPair{
+      display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
     }
-
-    /* Emoji category strip */
-    .catStrip{
+    .bigPair .num{
+      font-size:44px;font-weight:950;letter-spacing:-1px;
+    }
+    .bigPair .u{
+      font-size:16px;font-weight:950;color:rgba(11,19,36,.42);
+    }
+    [data-theme="dark"] .bigPair .u{color:rgba(233,238,252,.40)}
+    .bigPair.rm .num{color:var(--green)}
+    .meta{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:850;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      padding: 10px 0 6px;
     }
-    .catBtn{
-      border-radius: 16px;
-      padding: 10px 12px;
-      border:1px solid var(--line);
-      background: rgba(241,245,249,.85);
-      font-weight:1000;
-      cursor:pointer;
-      user-select:none;
+    .detailBtns{
       display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    html.dark .catBtn{ background: rgba(30,41,59,.65); border-color: rgba(51,65,85,.85); }
-    .catBtn.active{
-      border-color: rgba(16,185,129,.55);
-      background: rgba(16,185,129,.12);
-      color: var(--ink);
-    }
-    .catBtn .e{font-size:18px}
-    .catBtn .n{font-size:13px;color:var(--muted);font-weight:950}
-    .catBtn.active .n{ color: rgba(15,23,42,.75); }
-    html.dark .catBtn.active .n{ color: rgba(241,245,249,.85); }
-
-    /* Input */
-    .field{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
       gap:12px;
-      padding: 14px 14px;
+    }
+    .primaryClose{
+      flex:1;
+      padding:18px 14px;
       border-radius: 22px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.92);
-      font-weight:1000;
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      font-weight:950;
+      cursor:pointer;
     }
-    html.dark .field{ background: rgba(30,41,59,.65); border-color: rgba(51,65,85,.85); }
-    .field input{
-      border:none; outline:none; background:transparent;
-      font-size:28px; font-weight:1000; width:100%;
-      color: var(--ink);
-      font-family: var(--mono);
-    }
-    .suffix{
-      font-weight:1000;
-      color: var(--muted);
-      padding: 8px 12px;
-      border-radius: 999px;
-      border:1px solid var(--line);
-      background: rgba(241,245,249,.85);
-      flex:0 0 auto;
-    }
-    html.dark .suffix{ background: rgba(30,41,59,.65); border-color: rgba(51,65,85,.85); color:#cbd5e1; }
-
-    /* Small hint */
-    .hint{
-      color: var(--muted);
-      font-weight:900;
-      font-size:12px;
-      padding: 0 2px;
-      line-height:1.35;
+    .deleteBtn{
+      flex:1;
+      padding:18px 14px;
+      border-radius: 22px;
+      border:1px solid rgba(255,60,60,.18);
+      background: rgba(255,60,60,.10);
+      color:#ff3b30;
+      font-weight:950;
+      cursor:pointer;
     }
 
-    /* Utility */
-    .hidden{display:none!important;}
+    /* 小屏优化 */
+    @media (max-width:420px){
+      .title{font-size:34px}
+      .bigNum{font-size:58px}
+      .fxInner{gap:12px}
+      .col{padding:12px}
+      .pad{gap:12px}
+      .key{font-size:26px;border-radius:20px}
+    }
   </style>
 </head>
-<body>
-  <div class="app">
-    <div class="phone" id="phone">
 
-      <!-- Topbar -->
-      <div class="topbar">
-        <div class="brand">
-          <div class="brandIcon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path fill="#fff" d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm1.5 4.5h7a1 1 0 0 1 0 2h-7a1 1 0 0 1 0-2zM8.5 10h7a1 1 0 0 1 0 2h-7a1 1 0 0 1 0-2zM8.5 13.5h3a1 1 0 0 1 0 2h-3a1 1 0 0 1 0-2z"/>
+<body>
+  <div class="screen" id="screen">
+    <div class="topbar">
+      <div class="brand">
+        <div class="appIcon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <rect x="6" y="3.8" width="12" height="16.4" rx="2.2" stroke="white" stroke-width="2"/>
+            <path d="M8.5 8.5h7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8.5 12h7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8.5 15.5h4.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="titleWrap">
+          <div class="title">换算</div>
+          <div class="subtitle" id="subTitle">输入 TWD，右侧自动折合 RM</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="iconBtn" id="themeBtn" title="切换主题" aria-label="切换主题">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M21 12.5A8.5 8.5 0 1 1 11.5 3a6.2 6.2 0 0 0 9.5 9.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="iconBtn" id="undoBtn" title="撤回输入" aria-label="撤回输入">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M9 9H4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 9a8 8 0 1 1 2.4 5.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="pillRow">
+      <div class="ratePill" title="目前兑换汇率">
+        <div class="bolt">⚡</div>
+        <div class="rateText">当前汇率 <b id="rateLabel">1 : 7.949</b> <span style="opacity:.8">TWD/MYR</span></div>
+      </div>
+
+      <div class="rightPill">
+        <div class="histBtn" id="openHistory">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          历史
+        </div>
+      </div>
+    </div>
+
+    <!-- 颜色提示：左输入(蓝) 右换算(绿) -->
+    <div class="fxPanel">
+      <div class="fxInner">
+        <div class="col left">
+          <div class="miniRow">
+            <div class="tag"><span class="dot"></span> 输入</div>
+            <div class="hint">可编辑</div>
+          </div>
+          <div class="bigLine">
+            <span class="bigNum" id="twdValue">0</span>
+            <span class="unit">TWD</span>
+          </div>
+        </div>
+
+        <div class="col right">
+          <div class="miniRow">
+            <div class="tag"><span class="dot"></span> 换算</div>
+            <div class="hint">仅显示</div>
+          </div>
+          <div class="bigLine">
+            <span class="bigNum" id="rmValue">0.00</span>
+            <span class="unit">RM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="saveBar">
+        <div class="saveText">用当前汇率 <b id="rateSmall">1 : 7.949</b> 保存这次换算</div>
+        <button class="saveBtn" id="saveBtn" type="button" title="保存记录">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10l6 6v8a2 2 0 0 1-2 2Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M7 21v-8h10v8" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M7 5v4h8" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+          保存
+        </button>
+      </div>
+    </div>
+
+    <!-- 键盘：自动填满剩余空间 -->
+    <div class="padWrap">
+      <div class="pad" id="pad">
+        <div class="key ac" data-act="ac">AC</div>
+        <div class="key op back" data-act="back">⌫</div>
+        <div class="key op" data-act="div">÷</div>
+        <div class="key op" data-act="mul">×</div>
+
+        <div class="key" data-act="7">7</div>
+        <div class="key" data-act="8">8</div>
+        <div class="key" data-act="9">9</div>
+        <div class="key op" data-act="sub">−</div>
+
+        <div class="key" data-act="4">4</div>
+        <div class="key" data-act="5">5</div>
+        <div class="key" data-act="6">6</div>
+        <div class="key op" data-act="add">+</div>
+
+        <div class="key" data-act="1">1</div>
+        <div class="key" data-act="2">2</div>
+        <div class="key" data-act="3">3</div>
+        <div class="key eq" data-act="eq">=</div>
+
+        <div class="key zero" data-act="0">0</div>
+        <div class="key" data-act="dot">.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 Tab（不会覆盖键盘，因为 screen 已预留 padding-bottom） -->
+  <div class="tabbar">
+    <div class="tabInner">
+      <div class="tab" id="tabVault">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="6" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M7 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        金库
+      </div>
+      <div class="tab active" id="tabCalc">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="3" width="14" height="18" rx="2.5" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 8h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        换算
+      </div>
+    </div>
+  </div>
+
+  <!-- 历史记录弹窗 -->
+  <div class="overlay" id="historyOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle">
+          <div class="modalIcon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <div class="brandTitle" id="pageTitle">换算</div>
-        </div>
-
-        <div class="iconRow">
-          <div class="iconBtn" id="toggleDark" title="夜间模式">
-            <svg viewBox="0 0 24 24"><path d="M12 2a1 1 0 0 1 1 1v1.1A7.9 7.9 0 0 1 19.9 11H21a1 1 0 1 1 0 2h-1.1A7.9 7.9 0 0 1 13 19.9V21a1 1 0 1 1-2 0v-1.1A7.9 7.9 0 0 1 4.1 13H3a1 1 0 1 1 0-2h1.1A7.9 7.9 0 0 1 11 4.1V3a1 1 0 0 1 1-1z"/></svg>
-          </div>
-          <div class="iconBtn" id="undoCalc" title="撤销（恢复上一次输入）">
-            <svg viewBox="0 0 24 24"><path d="M12 5a7 7 0 0 1 7 7h-2a5 5 0 0 0-5-5H8.9l1.6 1.6a1 1 0 1 1-1.4 1.4L5.8 6.8a1 1 0 0 1 0-1.4L9.1 2.1a1 1 0 0 1 1.4 1.4L8.9 5H12zm-7 7h2a5 5 0 0 0 5 5h3.1l-1.6-1.6a1 1 0 1 1 1.4-1.4l3.3 3.3a1 1 0 0 1 0 1.4l-3.3 3.3a1 1 0 1 1-1.4-1.4l1.6-1.6H12a7 7 0 0 1-7-7z"/></svg>
+          <div style="min-width:0">
+            <h2>历史记录</h2>
+            <p>点击一条记录查看详情，详情页才提供删除</p>
           </div>
         </div>
-      </div>
-
-      <!-- Pills row -->
-      <div class="row">
-        <div class="pill pillBtn" id="ratePill" title="点击可更新/修改当前汇率">
-          <span class="zap" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8z"/></svg>
-          </span>
-          <span>当前汇率 <strong id="rateText">1 : 7.949</strong> <span style="opacity:.85">TWD/MYR</span></span>
-        </div>
-
-        <div class="pill pillBtn pillSmall" id="openHistoryFromCalc" title="查看历史记录">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:var(--green);opacity:.95">
-            <path d="M12 5a7 7 0 1 1-6.3 4H3a1 1 0 1 1 0-2h4a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0v-1.7A5 5 0 1 0 12 7a1 1 0 1 1 0-2zm-1 4a1 1 0 0 1 2 0v3l2 1.2a1 1 0 1 1-1 1.8l-2.5-1.5A1 1 0 0 1 11 12V9z"/>
+        <div class="closeBtn" id="closeHistory" aria-label="关闭">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <span style="font-weight:1000;color:var(--ink);">历史</span>
         </div>
       </div>
 
-      <!-- Pages -->
-      <div class="pages">
+      <div class="modalActions">
+        <button class="ghostBtn" id="exportBtn" type="button">导出</button>
+        <button class="dangerBtn" id="clearBtn" type="button">清空</button>
+      </div>
 
-        <!-- CALC PAGE -->
-        <div class="page active" id="pageCalc">
-          <div class="calcCard">
-            <div class="calcDisplay">
-              <div style="flex:1;min-width:0;">
-                <div class="labelRow">
-                  <span>你输入</span>
-                  <span class="badge">
-                    <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7zm14 2h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2V9z"/></svg>
-                    可编辑
-                  </span>
-                </div>
-                <div class="twdValue" id="displayTWD">0<span class="twdUnit">TWD</span></div>
-              </div>
+      <div class="list" id="historyList">
+        <!-- items -->
+      </div>
+    </div>
+  </div>
 
-              <div class="myrWrap">
-                <div class="labelRow" style="justify-content:flex-end;">
-                  <span>预估折合</span>
-                  <span class="badge">
-                    <svg viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5zm3 8V6a3 3 0 1 0-6 0v3h6zm-3 4a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1z"/></svg>
-                    仅展示
-                  </span>
-                </div>
-                <div class="myrValue" id="displayMYR">0.00<span class="myrUnit">RM</span></div>
-              </div>
-            </div>
-
-            <div class="saveBar">
-              <div class="saveText" id="saveHint">记录本次换算 · 用当前汇率</div>
-              <button class="saveBtn" id="saveCalc">
-                <svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zM7 5h8v4H7V5zm5 14a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
-                保存
-              </button>
-            </div>
+  <!-- 详情弹窗（删除只在这里出现） -->
+  <div class="overlay" id="detailOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle">
+          <div class="modalIcon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M8 7h8M9 7v14m6-14v14M6 7l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M10 4h4a2 2 0 0 1 2 2v1H8V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
           </div>
-
-          <!-- Keypad (fills remaining space automatically) -->
-          <div class="keypadWrap">
-            <div class="keypad" id="keypad">
-              <button class="kbtn ac" data-k="AC">AC</button>
-              <button class="kbtn soft" data-k="BK">⌫</button>
-              <button class="kbtn soft" data-k="DIV">÷</button>
-              <button class="kbtn soft" data-k="MUL">×</button>
-
-              <button class="kbtn" data-k="7">7</button>
-              <button class="kbtn" data-k="8">8</button>
-              <button class="kbtn" data-k="9">9</button>
-              <button class="kbtn soft" data-k="MINUS">-</button>
-
-              <button class="kbtn" data-k="4">4</button>
-              <button class="kbtn" data-k="5">5</button>
-              <button class="kbtn" data-k="6">6</button>
-              <button class="kbtn soft" data-k="PLUS">+</button>
-
-              <button class="kbtn" data-k="1">1</button>
-              <button class="kbtn" data-k="2">2</button>
-              <button class="kbtn" data-k="3">3</button>
-              <button class="kbtn eq" data-k="EQ">=</button>
-
-              <button class="kbtn wide" data-k="0">0</button>
-              <button class="kbtn" data-k=".">.</button>
-            </div>
+          <div style="min-width:0">
+            <h2 id="detailTitle">记录详情</h2>
+            <p id="detailSub"> </p>
           </div>
         </div>
-
-        <!-- VAULT PAGE -->
-        <div class="page" id="pageVault">
-          <div class="vaultHero">
-            <div class="vaultTop">
-              <div>
-                <div class="vaultTitle">台币余额</div>
-                <div class="vaultMain">
-                  <div class="vaultAmount" id="vaultBalance">0</div>
-                  <div class="vaultUnit">TWD</div>
-                </div>
-              </div>
-              <div class="rateTag" title="当前汇率（影响换算）">
-                <span>1 : <span id="vaultRate">7.949</span></span>
-              </div>
-            </div>
-
-            <div class="vaultStats">
-              <div class="stat">
-                <div class="k">累计存入（MYR）</div>
-                <div class="v" id="sumInMYR">0.00</div>
-              </div>
-              <div class="stat">
-                <div class="k">累计开销（MYR）</div>
-                <div class="v" id="sumOutMYR">0.00</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <div class="actionCard" id="openDeposit">
-              <div class="actionIcon">
-                <svg viewBox="0 0 24 24"><path d="M12 5V2l-4 4 4 4V7c3.3 0 6 2.7 6 6a6 6 0 0 1-6 6 6 6 0 0 1-5.65-4H4.2A8 8 0 0 0 12 21a8 8 0 0 0 0-16z"/></svg>
-              </div>
-              <div class="actionText">
-                <div class="t">存入资金</div>
-                <div class="s">INPUT</div>
-              </div>
-            </div>
-
-            <div class="actionCard" id="openExpense">
-              <div class="actionIcon" style="background: rgba(79,70,229,.10);">
-                <svg viewBox="0 0 24 24" style="fill:#4f46e5"><path d="M7 7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7zM3 10a1 1 0 0 1 1 1v6a2 2 0 0 0 2 2h1a1 1 0 1 1 0 2H6a4 4 0 0 1-4-4v-6a1 1 0 0 1 1-1z"/></svg>
-              </div>
-              <div class="actionText">
-                <div class="t">记录开销</div>
-                <div class="s">OUTPUT</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="listBox">
-            <div class="listHead">
-              <div>
-                <div class="h">记录</div>
-                <div class="sub">点进详情页才出现删除</div>
-              </div>
-              <div style="display:flex; gap:10px;">
-                <div class="pill pillBtn pillSmall" id="openHistoryFromVault" title="查看换算历史">
-                  <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:var(--green);opacity:.95">
-                    <path d="M12 5a7 7 0 1 1-6.3 4H3a1 1 0 1 1 0-2h4a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0v-1.7A5 5 0 1 0 12 7a1 1 0 1 1 0-2zm-1 4a1 1 0 0 1 2 0v3l2 1.2a1 1 0 1 1-1 1.8l-2.5-1.5A1 1 0 0 1 11 12V9z"/>
-                  </svg>
-                  <span style="font-weight:1000;color:var(--ink);">历史</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="items" id="vaultList"></div>
-          </div>
+        <div class="closeBtn" id="closeDetail" aria-label="关闭">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
         </div>
       </div>
 
-      <!-- Bottom nav -->
-      <div class="bottom-nav">
-        <div class="pillNav">
-          <div class="navBtn" id="navVault">
-            <svg viewBox="0 0 24 24"><path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7zm3-1a1 1 0 0 0-1 1v2h12V7a1 1 0 0 0-1-1H7z"/></svg>
-            金库
-          </div>
-          <div class="navDivider"></div>
-          <div class="navBtn active" id="navCalc">
-            <svg viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm1.5 4.5h7a1 1 0 0 1 0 2h-7a1 1 0 0 1 0-2zM8.5 10h7a1 1 0 0 1 0 2h-7a1 1 0 0 1 0-2zM8.5 13.5h3a1 1 0 0 1 0 2h-3a1 1 0 0 1 0-2z"/></svg>
-            换算
-          </div>
-        </div>
-      </div>
-
-      <!-- HISTORY MODAL -->
-      <div class="overlay" id="historyOverlay" aria-hidden="true">
-        <div class="modal">
-          <div class="modalHead">
-            <div class="modalTitle">
-              <div class="ico">
-                <svg viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.3 4H3a1 1 0 1 1 0-2h4a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0v-1.7A5 5 0 1 0 12 7a1 1 0 1 1 0-2zm-1 4a1 1 0 0 1 2 0v3l2 1.2a1 1 0 1 1-1 1.8l-2.5-1.5A1 1 0 0 1 11 12V9z"/></svg>
+      <div class="detailBody">
+        <div class="detailCard">
+          <div class="detailTop">
+            <div class="leftBlock">
+              <div class="bigPair">
+                <span class="num" id="detailTwd">0</span>
+                <span class="u">TWD</span>
               </div>
-              <div class="txt">
-                <div class="t">历史记录</div>
-                <div class="s">对称卡片式（点进详情才有删除）</div>
+              <div class="meta" id="detailMetaLeft"></div>
+            </div>
+            <div class="rightBlock">
+              <div class="bigPair rm">
+                <span class="num" id="detailRm">0.00</span>
+                <span class="u">RM</span>
               </div>
-            </div>
-            <div class="closeX" id="closeHistory">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.7a1 1 0 0 1 0 1.4L13.4 12l4.9 4.9a1 1 0 1 1-1.4 1.4L12 13.4l-4.9 4.9a1 1 0 1 1-1.4-1.4L10.6 12 5.7 7.1a1 1 0 0 1 1.4-1.4L12 10.6l4.9-4.9a1 1 0 0 1 1.4 0z"/></svg>
-            </div>
-          </div>
-
-          <div class="modalBody">
-            <div class="historyTools">
-              <button class="btn" id="exportHistory">导出</button>
-              <button class="btn danger" id="clearHistory">清空</button>
-            </div>
-
-            <div id="historyList"></div>
-
-            <div class="modalActions">
-              <button class="btn" id="closeHistoryBottom">关闭</button>
+              <div class="meta" id="detailMetaRight"></div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- DETAIL MODAL (delete only here) -->
-      <div class="overlay" id="detailOverlay" aria-hidden="true">
-        <div class="modal">
-          <div class="modalHead">
-            <div class="modalTitle">
-              <div class="ico" id="detailEmojiBox" style="font-size:22px;">🧾</div>
-              <div class="txt">
-                <div class="t" id="detailTitle">记录详情</div>
-                <div class="s" id="detailSub">—</div>
-              </div>
-            </div>
-            <div class="closeX" id="closeDetail">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.7a1 1 0 0 1 0 1.4L13.4 12l4.9 4.9a1 1 0 1 1-1.4 1.4L12 13.4l-4.9 4.9a1 1 0 1 1-1.4-1.4L10.6 12 5.7 7.1a1 1 0 0 1 1.4-1.4L12 10.6l4.9-4.9a1 1 0 0 1 1.4 0z"/></svg>
-            </div>
-          </div>
-
-          <div class="modalBody">
-            <div class="detailGrid">
-              <div class="detailRow">
-                <span>类型</span>
-                <strong id="detailType">—</strong>
-              </div>
-              <div class="detailRow">
-                <span>时间</span>
-                <strong id="detailTime">—</strong>
-              </div>
-              <div class="detailRow">
-                <span>汇率（TWD/MYR）</span>
-                <strong id="detailRate">—</strong>
-              </div>
-
-              <div class="detailNums">
-                <div class="dLeft">
-                  <div class="v" id="detailTWD">0<span class="dUnit">TWD</span></div>
-                </div>
-                <div class="dRight">
-                  <div class="v" id="detailMYR">0.00<span class="dUnit">RM</span></div>
-                </div>
-              </div>
-
-              <div class="hint" id="detailNoteHint">备注已隐藏（如需备注可后续加在详情页，但默认不强制）</div>
-            </div>
-
-            <div class="modalActions">
-              <button class="btn danger" id="deleteThis">删除</button>
-              <button class="btn" id="closeDetailBottom">关闭</button>
-            </div>
-          </div>
+        <div class="detailBtns">
+          <button class="primaryClose" id="detailCloseBtn" type="button">关闭</button>
+          <button class="deleteBtn" id="detailDeleteBtn" type="button">删除</button>
         </div>
       </div>
-
-      <!-- RATE MODAL -->
-      <div class="overlay" id="rateOverlay" aria-hidden="true">
-        <div class="modal">
-          <div class="modalHead">
-            <div class="modalTitle">
-              <div class="ico">
-                <svg viewBox="0 0 24 24"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8z"/></svg>
-              </div>
-              <div class="txt">
-                <div class="t">当前汇率</div>
-                <div class="s">1 MYR = ? TWD（影响换算与记录）</div>
-              </div>
-            </div>
-            <div class="closeX" id="closeRate">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.7a1 1 0 0 1 0 1.4L13.4 12l4.9 4.9a1 1 0 1 1-1.4 1.4L12 13.4l-4.9 4.9a1 1 0 1 1-1.4-1.4L10.6 12 5.7 7.1a1 1 0 0 1 1.4-1.4L12 10.6l4.9-4.9a1 1 0 0 1 1.4 0z"/></svg>
-            </div>
-          </div>
-
-          <div class="modalBody">
-            <div class="field">
-              <input id="rateInput" inputmode="decimal" placeholder="例如 7.949" />
-              <div class="suffix">TWD/MYR</div>
-            </div>
-            <div class="hint" style="margin-top:10px;">
-              你也可以不改。这里主要是方便你在“当天汇率变了”的时候同步一下，确保记录严格按当下汇率保存。
-            </div>
-            <div class="modalActions" style="margin-top:10px;">
-              <button class="btn" id="cancelRate">取消</button>
-              <button class="btn primary" id="saveRate">确认</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DEPOSIT MODAL -->
-      <div class="overlay" id="depositOverlay" aria-hidden="true">
-        <div class="modal">
-          <div class="modalHead">
-            <div class="modalTitle">
-              <div class="ico">
-                <svg viewBox="0 0 24 24"><path d="M12 5V2l-4 4 4 4V7c3.3 0 6 2.7 6 6a6 6 0 0 1-6 6 6 6 0 0 1-5.65-4H4.2A8 8 0 0 0 12 21a8 8 0 0 0 0-16z"/></svg>
-              </div>
-              <div class="txt">
-                <div class="t">存入资金</div>
-                <div class="s">输入 MYR，系统按当前汇率自动换算成 TWD</div>
-              </div>
-            </div>
-            <div class="closeX" id="closeDeposit">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.7a1 1 0 0 1 0 1.4L13.4 12l4.9 4.9a1 1 0 1 1-1.4 1.4L12 13.4l-4.9 4.9a1 1 0 1 1-1.4-1.4L10.6 12 5.7 7.1a1 1 0 0 1 1.4-1.4L12 10.6l4.9-4.9a1 1 0 0 1 1.4 0z"/></svg>
-            </div>
-          </div>
-
-          <div class="modalBody">
-            <div class="field">
-              <input id="depositMYR" inputmode="decimal" placeholder="0.00" />
-              <div class="suffix">MYR</div>
-            </div>
-
-            <div class="hint" style="margin-top:10px;">
-              预估折合（仅展示）：<strong id="depositTWDPreview" style="color:var(--ink)">0</strong> TWD
-              · 按 <strong id="depositRatePreview">7.949</strong> 计算
-            </div>
-
-            <div class="modalActions" style="margin-top:12px;">
-              <button class="btn" id="cancelDeposit">取消</button>
-              <button class="btn primary" id="confirmDeposit">确认</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- EXPENSE MODAL -->
-      <div class="overlay" id="expenseOverlay" aria-hidden="true">
-        <div class="modal">
-          <div class="modalHead">
-            <div class="modalTitle">
-              <div class="ico" style="background: rgba(79,70,229,.10);">
-                <svg viewBox="0 0 24 24" style="fill:#4f46e5"><path d="M7 7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7zM3 10a1 1 0 0 1 1 1v6a2 2 0 0 0 2 2h1a1 1 0 1 1 0 2H6a4 4 0 0 1-4-4v-6a1 1 0 0 1 1-1z"/></svg>
-              </div>
-              <div class="txt">
-                <div class="t">记录开销</div>
-                <div class="s">用表情选择类别 · 只记数字，不用选现金/卡</div>
-              </div>
-            </div>
-            <div class="closeX" id="closeExpense">
-              <svg viewBox="0 0 24 24"><path d="M18.3 5.7a1 1 0 0 1 0 1.4L13.4 12l4.9 4.9a1 1 0 1 1-1.4 1.4L12 13.4l-4.9 4.9a1 1 0 1 1-1.4-1.4L10.6 12 5.7 7.1a1 1 0 0 1 1.4-1.4L12 10.6l4.9-4.9a1 1 0 0 1 1.4 0z"/></svg>
-            </div>
-          </div>
-
-          <div class="modalBody">
-            <div class="hint" style="margin-bottom:8px;">选择类别（位置不够也没关系，表情最直观）：</div>
-            <div class="catStrip" id="catStrip"></div>
-
-            <div class="field" style="margin-top:6px;">
-              <input id="expenseMYR" inputmode="decimal" placeholder="0.00" />
-              <div class="suffix">MYR</div>
-            </div>
-
-            <div class="hint" style="margin-top:10px;">
-              预估折合（仅展示）：<strong id="expenseTWDPreview" style="color:var(--ink)">0</strong> TWD
-              · 按 <strong id="expenseRatePreview">7.949</strong> 计算
-            </div>
-
-            <div class="modalActions" style="margin-top:12px;">
-              <button class="btn" id="cancelExpense">取消</button>
-              <button class="btn primary" id="confirmExpense">确认</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
   <script>
-    /* ========= Data ========= */
-    const LS_KEY = "twmy_vault_v3";
-    const defaultState = {
-      rate: 7.949,                  // 1 MYR = rate TWD
-      dark: false,
-      calcInput: "0",
-      calcPrev: "0",
-      history: [],                  // {id, type:'calc', ts, rate, twd, myr, cat:{emoji,name}}
-      vault: {
-        balanceTWD: 0,
-        sumInMYR: 0,
-        sumOutMYR: 0,
-        // records share in history with type 'deposit'/'expense' as well (for simplicity)
-      }
-    };
+    // =====================
+    // Settings / Theme
+    // =====================
+    const themeBtn = document.getElementById("themeBtn");
+    const root = document.documentElement;
 
-    const categories = [
-      { emoji:"🍔", name:"吃喝" },
-      { emoji:"🚗", name:"交通" },
-      { emoji:"🎮", name:"玩乐" },
-      { emoji:"🛍️", name:"购物" },
-      { emoji:"🏨", name:"住宿" },
-      { emoji:"🎟️", name:"门票" },
-      { emoji:"🧾", name:"杂项" }
-    ];
+    function loadTheme(){
+      const t = localStorage.getItem("fx_theme");
+      if (t === "dark") document.body.dataset.theme = "dark";
+      else document.body.dataset.theme = "light";
+    }
+    function toggleTheme(){
+      const next = (document.body.dataset.theme === "dark") ? "light" : "dark";
+      document.body.dataset.theme = next;
+      localStorage.setItem("fx_theme", next);
+    }
+    themeBtn.addEventListener("click", toggleTheme);
+    loadTheme();
 
-    let state = loadState();
+    // =====================
+    // Rate (固定展示：你可以换成从你真实“目前兑换”里拿到的值)
+    // 这里不提供“平均/最近/手动”，只用“当前”
+    // =====================
+    let currentRate = 7.949; // TWD per MYR
+    const rateLabel = document.getElementById("rateLabel");
+    const rateSmall = document.getElementById("rateSmall");
+    function renderRate(){
+      const txt = `1 : ${Number(currentRate).toFixed(3)}`;
+      rateLabel.textContent = txt;
+      rateSmall.textContent = txt;
+    }
+    renderRate();
 
-    function loadState(){
+    // =====================
+    // History Storage (Keep old records)
+    // =====================
+    const HISTORY_KEY = "fx_history_v2";
+    const LEGACY_KEYS = ["fx_history","history","convert_history","records","exchange_history"];
+
+    function normalizeRecord(raw) {
+      if (!raw) return null;
+      const ts = Number(raw.ts ?? raw.time ?? raw.timestamp ?? Date.now());
+      const rate = Number(raw.rate ?? raw.fxRate ?? raw.exchangeRate ?? 0);
+      const twd = Number(raw.twd ?? raw.inputTWD ?? raw.amountTWD ?? raw.input ?? 0);
+      const rm  = Number(raw.rm  ?? raw.outputRM ?? raw.amountRM ?? raw.output ?? 0);
+      const note = (raw.note ?? raw.remark ?? raw.memo ?? "").toString();
+      const category = (raw.category ?? raw.type ?? raw.tag ?? "").toString();
+      const id = raw.id ?? `${Math.round(ts/1000)}_${rate}_${twd}_${rm}`;
+      if (!Number.isFinite(ts) || !Number.isFinite(rate) || !Number.isFinite(twd) || !Number.isFinite(rm)) return null;
+      return { id, ts, rate, twd, rm, category, note };
+    }
+    function safeParse(json){ try { return JSON.parse(json); } catch { return null; } }
+    function readArrayFromKey(key){
+      const txt = localStorage.getItem(key);
+      if (!txt) return [];
+      const parsed = safeParse(txt);
+      if (!parsed) return [];
+      const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.list) ? parsed.list : []);
+      return arr.map(normalizeRecord).filter(Boolean);
+    }
+    function mergeUnique(a,b){
+      const map = new Map();
+      [...a, ...b].forEach(r => { if (r) map.set(r.id, r); });
+      return Array.from(map.values()).sort((x,y)=> y.ts - x.ts);
+    }
+    function migrateHistoryOnce(){
+      const cur = readArrayFromKey(HISTORY_KEY);
+      let merged = [...cur];
+      LEGACY_KEYS.forEach(k=>{
+        if (k === HISTORY_KEY) return;
+        const legacy = readArrayFromKey(k);
+        if (legacy.length) merged = mergeUnique(merged, legacy);
+      });
+      if (merged.length !== cur.length) localStorage.setItem(HISTORY_KEY, JSON.stringify(merged));
+      return merged;
+    }
+    function loadHistory(){ return migrateHistoryOnce(); }
+    function saveHistory(list){ localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); }
+    function addHistory(record){
+      const list = loadHistory();
+      const n = normalizeRecord(record);
+      if (!n) return list;
+      const merged = mergeUnique(list, [n]);
+      saveHistory(merged);
+      return merged;
+    }
+
+    // =====================
+    // Input / Calculation
+    // =====================
+    let expr = "0";
+    let lastExprStack = [];
+
+    const twdValueEl = document.getElementById("twdValue");
+    const rmValueEl  = document.getElementById("rmValue");
+
+    function clampExpr(s){
+      if (!s || s === "") return "0";
+      if (s.length > 18) return s.slice(0,18);
+      return s;
+    }
+    function prettyNum(n){
+      const x = Number(n);
+      if (!Number.isFinite(x)) return "0";
+      const isInt = Math.abs(x - Math.round(x)) < 1e-10;
+      return isInt ? String(Math.round(x)) : String(x);
+    }
+    function safeEval(s){
+      // 只允许数字 + . + 运算符
+      if (!/^[0-9.+\-*/() ]+$/.test(s)) return 0;
       try{
-        const raw = localStorage.getItem(LS_KEY);
-        if(!raw) return structuredClone(defaultState);
-        const obj = JSON.parse(raw);
-
-        // merge (backward compatibility)
-        const merged = structuredClone(defaultState);
-        merged.rate = (typeof obj.rate === "number" && obj.rate > 0) ? obj.rate : merged.rate;
-        merged.dark = !!obj.dark;
-        merged.calcInput = (obj.calcInput ?? merged.calcInput) + "";
-        merged.calcPrev = (obj.calcPrev ?? merged.calcPrev) + "";
-        merged.history = Array.isArray(obj.history) ? obj.history : [];
-        merged.vault = merged.vault || {};
-        merged.vault.balanceTWD = Number(obj?.vault?.balanceTWD ?? 0) || 0;
-        merged.vault.sumInMYR = Number(obj?.vault?.sumInMYR ?? 0) || 0;
-        merged.vault.sumOutMYR = Number(obj?.vault?.sumOutMYR ?? 0) || 0;
-        return merged;
-      }catch(e){
-        return structuredClone(defaultState);
+        // eslint-disable-next-line no-new-func
+        const v = Function("return (" + s + ")")();
+        if (!Number.isFinite(v)) return 0;
+        return v;
+      }catch{
+        return 0;
       }
     }
-    function saveState(){
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    function calcRM(twd){
+      const v = Number(twd) || 0;
+      const rate = Number(currentRate) || 1;
+      return v / rate;
+    }
+    function render(){
+      const twd = safeEval(expr);
+      const rm = calcRM(twd);
+      twdValueEl.textContent = prettyNum(twd);
+      rmValueEl.textContent = rm.toFixed(2);
+    }
+    render();
+
+    // =====================
+    // Keypad
+    // =====================
+    const pad = document.getElementById("pad");
+    pad.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".key");
+      if (!btn) return;
+      const act = btn.dataset.act;
+
+      lastExprStack.push(expr);
+      if (lastExprStack.length > 40) lastExprStack.shift();
+
+      if (act === "ac"){
+        expr = "0";
+        lastExprStack = [];
+        render();
+        return;
+      }
+      if (act === "back"){
+        if (expr.length <= 1) expr = "0";
+        else expr = expr.slice(0,-1);
+        expr = clampExpr(expr);
+        render();
+        return;
+      }
+      if (act === "dot"){
+        expr = (expr === "0") ? "0." : (expr + ".");
+        expr = clampExpr(expr);
+        render();
+        return;
+      }
+      if (act === "add") { expr += "+"; expr = clampExpr(expr); render(); return; }
+      if (act === "sub") { expr += "-"; expr = clampExpr(expr); render(); return; }
+      if (act === "mul") { expr += "*"; expr = clampExpr(expr); render(); return; }
+      if (act === "div") { expr += "/"; expr = clampExpr(expr); render(); return; }
+      if (act === "eq"){
+        const v = safeEval(expr);
+        expr = String(Number.isFinite(v) ? v : 0);
+        expr = clampExpr(expr);
+        render();
+        return;
+      }
+      // number
+      if (/^\d$/.test(act)){
+        if (expr === "0") expr = act;
+        else expr += act;
+        expr = clampExpr(expr);
+        render();
+      }
+    });
+
+    // 撤回输入
+    document.getElementById("undoBtn").addEventListener("click", ()=>{
+      const prev = lastExprStack.pop();
+      if (prev !== undefined) expr = prev;
+      render();
+    });
+
+    // =====================
+    // Save
+    // =====================
+    document.getElementById("saveBtn").addEventListener("click", ()=>{
+      const twd = safeEval(expr);
+      const rm = calcRM(twd);
+      addHistory({
+        ts: Date.now(),
+        rate: Number(currentRate),
+        twd: Number(twd),
+        rm: Number(rm.toFixed(2)),
+        category: "", // 你之后要加🍔🚗分类也可以放这里
+        note: ""      // 备注默认空；你说“点进才显示”，这里先保留字段但不在列表显示
+      });
+      // 轻提示
+      flashSub("已保存到历史记录");
+    });
+
+    function flashSub(text){
+      const sub = document.getElementById("subTitle");
+      const old = sub.textContent;
+      sub.textContent = text;
+      setTimeout(()=> sub.textContent = old, 900);
     }
 
-    /* ========= Utils ========= */
-    const fmtTWD = new Intl.NumberFormat("zh-Hans", { maximumFractionDigits: 2 });
-    const fmtMYR = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // =====================
+    // History Modal
+    // =====================
+    const historyOverlay = document.getElementById("historyOverlay");
+    const historyList = document.getElementById("historyList");
 
-    function clampRate(x){
-      const n = Number(x);
-      if(!isFinite(n) || n <= 0) return state.rate;
-      return Math.round(n * 1000) / 1000;
-    }
-    function twdToMyr(twd, rate){
-      // rate = TWD/MYR => MYR = TWD / rate
-      return (Number(twd) || 0) / rate;
-    }
-    function myrToTwd(myr, rate){
-      return (Number(myr) || 0) * rate;
-    }
-    function nowStr(ts){
+    function fmtTime(ts){
       const d = new Date(ts);
       const mm = String(d.getMonth()+1).padStart(2,"0");
       const dd = String(d.getDate()).padStart(2,"0");
@@ -1360,530 +1122,165 @@
       const mi = String(d.getMinutes()).padStart(2,"0");
       return `${mm}-${dd} ${hh}:${mi}`;
     }
-    function uid(){
-      return Math.random().toString(16).slice(2) + Date.now().toString(16);
-    }
-
-    /* ========= Elements ========= */
-    const htmlEl = document.documentElement;
-
-    const pageTitle = document.getElementById("pageTitle");
-    const pageCalc = document.getElementById("pageCalc");
-    const pageVault = document.getElementById("pageVault");
-
-    const navCalc = document.getElementById("navCalc");
-    const navVault = document.getElementById("navVault");
-
-    const displayTWD = document.getElementById("displayTWD");
-    const displayMYR = document.getElementById("displayMYR");
-
-    const rateText = document.getElementById("rateText");
-    const vaultRate = document.getElementById("vaultRate");
-    const saveHint = document.getElementById("saveHint");
-
-    const vaultBalance = document.getElementById("vaultBalance");
-    const sumInMYR = document.getElementById("sumInMYR");
-    const sumOutMYR = document.getElementById("sumOutMYR");
-    const vaultList = document.getElementById("vaultList");
-
-    const toggleDark = document.getElementById("toggleDark");
-
-    const undoCalc = document.getElementById("undoCalc");
-
-    const ratePill = document.getElementById("ratePill");
-    const rateOverlay = document.getElementById("rateOverlay");
-    const rateInput = document.getElementById("rateInput");
-    const closeRate = document.getElementById("closeRate");
-    const cancelRate = document.getElementById("cancelRate");
-    const saveRateBtn = document.getElementById("saveRate");
-
-    const saveCalcBtn = document.getElementById("saveCalc");
-    const keypad = document.getElementById("keypad");
-
-    const historyOverlay = document.getElementById("historyOverlay");
-    const historyList = document.getElementById("historyList");
-    const openHistoryFromCalc = document.getElementById("openHistoryFromCalc");
-    const openHistoryFromVault = document.getElementById("openHistoryFromVault");
-    const closeHistory = document.getElementById("closeHistory");
-    const closeHistoryBottom = document.getElementById("closeHistoryBottom");
-    const exportHistory = document.getElementById("exportHistory");
-    const clearHistory = document.getElementById("clearHistory");
-
-    const detailOverlay = document.getElementById("detailOverlay");
-    const closeDetail = document.getElementById("closeDetail");
-    const closeDetailBottom = document.getElementById("closeDetailBottom");
-    const deleteThis = document.getElementById("deleteThis");
-
-    const detailEmojiBox = document.getElementById("detailEmojiBox");
-    const detailTitle = document.getElementById("detailTitle");
-    const detailSub = document.getElementById("detailSub");
-    const detailType = document.getElementById("detailType");
-    const detailTime = document.getElementById("detailTime");
-    const detailRate = document.getElementById("detailRate");
-    const detailTWD = document.getElementById("detailTWD");
-    const detailMYR = document.getElementById("detailMYR");
-
-    const openDeposit = document.getElementById("openDeposit");
-    const depositOverlay = document.getElementById("depositOverlay");
-    const closeDeposit = document.getElementById("closeDeposit");
-    const cancelDeposit = document.getElementById("cancelDeposit");
-    const confirmDeposit = document.getElementById("confirmDeposit");
-    const depositMYR = document.getElementById("depositMYR");
-    const depositTWDPreview = document.getElementById("depositTWDPreview");
-    const depositRatePreview = document.getElementById("depositRatePreview");
-
-    const openExpense = document.getElementById("openExpense");
-    const expenseOverlay = document.getElementById("expenseOverlay");
-    const closeExpense = document.getElementById("closeExpense");
-    const cancelExpense = document.getElementById("cancelExpense");
-    const confirmExpense = document.getElementById("confirmExpense");
-    const expenseMYR = document.getElementById("expenseMYR");
-    const expenseTWDPreview = document.getElementById("expenseTWDPreview");
-    const expenseRatePreview = document.getElementById("expenseRatePreview");
-    const catStrip = document.getElementById("catStrip");
-
-    let currentPage = "calc";
-    let selectedCat = categories[0];
-    let detailId = null;
-
-    /* ========= Render ========= */
-    function applyDark(){
-      if(state.dark) htmlEl.classList.add("dark");
-      else htmlEl.classList.remove("dark");
-    }
-
-    function renderRate(){
-      rateText.textContent = `1 : ${state.rate.toFixed(3)}`;
-      vaultRate.textContent = state.rate.toFixed(3);
-      saveHint.textContent = `记录本次换算 · 用当前汇率 1:${state.rate.toFixed(3)}（TWD/MYR）`;
-      depositRatePreview.textContent = state.rate.toFixed(3);
-      expenseRatePreview.textContent = state.rate.toFixed(3);
-    }
-
-    function renderCalc(){
-      const twd = Number(state.calcInput) || 0;
-      displayTWD.innerHTML = `${fmtTWD.format(twd)}<span class="twdUnit">TWD</span>`;
-      const myr = twdToMyr(twd, state.rate);
-      displayMYR.innerHTML = `${fmtMYR.format(myr)}<span class="myrUnit">RM</span>`;
-    }
-
-    function computeVault(){
-      // Recompute from history types: deposit/expense (robust)
-      let bal = 0;
-      let inMYR = 0;
-      let outMYR = 0;
-
-      for(const r of state.history){
-        if(r.type === "deposit"){
-          bal += Number(r.twd) || 0;
-          inMYR += Number(r.myr) || 0;
-        }
-        if(r.type === "expense"){
-          bal -= Number(r.twd) || 0;
-          outMYR += Number(r.myr) || 0;
-        }
-      }
-      state.vault.balanceTWD = bal;
-      state.vault.sumInMYR = inMYR;
-      state.vault.sumOutMYR = outMYR;
-    }
-
-    function renderVault(){
-      computeVault();
-      vaultBalance.textContent = fmtTWD.format(state.vault.balanceTWD);
-      sumInMYR.textContent = fmtMYR.format(state.vault.sumInMYR);
-      sumOutMYR.textContent = fmtMYR.format(state.vault.sumOutMYR);
-
-      // Build list: deposit/expense only
-      const recs = state.history.filter(r => r.type === "deposit" || r.type === "expense")
-                                .sort((a,b)=>b.ts-a.ts);
-
-      if(recs.length === 0){
-        vaultList.innerHTML = `<div class="hint" style="padding:14px 6px;">还没有记录。你可以先“存入资金”或“记录开销”。</div>`;
-        return;
-      }
-
-      vaultList.innerHTML = recs.map(r => cardHTML(r)).join("");
-      vaultList.querySelectorAll("[data-open-detail]").forEach(el=>{
-        el.addEventListener("click", ()=> openDetail(el.getAttribute("data-open-detail")));
-      });
-    }
 
     function renderHistory(){
-      // Only calc records (history of conversion)
-      const recs = state.history.filter(r => r.type === "calc")
-                                .sort((a,b)=>b.ts-a.ts);
+      const list = loadHistory();
+      historyList.innerHTML = "";
 
-      if(recs.length === 0){
-        historyList.innerHTML = `<div class="hint" style="padding:12px 2px;">暂无换算历史。你可以在换算页输入金额后点“保存”。</div>`;
+      if (!list.length){
+        const div = document.createElement("div");
+        div.className = "empty";
+        div.textContent = "暂无记录";
+        historyList.appendChild(div);
         return;
       }
 
-      historyList.innerHTML = recs.map(r => cardHTML(r)).join("");
-      historyList.querySelectorAll("[data-open-detail]").forEach(el=>{
-        el.addEventListener("click", ()=> openDetail(el.getAttribute("data-open-detail")));
+      list.forEach(rec=>{
+        const item = document.createElement("div");
+        item.className = "item";
+        item.dataset.id = rec.id;
+
+        const left = document.createElement("div");
+        left.className = "itemLeft";
+
+        const line1 = document.createElement("div");
+        line1.className = "line1";
+        line1.innerHTML = `
+          <span class="twd">${Number(rec.twd)}<small>TWD</small></span>
+          ${rec.category ? `<span class="chip">${rec.category}</span>` : ``}
+        `;
+
+        const line2 = document.createElement("div");
+        line2.className = "line2";
+        line2.innerHTML = `
+          <span>${fmtTime(rec.ts)}</span>
+          <span>Rate ${Number(rec.rate).toFixed(3)}</span>
+        `;
+
+        left.appendChild(line1);
+        left.appendChild(line2);
+
+        const right = document.createElement("div");
+        right.className = "itemRight";
+        right.innerHTML = `<div class="rm">${Number(rec.rm).toFixed(2)}<small>RM</small></div>`;
+
+        item.appendChild(left);
+        item.appendChild(right);
+
+        item.addEventListener("click", ()=> openDetail(rec.id));
+        historyList.appendChild(item);
       });
     }
 
-    function cardHTML(r){
-      const cat = r.cat || {emoji:"🧾", name:"杂项"};
-      const left = fmtTWD.format(Number(r.twd)||0);
-      const right = fmtMYR.format(Number(r.myr)||0);
-      const time = nowStr(r.ts);
-      const rate = (Number(r.rate)||state.rate).toFixed(3);
-
-      let typeLabel = "换算";
-      if(r.type === "deposit") typeLabel = "存入";
-      if(r.type === "expense") typeLabel = "开销";
-
-      return `
-        <div class="symCard" data-open-detail="${r.id}">
-          <div class="leftPack">
-            <div class="emoji">${cat.emoji}</div>
-            <div class="meta">
-              <div class="metaTop">
-                <span>${typeLabel}</span>
-                <span class="dot">•</span>
-                <span>${time}</span>
-                <span class="dot">•</span>
-                <span>Rate ${rate}</span>
-              </div>
-              <div class="bigNums">
-                <div class="twdSmall">${left}<span class="u">TWD</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="myrSmall">${right}<span class="u">RM</span></div>
-        </div>
-      `;
-    }
-
-    function renderCategories(){
-      catStrip.innerHTML = categories.map(c => `
-        <div class="catBtn ${c.emoji===selectedCat.emoji ? "active":""}" data-cat="${c.emoji}">
-          <span class="e">${c.emoji}</span>
-          <span class="n">${c.name}</span>
-        </div>
-      `).join("");
-
-      catStrip.querySelectorAll(".catBtn").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const em = btn.getAttribute("data-cat");
-          selectedCat = categories.find(x=>x.emoji===em) || categories[0];
-          renderCategories();
-        });
-      });
-    }
-
-    function setPage(p){
-      currentPage = p;
-      pageCalc.classList.toggle("active", p==="calc");
-      pageVault.classList.toggle("active", p==="vault");
-      navCalc.classList.toggle("active", p==="calc");
-      navVault.classList.toggle("active", p==="vault");
-      pageTitle.textContent = (p==="calc") ? "换算" : "我的金库";
-
-      // also show/hide undo icon only for calc
-      undoCalc.classList.toggle("hidden", p!=="calc");
-
-      if(p==="vault"){
-        renderVault();
-      }else{
-        renderCalc();
-      }
-    }
-
-    /* ========= Modal helpers ========= */
-    function show(el){ el.classList.add("show"); el.setAttribute("aria-hidden","false"); }
-    function hide(el){ el.classList.remove("show"); el.setAttribute("aria-hidden","true"); }
-
-    /* ========= Detail ========= */
-    function openDetail(id){
-      const r = state.history.find(x=>x.id===id);
-      if(!r) return;
-      detailId = id;
-
-      const cat = r.cat || {emoji:"🧾", name:"杂项"};
-      detailEmojiBox.textContent = cat.emoji;
-
-      let title = "记录详情";
-      if(r.type==="calc") title = "换算详情";
-      if(r.type==="deposit") title = "存入详情";
-      if(r.type==="expense") title = "开销详情";
-      detailTitle.textContent = title;
-
-      detailSub.textContent = `${cat.name} · ${nowStr(r.ts)}`;
-      detailType.textContent = (r.type==="calc") ? "换算记录" : (r.type==="deposit" ? "存入资金" : "记录开销");
-      detailTime.textContent = nowStr(r.ts);
-      detailRate.textContent = (Number(r.rate)||state.rate).toFixed(3);
-
-      detailTWD.innerHTML = `${fmtTWD.format(Number(r.twd)||0)}<span class="dUnit">TWD</span>`;
-      detailMYR.innerHTML = `${fmtMYR.format(Number(r.myr)||0)}<span class="dUnit">RM</span>`;
-
-      show(detailOverlay);
-    }
-
-    function closeDetailModal(){
-      detailId = null;
-      hide(detailOverlay);
-    }
-
-    /* ========= Actions ========= */
-    function pushRecord(rec){
-      state.history.push(rec);
-      saveState();
-    }
-
-    function saveCalcRecord(){
-      const twd = Number(state.calcInput) || 0;
-      if(twd <= 0) return;
-
-      const myr = twdToMyr(twd, state.rate);
-      const rec = {
-        id: uid(),
-        type: "calc",
-        ts: Date.now(),
-        rate: state.rate,
-        twd: twd,
-        myr: myr,
-        cat: {emoji:"🔁", name:"换算"}
-      };
-      pushRecord(rec);
-      // small feedback via opening history
+    document.getElementById("openHistory").addEventListener("click", ()=>{
       renderHistory();
-      show(historyOverlay);
-    }
+      historyOverlay.classList.add("show");
+    });
+    document.getElementById("closeHistory").addEventListener("click", ()=>{
+      historyOverlay.classList.remove("show");
+    });
+    historyOverlay.addEventListener("click", (e)=>{
+      if (e.target === historyOverlay) historyOverlay.classList.remove("show");
+    });
 
-    function handleKey(k){
-      // simple numeric input only, no formula engine (cleaner + less误触)
-      // Keep + - × ÷ and = for future, but current体验以“输入金额”为主
-      if(k==="AC"){
-        state.calcPrev = state.calcInput;
-        state.calcInput = "0";
-      }else if(k==="BK"){
-        state.calcPrev = state.calcInput;
-        const s = state.calcInput;
-        if(s.length<=1) state.calcInput = "0";
-        else state.calcInput = s.slice(0,-1);
-      }else if(k==="."){
-        state.calcPrev = state.calcInput;
-        if(!state.calcInput.includes(".")) state.calcInput += ".";
-      }else if(/^\d$/.test(k)){
-        state.calcPrev = state.calcInput;
-        if(state.calcInput==="0") state.calcInput = k;
-        else state.calcInput += k;
-      }else if(k==="EQ"){
-        // no-op: current版本把“=”当成确认键（可保留按压动效）
-      }else{
-        // ignore operators in this simplified mode
-      }
-      saveState();
-      renderCalc();
-    }
-
-    /* ========= Deposit / Expense ========= */
-    function openDepositModal(){
-      depositMYR.value = "";
-      depositTWDPreview.textContent = "0";
-      depositRatePreview.textContent = state.rate.toFixed(3);
-      show(depositOverlay);
-      setTimeout(()=>depositMYR.focus(), 60);
-    }
-
-    function openExpenseModal(){
-      expenseMYR.value = "";
-      expenseTWDPreview.textContent = "0";
-      expenseRatePreview.textContent = state.rate.toFixed(3);
-      selectedCat = categories[0];
-      renderCategories();
-      show(expenseOverlay);
-      setTimeout(()=>expenseMYR.focus(), 60);
-    }
-
-    function updateDepositPreview(){
-      const v = Number(depositMYR.value) || 0;
-      const twd = myrToTwd(v, state.rate);
-      depositTWDPreview.textContent = fmtTWD.format(twd);
-    }
-    function updateExpensePreview(){
-      const v = Number(expenseMYR.value) || 0;
-      const twd = myrToTwd(v, state.rate);
-      expenseTWDPreview.textContent = fmtTWD.format(twd);
-    }
-
-    function confirmDepositRecord(){
-      const myr = Number(depositMYR.value) || 0;
-      if(myr <= 0) return;
-      const twd = myrToTwd(myr, state.rate);
-
-      pushRecord({
-        id: uid(),
-        type: "deposit",
-        ts: Date.now(),
-        rate: state.rate,
-        twd,
-        myr,
-        cat: {emoji:"💰", name:"存入"}
-      });
-
-      hide(depositOverlay);
-      renderVault();
-      setPage("vault");
-    }
-
-    function confirmExpenseRecord(){
-      const myr = Number(expenseMYR.value) || 0;
-      if(myr <= 0) return;
-      const twd = myrToTwd(myr, state.rate);
-
-      pushRecord({
-        id: uid(),
-        type: "expense",
-        ts: Date.now(),
-        rate: state.rate,
-        twd,
-        myr,
-        cat: {emoji:selectedCat.emoji, name:selectedCat.name}
-      });
-
-      hide(expenseOverlay);
-      renderVault();
-      setPage("vault");
-    }
-
-    /* ========= Export / Clear ========= */
-    function doExport(){
-      const data = {
-        exportedAt: new Date().toISOString(),
-        rate: state.rate,
-        history: state.history
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+    // 导出（JSON）
+    document.getElementById("exportBtn").addEventListener("click", ()=>{
+      const list = loadHistory();
+      const blob = new Blob([JSON.stringify(list, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `records_${Date.now()}.json`;
-      document.body.appendChild(a);
+      a.download = "fx_history.json";
       a.click();
-      a.remove();
       URL.revokeObjectURL(a.href);
-    }
+    });
 
-    function doClearHistory(){
-      if(!confirm("确定清空所有历史记录吗？此操作不可恢复。")) return;
-      state.history = [];
-      saveState();
+    // 清空
+    document.getElementById("clearBtn").addEventListener("click", ()=>{
+      if (!confirm("确定清空全部历史记录？")) return;
+      saveHistory([]);
       renderHistory();
-      renderVault();
+    });
+
+    // =====================
+    // Detail Modal (Delete only here)
+    // =====================
+    const detailOverlay = document.getElementById("detailOverlay");
+    const detailTwd = document.getElementById("detailTwd");
+    const detailRm  = document.getElementById("detailRm");
+    const detailSub = document.getElementById("detailSub");
+    const metaLeft  = document.getElementById("detailMetaLeft");
+    const metaRight = document.getElementById("detailMetaRight");
+    let currentDetailId = null;
+
+    function getRecordById(id){
+      const list = loadHistory();
+      return list.find(x=>x.id===id) || null;
     }
 
-    /* ========= Rate ========= */
-    function openRateModal(){
-      rateInput.value = state.rate.toFixed(3);
-      show(rateOverlay);
-      setTimeout(()=>rateInput.select(), 60);
-    }
-    function saveRate(){
-      const v = clampRate(rateInput.value);
-      state.rate = v;
-      saveState();
-      renderRate();
-      renderCalc();
-      renderVault();
-      hide(rateOverlay);
+    function openDetail(id){
+      const rec = getRecordById(id);
+      if (!rec) return;
+
+      currentDetailId = id;
+
+      detailTwd.textContent = Number(rec.twd);
+      detailRm.textContent = Number(rec.rm).toFixed(2);
+      detailSub.textContent = `${fmtTime(rec.ts)} · Rate ${Number(rec.rate).toFixed(3)}`;
+
+      metaLeft.innerHTML = `
+        ${rec.category ? `<span class="chip">${rec.category}</span>` : `<span class="chip">未分类</span>`}
+        <span class="chip">输入侧（蓝色）</span>
+      `;
+      metaRight.innerHTML = `
+        <span class="chip">换算侧（绿色）</span>
+        <span class="chip">仅显示</span>
+      `;
+
+      detailOverlay.classList.add("show");
     }
 
-    /* ========= Delete ========= */
-    function deleteRecord(){
-      if(!detailId) return;
-      if(!confirm("确定删除这条记录吗？")) return;
-      state.history = state.history.filter(x=>x.id !== detailId);
-      saveState();
-      closeDetailModal();
+    function closeDetail(){
+      detailOverlay.classList.remove("show");
+      currentDetailId = null;
+    }
+    document.getElementById("closeDetail").addEventListener("click", closeDetail);
+    document.getElementById("detailCloseBtn").addEventListener("click", closeDetail);
+    detailOverlay.addEventListener("click", (e)=>{
+      if (e.target === detailOverlay) closeDetail();
+    });
+
+    document.getElementById("detailDeleteBtn").addEventListener("click", ()=>{
+      if (!currentDetailId) return;
+      if (!confirm("确定删除这条记录？")) return;
+
+      const list = loadHistory();
+      const next = list.filter(x=>x.id !== currentDetailId);
+      saveHistory(next);
+
+      closeDetail();
       renderHistory();
-      renderVault();
-    }
-
-    /* ========= Events ========= */
-    navCalc.addEventListener("click", ()=> setPage("calc"));
-    navVault.addEventListener("click", ()=> setPage("vault"));
-
-    toggleDark.addEventListener("click", ()=>{
-      state.dark = !state.dark;
-      saveState();
-      applyDark();
     });
 
-    undoCalc.addEventListener("click", ()=>{
-      const t = state.calcInput;
-      state.calcInput = state.calcPrev || "0";
-      state.calcPrev = t;
-      saveState();
-      renderCalc();
+    // =====================
+    // Tabs (这里只做视觉切换，不实现“金库”页面逻辑；你要的话我再补)
+    // =====================
+    const tabVault = document.getElementById("tabVault");
+    const tabCalc  = document.getElementById("tabCalc");
+    tabVault.addEventListener("click", ()=>{
+      tabVault.classList.add("active");
+      tabCalc.classList.remove("active");
+      flashSub("金库页面：待接入（目前保留换算功能）");
+    });
+    tabCalc.addEventListener("click", ()=>{
+      tabCalc.classList.add("active");
+      tabVault.classList.remove("active");
+      flashSub("换算模式");
     });
 
-    ratePill.addEventListener("click", openRateModal);
-    document.getElementById("closeRate").addEventListener("click", ()=> hide(rateOverlay));
-    cancelRate.addEventListener("click", ()=> hide(rateOverlay));
-    saveRateBtn.addEventListener("click", saveRate);
-    rateInput.addEventListener("keydown", (e)=>{ if(e.key==="Enter") saveRate(); });
-
-    keypad.addEventListener("click", (e)=>{
-      const btn = e.target.closest("button");
-      if(!btn) return;
-      handleKey(btn.getAttribute("data-k"));
-    });
-
-    saveCalcBtn.addEventListener("click", saveCalcRecord);
-
-    openHistoryFromCalc.addEventListener("click", ()=>{
-      renderHistory();
-      show(historyOverlay);
-    });
-    openHistoryFromVault.addEventListener("click", ()=>{
-      renderHistory();
-      show(historyOverlay);
-    });
-
-    closeHistory.addEventListener("click", ()=> hide(historyOverlay));
-    closeHistoryBottom.addEventListener("click", ()=> hide(historyOverlay));
-    exportHistory.addEventListener("click", doExport);
-    clearHistory.addEventListener("click", doClearHistory);
-
-    closeDetail.addEventListener("click", closeDetailModal);
-    closeDetailBottom.addEventListener("click", closeDetailModal);
-    deleteThis.addEventListener("click", deleteRecord);
-
-    openDeposit.addEventListener("click", openDepositModal);
-    closeDeposit.addEventListener("click", ()=> hide(depositOverlay));
-    cancelDeposit.addEventListener("click", ()=> hide(depositOverlay));
-    confirmDeposit.addEventListener("click", confirmDepositRecord);
-    depositMYR.addEventListener("input", updateDepositPreview);
-    depositMYR.addEventListener("keydown", (e)=>{ if(e.key==="Enter") confirmDepositRecord(); });
-
-    openExpense.addEventListener("click", openExpenseModal);
-    closeExpense.addEventListener("click", ()=> hide(expenseOverlay));
-    cancelExpense.addEventListener("click", ()=> hide(expenseOverlay));
-    confirmExpense.addEventListener("click", confirmExpenseRecord);
-    expenseMYR.addEventListener("input", updateExpensePreview);
-    expenseMYR.addEventListener("keydown", (e)=>{ if(e.key==="Enter") confirmExpenseRecord(); });
-
-    // click outside modal to close (optional)
-    [historyOverlay, detailOverlay, rateOverlay, depositOverlay, expenseOverlay].forEach(ov=>{
-      ov.addEventListener("click", (e)=>{
-        if(e.target === ov) hide(ov);
-      });
-    });
-
-    /* ========= Init ========= */
-    applyDark();
-    renderRate();
-    renderCalc();
-    renderVault();
-    renderHistory();
-    renderCategories();
-
-    // default page = calc
-    setPage("calc");
+    // =====================
+    // 初次加载：确保旧记录被迁移回来
+    // =====================
+    migrateHistoryOnce();
   </script>
 </body>
 </html>
