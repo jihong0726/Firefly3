@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>换算</title>
+  <title>金库 & 换算</title>
   <style>
     :root{
       --bg:#f4f7fb;
@@ -18,10 +18,13 @@
       --blue:#2b6cff;
       --blue-weak:rgba(43,108,255,.10);
 
+      --danger:#ff3b30;
+      --danger-weak:rgba(255,59,48,.10);
+
       --shadow:0 18px 40px rgba(0,0,0,.07);
       --radius:26px;
 
-      --tabH:78px; /* 底部tab高度 */
+      --tabH:78px;
     }
     [data-theme="dark"]{
       --bg:#0b1220;
@@ -50,6 +53,13 @@
       color:var(--ink);
     }
 
+    .screen{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      padding-bottom: calc(var(--tabH) + env(safe-area-inset-bottom));
+    }
+
     /* 顶部栏 */
     .topbar{
       display:flex;
@@ -71,7 +81,6 @@
       box-shadow: 0 14px 30px rgba(20,168,116,.25);
       flex:0 0 auto;
     }
-    .appIcon svg{opacity:.95}
     .titleWrap{min-width:0}
     .title{
       font-size:38px;
@@ -90,13 +99,7 @@
       overflow:hidden;
       text-overflow:ellipsis;
     }
-
-    .actions{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      flex:0 0 auto;
-    }
+    .actions{display:flex;align-items:center;gap:12px;flex:0 0 auto;}
     .iconBtn{
       width:54px;height:54px;border-radius:20px;
       border:1px solid var(--line);
@@ -108,6 +111,8 @@
       -webkit-tap-highlight-color: transparent;
     }
     .iconBtn:active{transform:scale(.98)}
+
+    /* 小胶囊 */
     .pillRow{
       display:flex;
       align-items:center;
@@ -143,9 +148,6 @@
       text-overflow:ellipsis;
     }
     .rateText b{color:var(--ink)}
-    .rightPill{
-      display:flex;align-items:center;gap:10px;
-    }
     .histBtn{
       padding:14px 16px;
       border-radius:999px;
@@ -160,15 +162,11 @@
     }
     .histBtn:active{transform:scale(.99)}
 
-    /* 主体布局：保证键盘永远不被 tab 覆盖 */
-    .screen{
-      height:calc(100vh - 0px);
-      display:flex;
-      flex-direction:column;
-      padding-bottom: calc(var(--tabH) + env(safe-area-inset-bottom));
-    }
+    /* 页面容器 */
+    .page{display:none;}
+    .page.show{display:block;}
 
-    /* 输入/换算展示区（用颜色让用户秒懂左右） */
+    /* ===== 换算页 ===== */
     .fxPanel{
       margin:6px 18px 10px;
       border-radius: var(--radius);
@@ -280,7 +278,7 @@
     .saveBtn{
       flex:0 0 auto;
       display:flex;align-items:center;gap:10px;
-      padding:14px 18px;
+      padding:14px 22px;
       border-radius:999px;
       background: linear-gradient(135deg, rgba(20,168,116,1), rgba(20,168,116,.72));
       color:white;
@@ -292,9 +290,8 @@
       user-select:none;
     }
     .saveBtn:active{transform:scale(.99)}
-    .saveBtn svg{filter:drop-shadow(0 6px 14px rgba(0,0,0,.18))}
 
-    /* 键盘区域：自动填满剩余高度，不留空、不被tab压住 */
+    /* 键盘区 */
     .padWrap{
       flex:1;
       display:flex;
@@ -333,7 +330,7 @@
     }
     .key.ac{
       background: rgba(255,60,60,.10);
-      color:#ff3b30;
+      color:var(--danger);
       border-color: rgba(255,60,60,.18);
     }
     .key.eq{
@@ -350,52 +347,185 @@
       grid-column: 1 / span 2;
       justify-content:center;
     }
-    .key.back{
-      font-size:22px;
+    .key.back{font-size:22px;}
+
+    /* ===== 金库页（不显示计算器） ===== */
+    .vaultHero{
+      margin:6px 18px 12px;
+      border-radius: 34px;
+      border:1px solid var(--line);
+      background: linear-gradient(145deg, rgba(11,19,36,.98), rgba(11,19,36,.82));
+      box-shadow: var(--shadow);
+      padding:20px 20px 18px;
+      color:white;
+      overflow:hidden;
+      position:relative;
+    }
+    [data-theme="dark"] .vaultHero{
+      background: linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      color:var(--ink);
+    }
+    .vaultHero .row1{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+    }
+    .vaultHero .label{
+      font-weight:900;
+      opacity:.72;
+      letter-spacing:.2px;
+    }
+    .vaultHero .balance{
+      font-size:72px;
+      font-weight:950;
+      letter-spacing:-2px;
+      line-height:1;
+      margin-top:8px;
+    }
+    .vaultHero .rateBadge{
+      border-radius:999px;
+      padding:10px 14px;
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.16);
+      font-weight:950;
+      color: rgba(255,255,255,.88);
+      white-space:nowrap;
+    }
+    [data-theme="dark"] .vaultHero .rateBadge{
+      background: rgba(20,168,116,.12);
+      border:1px solid rgba(20,168,116,.18);
+      color:var(--green);
+    }
+    .vaultMeta{
+      margin-top:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      opacity:.86;
+      font-weight:900;
     }
 
-    /* 底部 tab：固定在底部，主内容已预留空间，不覆盖键盘 */
-    .tabbar{
-      position:fixed;
-      left:0;right:0;bottom:0;
-      height: calc(var(--tabH) + env(safe-area-inset-bottom));
-      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-      display:flex;
-      justify-content:center;
-      pointer-events:none;
+    .vaultBtns{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      padding: 0 18px 12px;
     }
-    .tabInner{
-      width:min(520px, calc(100% - 24px));
-      background: color-mix(in srgb, var(--card) 92%, transparent);
+    .bigAction{
+      border-radius: 28px;
       border:1px solid var(--line);
-      border-radius: 26px;
-      box-shadow: var(--shadow);
-      display:flex;
-      overflow:hidden;
-      pointer-events:auto;
-    }
-    .tab{
-      flex:1;
-      padding:12px 14px;
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      box-shadow: 0 14px 30px rgba(0,0,0,.06);
+      padding:18px 16px;
       display:flex;
       align-items:center;
-      justify-content:center;
-      gap:10px;
-      font-weight:950;
-      color:rgba(11,19,36,.42);
+      gap:14px;
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
-    [data-theme="dark"] .tab{color:rgba(233,238,252,.48)}
-    .tab.active{
-      color:var(--ink);
-      background: linear-gradient(90deg, rgba(43,108,255,.08), rgba(20,168,116,.10));
+    .bigAction:active{transform:scale(.995)}
+    .bigAction .ic{
+      width:50px;height:50px;border-radius:18px;
+      display:grid;place-items:center;
+      flex:0 0 auto;
+      background: var(--green-weak);
+      color: var(--green);
+      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
     }
-    .tab + .tab{border-left:1px solid var(--line)}
-    .tab svg{opacity:.9}
+    .bigAction .ic.blue{
+      background: var(--blue-weak);
+      color: var(--blue);
+      border:1px solid color-mix(in srgb, var(--blue) 18%, transparent);
+    }
+    .bigAction .t{
+      font-size:20px;
+      font-weight:950;
+      letter-spacing:-.2px;
+      margin:0;
+      line-height:1.1;
+    }
+    .bigAction .s{
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:850;
+      letter-spacing:.2px;
+    }
 
-    /* 弹窗（历史记录 / 详情） */
+    .vaultListWrap{
+      padding: 0 18px 18px;
+    }
+    .sectionTitle{
+      display:flex;align-items:center;justify-content:space-between;
+      margin:6px 2px 10px;
+      color:var(--muted);
+      font-weight:950;
+      letter-spacing:.2px;
+    }
+    .vaultList{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .vaultItem{
+      border-radius: 24px;
+      border:1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 96%, transparent);
+      box-shadow: 0 10px 22px rgba(0,0,0,.04);
+      padding:14px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .vaultItem:active{transform:scale(.998)}
+    .vaultItem .left{
+      display:flex;align-items:center;gap:12px;min-width:0;
+    }
+    .vaultItem .emoji{
+      width:44px;height:44px;border-radius:18px;
+      display:grid;place-items:center;
+      background: color-mix(in srgb, var(--green-weak) 70%, var(--card));
+      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
+      font-size:20px;
+    }
+    .vaultItem .txt{
+      min-width:0;
+    }
+    .vaultItem .txt .name{
+      font-weight:950;
+      letter-spacing:-.2px;
+      margin:0;
+      line-height:1.1;
+      font-size:18px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .vaultItem .txt .meta{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:850;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .vaultItem .amt{
+      text-align:right;
+      font-weight:950;
+      letter-spacing:-.2px;
+      font-size:20px;
+      color:var(--ink);
+      white-space:nowrap;
+    }
+
+    /* 弹窗复用 */
     .overlay{
       position:fixed; inset:0;
       background: rgba(0,0,0,.38);
@@ -407,7 +537,7 @@
     }
     .overlay.show{display:flex}
     .modal{
-      width:min(680px, 100%);
+      width:min(720px, 100%);
       border-radius: 30px;
       background: var(--card);
       border:1px solid var(--line);
@@ -444,6 +574,7 @@
       display:grid;place-items:center;
       color:var(--green);
       flex:0 0 auto;
+      border:1px solid color-mix(in srgb, var(--green) 18%, transparent);
     }
     .closeBtn{
       width:52px;height:52px;border-radius:20px;
@@ -455,6 +586,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .closeBtn:active{transform:scale(.99)}
+
     .modalActions{
       display:flex;
       gap:12px;
@@ -478,7 +610,7 @@
       border-radius: 22px;
       border:1px solid rgba(255,60,60,.18);
       background: rgba(255,60,60,.10);
-      color:#ff3b30;
+      color:var(--danger);
       font-weight:950;
       cursor:pointer;
       user-select:none;
@@ -511,156 +643,105 @@
       -webkit-tap-highlight-color: transparent;
     }
     .item:active{transform:scale(.998)}
-    .itemLeft{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .line1{
-      display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
-      font-weight:950;
-      letter-spacing:-.2px;
-    }
-    .line1 .twd{
-      color:var(--ink);
-      font-size:26px;
-    }
-    .line1 .twd small{
-      font-size:14px;
-      color:rgba(11,19,36,.40);
-      font-weight:950;
-      margin-left:6px;
-    }
+    .itemLeft{min-width:0;display:flex;flex-direction:column;gap:6px;}
+    .line1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-weight:950;letter-spacing:-.2px;}
+    .line1 .twd{color:var(--ink);font-size:26px;}
+    .line1 .twd small{font-size:14px;color:rgba(11,19,36,.40);font-weight:950;margin-left:6px;}
     [data-theme="dark"] .line1 .twd small{color:rgba(233,238,252,.38)}
     .chip{
       display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
+      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
       background: color-mix(in srgb, var(--card) 78%, transparent);
-      font-size:13px;
-      color:var(--muted);
-      font-weight:950;
-      white-space:nowrap;
+      font-size:13px;color:var(--muted);font-weight:950;white-space:nowrap;
     }
-    .line2{
-      font-size:13px;
-      color:var(--muted);
-      font-weight:850;
-      display:flex;gap:10px;flex-wrap:wrap;
-    }
-    .itemRight{
-      text-align:right;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      flex:0 0 auto;
-      align-items:flex-end;
-    }
-    .rm{
-      font-size:30px;
-      font-weight:950;
-      color:var(--green);
-      letter-spacing:-.4px;
-    }
-    .rm small{
-      font-size:14px;
-      color:rgba(11,19,36,.40);
-      font-weight:950;
-      margin-left:6px;
-    }
+    .line2{font-size:13px;color:var(--muted);font-weight:850;display:flex;gap:10px;flex-wrap:wrap;}
+    .itemRight{text-align:right;display:flex;flex-direction:column;gap:6px;flex:0 0 auto;align-items:flex-end;}
+    .rm{font-size:30px;font-weight:950;color:var(--green);letter-spacing:-.4px;}
+    .rm small{font-size:14px;color:rgba(11,19,36,.40);font-weight:950;margin-left:6px;}
     [data-theme="dark"] .rm small{color:rgba(233,238,252,.38)}
     .empty{
-      border-radius: 24px;
-      border:1px dashed var(--line);
-      padding:18px;
-      color:var(--muted);
-      font-weight:900;
-      text-align:center;
+      border-radius: 24px;border:1px dashed var(--line);
+      padding:18px;color:var(--muted);font-weight:900;text-align:center;
       background: color-mix(in srgb, var(--card) 92%, transparent);
     }
 
-    /* 详情弹窗 */
-    .detailBody{
-      padding:0 18px 18px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
+    .detailBody{padding:0 18px 18px;display:flex;flex-direction:column;gap:12px;}
     .detailCard{
-      border-radius: 26px;
-      border:1px solid var(--line);
+      border-radius: 26px;border:1px solid var(--line);
       background:
         linear-gradient(90deg, var(--blue-weak), transparent 55%),
         linear-gradient(270deg, var(--green-weak), transparent 55%),
         color-mix(in srgb, var(--card) 96%, transparent);
       padding:16px 16px;
     }
-    .detailTop{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      align-items:flex-start;
-    }
-    .detailTop .leftBlock{
-      display:flex;flex-direction:column;gap:8px;min-width:0;
-    }
-    .detailTop .rightBlock{
-      text-align:right;
-      display:flex;flex-direction:column;gap:8px;align-items:flex-end;
-    }
-    .bigPair{
-      display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
-    }
-    .bigPair .num{
-      font-size:44px;font-weight:950;letter-spacing:-1px;
-    }
-    .bigPair .u{
-      font-size:16px;font-weight:950;color:rgba(11,19,36,.42);
-    }
+    .detailTop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
+    .detailTop .leftBlock{display:flex;flex-direction:column;gap:8px;min-width:0;}
+    .detailTop .rightBlock{text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+    .bigPair{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+    .bigPair .num{font-size:44px;font-weight:950;letter-spacing:-1px;}
+    .bigPair .u{font-size:16px;font-weight:950;color:rgba(11,19,36,.42);}
     [data-theme="dark"] .bigPair .u{color:rgba(233,238,252,.40)}
     .bigPair.rm .num{color:var(--green)}
-    .meta{
-      font-size:13px;
-      color:var(--muted);
-      font-weight:850;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .detailBtns{
-      display:flex;
-      gap:12px;
-    }
+    .meta{font-size:13px;color:var(--muted);font-weight:850;display:flex;gap:10px;flex-wrap:wrap;}
+    .detailBtns{display:flex;gap:12px;}
     .primaryClose{
-      flex:1;
-      padding:18px 14px;
-      border-radius: 22px;
-      border:1px solid var(--line);
+      flex:1;padding:18px 14px;border-radius: 22px;border:1px solid var(--line);
       background: color-mix(in srgb, var(--card) 92%, transparent);
-      font-weight:950;
-      cursor:pointer;
+      font-weight:950;cursor:pointer;
     }
     .deleteBtn{
-      flex:1;
-      padding:18px 14px;
-      border-radius: 22px;
-      border:1px solid rgba(255,60,60,.18);
-      background: rgba(255,60,60,.10);
-      color:#ff3b30;
-      font-weight:950;
-      cursor:pointer;
+      flex:1;padding:18px 14px;border-radius: 22px;border:1px solid rgba(255,60,60,.18);
+      background: rgba(255,60,60,.10);color:var(--danger);
+      font-weight:950;cursor:pointer;
     }
 
-    /* 小屏优化 */
+    /* 底部 tab */
+    .tabbar{
+      position:fixed;left:0;right:0;bottom:0;
+      height: calc(var(--tabH) + env(safe-area-inset-bottom));
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      display:flex;justify-content:center;
+      pointer-events:none;
+    }
+    .tabInner{
+      width:min(520px, calc(100% - 24px));
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      border:1px solid var(--line);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      display:flex;
+      overflow:hidden;
+      pointer-events:auto;
+    }
+    .tab{
+      flex:1;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-weight:950;
+      color:rgba(11,19,36,.42);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    [data-theme="dark"] .tab{color:rgba(233,238,252,.48)}
+    .tab.active{
+      color:var(--ink);
+      background: linear-gradient(90deg, rgba(43,108,255,.08), rgba(20,168,116,.10));
+    }
+    .tab + .tab{border-left:1px solid var(--line);}
+
+    @media (max-width:560px){
+      .fxInner{flex-direction:column}
+      .bigNum{font-size:58px}
+    }
     @media (max-width:420px){
       .title{font-size:34px}
-      .bigNum{font-size:58px}
-      .fxInner{gap:12px}
-      .col{padding:12px}
       .pad{gap:12px}
       .key{font-size:26px;border-radius:20px}
+      .vaultHero .balance{font-size:62px}
     }
   </style>
 </head>
@@ -678,7 +759,7 @@
           </svg>
         </div>
         <div class="titleWrap">
-          <div class="title">换算</div>
+          <div class="title" id="pageTitle">换算</div>
           <div class="subtitle" id="subTitle">输入 TWD，右侧自动折合 RM</div>
         </div>
       </div>
@@ -698,93 +779,135 @@
       </div>
     </div>
 
-    <div class="pillRow">
+    <div class="pillRow" id="pillRow">
       <div class="ratePill" title="目前兑换汇率">
         <div class="bolt">⚡</div>
         <div class="rateText">当前汇率 <b id="rateLabel">1 : 7.949</b> <span style="opacity:.8">TWD/MYR</span></div>
       </div>
 
-      <div class="rightPill">
-        <div class="histBtn" id="openHistory">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          历史
+      <div class="histBtn" id="openHistory">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        历史
+      </div>
+    </div>
+
+    <!-- =========================
+         换算页（显示计算器）
+    ========================== -->
+    <div class="page show" id="pageCalc">
+      <div class="fxPanel">
+        <div class="fxInner">
+          <div class="col left">
+            <div class="miniRow">
+              <div class="tag"><span class="dot"></span> 输入</div>
+              <div class="hint">可编辑</div>
+            </div>
+            <div class="bigLine">
+              <span class="bigNum" id="twdValue">0</span>
+              <span class="unit">TWD</span>
+            </div>
+          </div>
+
+          <div class="col right">
+            <div class="miniRow">
+              <div class="tag"><span class="dot"></span> 换算</div>
+              <div class="hint">仅显示</div>
+            </div>
+            <div class="bigLine">
+              <span class="bigNum" id="rmValue">0.00</span>
+              <span class="unit">RM</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="saveBar">
+          <div class="saveText">用当前汇率 <b id="rateSmall">1 : 7.949</b> 保存这次换算</div>
+          <button class="saveBtn" id="saveBtn" type="button" title="保存记录">保存</button>
+        </div>
+      </div>
+
+      <div class="padWrap">
+        <div class="pad" id="pad">
+          <div class="key ac" data-act="ac">AC</div>
+          <div class="key op back" data-act="back">⌫</div>
+          <div class="key op" data-act="div">÷</div>
+          <div class="key op" data-act="mul">×</div>
+
+          <div class="key" data-act="7">7</div>
+          <div class="key" data-act="8">8</div>
+          <div class="key" data-act="9">9</div>
+          <div class="key op" data-act="sub">−</div>
+
+          <div class="key" data-act="4">4</div>
+          <div class="key" data-act="5">5</div>
+          <div class="key" data-act="6">6</div>
+          <div class="key op" data-act="add">+</div>
+
+          <div class="key" data-act="1">1</div>
+          <div class="key" data-act="2">2</div>
+          <div class="key" data-act="3">3</div>
+          <div class="key eq" data-act="eq">=</div>
+
+          <div class="key zero" data-act="0">0</div>
+          <div class="key" data-act="dot">.</div>
         </div>
       </div>
     </div>
 
-    <!-- 颜色提示：左输入(蓝) 右换算(绿) -->
-    <div class="fxPanel">
-      <div class="fxInner">
-        <div class="col left">
-          <div class="miniRow">
-            <div class="tag"><span class="dot"></span> 输入</div>
-            <div class="hint">可编辑</div>
+    <!-- =========================
+         金库页（不显示计算器）
+    ========================== -->
+    <div class="page" id="pageVault">
+      <div class="vaultHero">
+        <div class="row1">
+          <div>
+            <div class="label">台币余额</div>
+            <div class="balance" id="vaultBalance">0</div>
           </div>
-          <div class="bigLine">
-            <span class="bigNum" id="twdValue">0</span>
-            <span class="unit">TWD</span>
+          <div class="rateBadge" id="vaultRateBadge">1 : 7.949</div>
+        </div>
+        <div class="vaultMeta">
+          <div>现金已花 <span id="vaultCash">0</span></div>
+          <div>卡片已花 <span id="vaultCard">0</span></div>
+        </div>
+      </div>
+
+      <div class="vaultBtns">
+        <div class="bigAction" id="vaultGoExchange">
+          <div class="ic">
+            🔄
+          </div>
+          <div>
+            <div class="t">去换钱</div>
+            <div class="s">记录一次换汇存入</div>
           </div>
         </div>
-
-        <div class="col right">
-          <div class="miniRow">
-            <div class="tag"><span class="dot"></span> 换算</div>
-            <div class="hint">仅显示</div>
+        <div class="bigAction" id="vaultAddExpense">
+          <div class="ic blue">
+            🧾
           </div>
-          <div class="bigLine">
-            <span class="bigNum" id="rmValue">0.00</span>
-            <span class="unit">RM</span>
+          <div>
+            <div class="t">记开销</div>
+            <div class="s">交通 / 吃喝 / 玩乐…</div>
           </div>
         </div>
       </div>
 
-      <div class="saveBar">
-        <div class="saveText">用当前汇率 <b id="rateSmall">1 : 7.949</b> 保存这次换算</div>
-        <button class="saveBtn" id="saveBtn" type="button" title="保存记录">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10l6 6v8a2 2 0 0 1-2 2Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M7 21v-8h10v8" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M7 5v4h8" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-          保存
-        </button>
-      </div>
-    </div>
-
-    <!-- 键盘：自动填满剩余空间 -->
-    <div class="padWrap">
-      <div class="pad" id="pad">
-        <div class="key ac" data-act="ac">AC</div>
-        <div class="key op back" data-act="back">⌫</div>
-        <div class="key op" data-act="div">÷</div>
-        <div class="key op" data-act="mul">×</div>
-
-        <div class="key" data-act="7">7</div>
-        <div class="key" data-act="8">8</div>
-        <div class="key" data-act="9">9</div>
-        <div class="key op" data-act="sub">−</div>
-
-        <div class="key" data-act="4">4</div>
-        <div class="key" data-act="5">5</div>
-        <div class="key" data-act="6">6</div>
-        <div class="key op" data-act="add">+</div>
-
-        <div class="key" data-act="1">1</div>
-        <div class="key" data-act="2">2</div>
-        <div class="key" data-act="3">3</div>
-        <div class="key eq" data-act="eq">=</div>
-
-        <div class="key zero" data-act="0">0</div>
-        <div class="key" data-act="dot">.</div>
+      <div class="vaultListWrap">
+        <div class="sectionTitle">
+          <span>记录</span>
+          <span style="opacity:.75">点开才可删除</span>
+        </div>
+        <div class="vaultList" id="vaultList"></div>
       </div>
     </div>
   </div>
 
-  <!-- 底部 Tab（不会覆盖键盘，因为 screen 已预留 padding-bottom） -->
+  <!-- 底部 Tab -->
   <div class="tabbar">
     <div class="tabInner">
       <div class="tab" id="tabVault">
@@ -806,18 +929,12 @@
     </div>
   </div>
 
-  <!-- 历史记录弹窗 -->
+  <!-- 历史记录（换算保存列表） -->
   <div class="overlay" id="historyOverlay" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modalHead">
         <div class="modalTitle">
-          <div class="modalIcon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M3 4v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
+          <div class="modalIcon" aria-hidden="true">🕘</div>
           <div style="min-width:0">
             <h2>历史记录</h2>
             <p>点击一条记录查看详情，详情页才提供删除</p>
@@ -835,26 +952,19 @@
         <button class="dangerBtn" id="clearBtn" type="button">清空</button>
       </div>
 
-      <div class="list" id="historyList">
-        <!-- items -->
-      </div>
+      <div class="list" id="historyList"></div>
     </div>
   </div>
 
-  <!-- 详情弹窗（删除只在这里出现） -->
+  <!-- 详情（删除只在这里） -->
   <div class="overlay" id="detailOverlay" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modalHead">
         <div class="modalTitle">
-          <div class="modalIcon" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M8 7h8M9 7v14m6-14v14M6 7l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M10 4h4a2 2 0 0 1 2 2v1H8V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            </svg>
-          </div>
+          <div class="modalIcon" aria-hidden="true">🗑️</div>
           <div style="min-width:0">
             <h2 id="detailTitle">记录详情</h2>
-            <p id="detailSub"> </p>
+            <p id="detailSub"></p>
           </div>
         </div>
         <div class="closeBtn" id="closeDetail" aria-label="关闭">
@@ -892,17 +1002,64 @@
     </div>
   </div>
 
+  <!-- 金库：新增记录弹窗（去换钱 / 记开销） -->
+  <div class="overlay" id="vaultOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle">
+          <div class="modalIcon" id="vaultModalIcon" aria-hidden="true">🔄</div>
+          <div style="min-width:0">
+            <h2 id="vaultModalTitle">新增记录</h2>
+            <p id="vaultModalSub">输入数字即可</p>
+          </div>
+        </div>
+        <div class="closeBtn" id="closeVault" aria-label="关闭">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="detailBody">
+        <div class="detailCard" style="background: color-mix(in srgb, var(--card) 96%, transparent);">
+          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+            <div class="chip" id="vaultModeChip">🔄 换汇存入</div>
+            <div class="chip" id="vaultModeHint">输入 TWD</div>
+          </div>
+
+          <div style="margin-top:14px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;">
+            <div style="font-size:52px;font-weight:950;letter-spacing:-1.4px;" id="vaultInputPreview">0</div>
+            <div style="font-size:16px;font-weight:950;color:rgba(11,19,36,.42);" id="vaultInputUnit">TWD</div>
+          </div>
+
+          <div style="margin-top:10px;color:var(--muted);font-weight:850;font-size:13px;" id="vaultCalcHint"></div>
+
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;" id="emojiPick">
+            <span class="chip" data-emo="🍔">🍔 吃喝</span>
+            <span class="chip" data-emo="🚗">🚗 交通</span>
+            <span class="chip" data-emo="🎮">🎮 玩乐</span>
+            <span class="chip" data-emo="🛍️">🛍️ 购物</span>
+            <span class="chip" data-emo="🏨">🏨 住宿</span>
+            <span class="chip" data-emo="🎁">🎁 其他</span>
+          </div>
+        </div>
+
+        <div class="detailBtns">
+          <button class="primaryClose" id="vaultCancelBtn" type="button">取消</button>
+          <button class="saveBtn" id="vaultConfirmBtn" type="button" style="flex:1;justify-content:center;">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // =====================
-    // Settings / Theme
+    // Theme
     // =====================
     const themeBtn = document.getElementById("themeBtn");
-    const root = document.documentElement;
-
     function loadTheme(){
       const t = localStorage.getItem("fx_theme");
-      if (t === "dark") document.body.dataset.theme = "dark";
-      else document.body.dataset.theme = "light";
+      document.body.dataset.theme = (t === "dark") ? "dark" : "light";
     }
     function toggleTheme(){
       const next = (document.body.dataset.theme === "dark") ? "light" : "dark";
@@ -913,21 +1070,22 @@
     loadTheme();
 
     // =====================
-    // Rate (固定展示：你可以换成从你真实“目前兑换”里拿到的值)
-    // 这里不提供“平均/最近/手动”，只用“当前”
+    // Rate (当前汇率)
     // =====================
     let currentRate = 7.949; // TWD per MYR
     const rateLabel = document.getElementById("rateLabel");
     const rateSmall = document.getElementById("rateSmall");
+    const vaultRateBadge = document.getElementById("vaultRateBadge");
     function renderRate(){
       const txt = `1 : ${Number(currentRate).toFixed(3)}`;
       rateLabel.textContent = txt;
       rateSmall.textContent = txt;
+      vaultRateBadge.textContent = txt;
     }
     renderRate();
 
     // =====================
-    // History Storage (Keep old records)
+    // History (换算保存记录) - 保留旧记录迁移
     // =====================
     const HISTORY_KEY = "fx_history_v2";
     const LEGACY_KEYS = ["fx_history","history","convert_history","records","exchange_history"];
@@ -981,11 +1139,44 @@
     }
 
     // =====================
-    // Input / Calculation
+    // Vault Records (金库流水：换汇存入 + 开销)
+    // =====================
+    const VAULT_KEY = "vault_records_v1";
+
+    function loadVault(){
+      const txt = localStorage.getItem(VAULT_KEY);
+      const parsed = safeParse(txt);
+      const arr = Array.isArray(parsed) ? parsed : [];
+      return arr.map(x=>{
+        return {
+          id: x.id ?? `${x.ts}_${x.kind}_${x.amount}`,
+          ts: Number(x.ts ?? Date.now()),
+          kind: x.kind ?? "exchange_in", // exchange_in | expense
+          amount: Number(x.amount ?? 0), // TWD for exchange_in, RM for expense (这里用 RM 更直观)
+          emo: (x.emo ?? "🔄").toString(),
+          note: (x.note ?? "").toString(),
+          rate: Number(x.rate ?? currentRate)
+        };
+      }).sort((a,b)=>b.ts-a.ts);
+    }
+    function saveVault(list){ localStorage.setItem(VAULT_KEY, JSON.stringify(list)); }
+    function addVault(rec){
+      const list = loadVault();
+      list.unshift(rec);
+      saveVault(list);
+      return list;
+    }
+    function deleteVault(id){
+      const list = loadVault().filter(x=>x.id!==id);
+      saveVault(list);
+      return list;
+    }
+
+    // =====================
+    // Calc input & keypad
     // =====================
     let expr = "0";
     let lastExprStack = [];
-
     const twdValueEl = document.getElementById("twdValue");
     const rmValueEl  = document.getElementById("rmValue");
 
@@ -994,40 +1185,31 @@
       if (s.length > 18) return s.slice(0,18);
       return s;
     }
+    function safeEval(s){
+      if (!/^[0-9.+\-*/() ]+$/.test(s)) return 0;
+      try{
+        return Function("return (" + s + ")")();
+      }catch{ return 0; }
+    }
     function prettyNum(n){
       const x = Number(n);
       if (!Number.isFinite(x)) return "0";
       const isInt = Math.abs(x - Math.round(x)) < 1e-10;
       return isInt ? String(Math.round(x)) : String(x);
     }
-    function safeEval(s){
-      // 只允许数字 + . + 运算符
-      if (!/^[0-9.+\-*/() ]+$/.test(s)) return 0;
-      try{
-        // eslint-disable-next-line no-new-func
-        const v = Function("return (" + s + ")")();
-        if (!Number.isFinite(v)) return 0;
-        return v;
-      }catch{
-        return 0;
-      }
-    }
     function calcRM(twd){
       const v = Number(twd) || 0;
       const rate = Number(currentRate) || 1;
       return v / rate;
     }
-    function render(){
+    function renderCalc(){
       const twd = safeEval(expr);
       const rm = calcRM(twd);
       twdValueEl.textContent = prettyNum(twd);
-      rmValueEl.textContent = rm.toFixed(2);
+      rmValueEl.textContent = (Number.isFinite(rm) ? rm : 0).toFixed(2);
     }
-    render();
+    renderCalc();
 
-    // =====================
-    // Keypad
-    // =====================
     const pad = document.getElementById("pad");
     pad.addEventListener("click", (e)=>{
       const btn = e.target.closest(".key");
@@ -1037,55 +1219,41 @@
       lastExprStack.push(expr);
       if (lastExprStack.length > 40) lastExprStack.shift();
 
-      if (act === "ac"){
-        expr = "0";
-        lastExprStack = [];
-        render();
-        return;
-      }
+      if (act === "ac"){ expr = "0"; lastExprStack = []; renderCalc(); return; }
       if (act === "back"){
-        if (expr.length <= 1) expr = "0";
-        else expr = expr.slice(0,-1);
+        expr = (expr.length<=1) ? "0" : expr.slice(0,-1);
         expr = clampExpr(expr);
-        render();
-        return;
+        renderCalc(); return;
       }
       if (act === "dot"){
         expr = (expr === "0") ? "0." : (expr + ".");
         expr = clampExpr(expr);
-        render();
-        return;
+        renderCalc(); return;
       }
-      if (act === "add") { expr += "+"; expr = clampExpr(expr); render(); return; }
-      if (act === "sub") { expr += "-"; expr = clampExpr(expr); render(); return; }
-      if (act === "mul") { expr += "*"; expr = clampExpr(expr); render(); return; }
-      if (act === "div") { expr += "/"; expr = clampExpr(expr); render(); return; }
+      if (act === "add") { expr += "+"; expr = clampExpr(expr); renderCalc(); return; }
+      if (act === "sub") { expr += "-"; expr = clampExpr(expr); renderCalc(); return; }
+      if (act === "mul") { expr += "*"; expr = clampExpr(expr); renderCalc(); return; }
+      if (act === "div") { expr += "/"; expr = clampExpr(expr); renderCalc(); return; }
       if (act === "eq"){
         const v = safeEval(expr);
         expr = String(Number.isFinite(v) ? v : 0);
         expr = clampExpr(expr);
-        render();
-        return;
+        renderCalc(); return;
       }
-      // number
       if (/^\d$/.test(act)){
-        if (expr === "0") expr = act;
-        else expr += act;
+        expr = (expr === "0") ? act : (expr + act);
         expr = clampExpr(expr);
-        render();
+        renderCalc(); return;
       }
     });
 
-    // 撤回输入
     document.getElementById("undoBtn").addEventListener("click", ()=>{
       const prev = lastExprStack.pop();
       if (prev !== undefined) expr = prev;
-      render();
+      renderCalc();
     });
 
-    // =====================
-    // Save
-    // =====================
+    // 保存换算到历史
     document.getElementById("saveBtn").addEventListener("click", ()=>{
       const twd = safeEval(expr);
       const rm = calcRM(twd);
@@ -1093,11 +1261,10 @@
         ts: Date.now(),
         rate: Number(currentRate),
         twd: Number(twd),
-        rm: Number(rm.toFixed(2)),
-        category: "", // 你之后要加🍔🚗分类也可以放这里
-        note: ""      // 备注默认空；你说“点进才显示”，这里先保留字段但不在列表显示
+        rm: Number((Number.isFinite(rm) ? rm : 0).toFixed(2)),
+        category: "",
+        note: ""
       });
-      // 轻提示
       flashSub("已保存到历史记录");
     });
 
@@ -1109,11 +1276,43 @@
     }
 
     // =====================
-    // History Modal
+    // Switch pages (REAL switch)
+    // =====================
+    const tabVault = document.getElementById("tabVault");
+    const tabCalc  = document.getElementById("tabCalc");
+    const pageVault = document.getElementById("pageVault");
+    const pageCalc  = document.getElementById("pageCalc");
+    const pageTitle = document.getElementById("pageTitle");
+    const pillRow   = document.getElementById("pillRow");
+
+    function showCalc(){
+      tabCalc.classList.add("active");
+      tabVault.classList.remove("active");
+      pageCalc.classList.add("show");
+      pageVault.classList.remove("show");
+      pageTitle.textContent = "换算";
+      document.getElementById("subTitle").textContent = "输入 TWD，右侧自动折合 RM";
+      pillRow.style.display = "flex";
+    }
+    function showVault(){
+      tabVault.classList.add("active");
+      tabCalc.classList.remove("active");
+      pageVault.classList.add("show");
+      pageCalc.classList.remove("show");
+      pageTitle.textContent = "金库";
+      document.getElementById("subTitle").textContent = "记录换汇与开销，保持清晰";
+      pillRow.style.display = "none"; // 金库页不用显示汇率胶囊/历史
+      renderVault();
+    }
+
+    tabCalc.addEventListener("click", showCalc);
+    tabVault.addEventListener("click", showVault);
+
+    // =====================
+    // History modal (换算历史)
     // =====================
     const historyOverlay = document.getElementById("historyOverlay");
     const historyList = document.getElementById("historyList");
-
     function fmtTime(ts){
       const d = new Date(ts);
       const mm = String(d.getMonth()+1).padStart(2,"0");
@@ -1122,11 +1321,9 @@
       const mi = String(d.getMinutes()).padStart(2,"0");
       return `${mm}-${dd} ${hh}:${mi}`;
     }
-
     function renderHistory(){
       const list = loadHistory();
       historyList.innerHTML = "";
-
       if (!list.length){
         const div = document.createElement("div");
         div.className = "empty";
@@ -1134,7 +1331,6 @@
         historyList.appendChild(div);
         return;
       }
-
       list.forEach(rec=>{
         const item = document.createElement("div");
         item.className = "item";
@@ -1142,23 +1338,15 @@
 
         const left = document.createElement("div");
         left.className = "itemLeft";
-
-        const line1 = document.createElement("div");
-        line1.className = "line1";
-        line1.innerHTML = `
-          <span class="twd">${Number(rec.twd)}<small>TWD</small></span>
-          ${rec.category ? `<span class="chip">${rec.category}</span>` : ``}
+        left.innerHTML = `
+          <div class="line1">
+            <span class="twd">${Number(rec.twd)}<small>TWD</small></span>
+          </div>
+          <div class="line2">
+            <span>${fmtTime(rec.ts)}</span>
+            <span>Rate ${Number(rec.rate).toFixed(3)}</span>
+          </div>
         `;
-
-        const line2 = document.createElement("div");
-        line2.className = "line2";
-        line2.innerHTML = `
-          <span>${fmtTime(rec.ts)}</span>
-          <span>Rate ${Number(rec.rate).toFixed(3)}</span>
-        `;
-
-        left.appendChild(line1);
-        left.appendChild(line2);
 
         const right = document.createElement("div");
         right.className = "itemRight";
@@ -1166,8 +1354,7 @@
 
         item.appendChild(left);
         item.appendChild(right);
-
-        item.addEventListener("click", ()=> openDetail(rec.id));
+        item.addEventListener("click", ()=> openDetail(rec.id, "history"));
         historyList.appendChild(item);
       });
     }
@@ -1183,7 +1370,6 @@
       if (e.target === historyOverlay) historyOverlay.classList.remove("show");
     });
 
-    // 导出（JSON）
     document.getElementById("exportBtn").addEventListener("click", ()=>{
       const list = loadHistory();
       const blob = new Blob([JSON.stringify(list, null, 2)], {type:"application/json"});
@@ -1194,7 +1380,6 @@
       URL.revokeObjectURL(a.href);
     });
 
-    // 清空
     document.getElementById("clearBtn").addEventListener("click", ()=>{
       if (!confirm("确定清空全部历史记录？")) return;
       saveHistory([]);
@@ -1202,7 +1387,7 @@
     });
 
     // =====================
-    // Detail Modal (Delete only here)
+    // Detail modal (for both history & vault)
     // =====================
     const detailOverlay = document.getElementById("detailOverlay");
     const detailTwd = document.getElementById("detailTwd");
@@ -1210,31 +1395,53 @@
     const detailSub = document.getElementById("detailSub");
     const metaLeft  = document.getElementById("detailMetaLeft");
     const metaRight = document.getElementById("detailMetaRight");
+    const detailTitle = document.getElementById("detailTitle");
     let currentDetailId = null;
+    let currentDetailSource = "history"; // history | vault
 
-    function getRecordById(id){
+    function getHistoryById(id){
       const list = loadHistory();
       return list.find(x=>x.id===id) || null;
     }
+    function getVaultById(id){
+      const list = loadVault();
+      return list.find(x=>x.id===id) || null;
+    }
 
-    function openDetail(id){
-      const rec = getRecordById(id);
-      if (!rec) return;
-
+    function openDetail(id, source){
       currentDetailId = id;
+      currentDetailSource = source;
 
-      detailTwd.textContent = Number(rec.twd);
-      detailRm.textContent = Number(rec.rm).toFixed(2);
-      detailSub.textContent = `${fmtTime(rec.ts)} · Rate ${Number(rec.rate).toFixed(3)}`;
+      if (source === "history"){
+        const rec = getHistoryById(id);
+        if (!rec) return;
+        detailTitle.textContent = "换算记录详情";
+        detailTwd.textContent = Number(rec.twd);
+        detailRm.textContent = Number(rec.rm).toFixed(2);
+        detailSub.textContent = `${fmtTime(rec.ts)} · Rate ${Number(rec.rate).toFixed(3)}`;
+        metaLeft.innerHTML = `<span class="chip">输入（TWD）</span><span class="chip">可编辑</span>`;
+        metaRight.innerHTML = `<span class="chip">换算（RM）</span><span class="chip">仅显示</span>`;
+      } else {
+        const rec = getVaultById(id);
+        if (!rec) return;
 
-      metaLeft.innerHTML = `
-        ${rec.category ? `<span class="chip">${rec.category}</span>` : `<span class="chip">未分类</span>`}
-        <span class="chip">输入侧（蓝色）</span>
-      `;
-      metaRight.innerHTML = `
-        <span class="chip">换算侧（绿色）</span>
-        <span class="chip">仅显示</span>
-      `;
+        detailTitle.textContent = (rec.kind === "exchange_in") ? "金库 · 换汇存入详情" : "金库 · 开销详情";
+        detailSub.textContent = `${fmtTime(rec.ts)}${rec.kind === "exchange_in" ? ` · Rate ${Number(rec.rate).toFixed(3)}` : ""}`;
+
+        // 左侧显示 TWD（对称卡片感）
+        if (rec.kind === "exchange_in"){
+          detailTwd.textContent = Number(rec.amount);
+          detailRm.textContent = (Number(rec.amount) / Number(rec.rate || currentRate)).toFixed(2);
+          metaLeft.innerHTML = `<span class="chip">${rec.emo} 存入</span><span class="chip">TWD</span>`;
+          metaRight.innerHTML = `<span class="chip">折合 RM</span><span class="chip">仅显示</span>`;
+        }else{
+          // 开销：左侧用 RM，右侧用「—」保持视觉平衡（但仍显示数值）
+          detailTwd.textContent = "—";
+          detailRm.textContent = Number(rec.amount).toFixed(2);
+          metaLeft.innerHTML = `<span class="chip">${rec.emo} 开销</span><span class="chip">不换算</span>`;
+          metaRight.innerHTML = `<span class="chip">RM</span><span class="chip">已支出</span>`;
+        }
+      }
 
       detailOverlay.classList.add("show");
     }
@@ -1242,6 +1449,7 @@
     function closeDetail(){
       detailOverlay.classList.remove("show");
       currentDetailId = null;
+      currentDetailSource = "history";
     }
     document.getElementById("closeDetail").addEventListener("click", closeDetail);
     document.getElementById("detailCloseBtn").addEventListener("click", closeDetail);
@@ -1251,36 +1459,202 @@
 
     document.getElementById("detailDeleteBtn").addEventListener("click", ()=>{
       if (!currentDetailId) return;
-      if (!confirm("确定删除这条记录？")) return;
 
-      const list = loadHistory();
-      const next = list.filter(x=>x.id !== currentDetailId);
-      saveHistory(next);
-
+      if (currentDetailSource === "history"){
+        if (!confirm("确定删除这条换算记录？")) return;
+        const next = loadHistory().filter(x=>x.id !== currentDetailId);
+        saveHistory(next);
+        renderHistory();
+      }else{
+        if (!confirm("确定删除这条金库记录？")) return;
+        deleteVault(currentDetailId);
+        renderVault();
+      }
       closeDetail();
-      renderHistory();
     });
 
     // =====================
-    // Tabs (这里只做视觉切换，不实现“金库”页面逻辑；你要的话我再补)
+    // Vault UI
     // =====================
-    const tabVault = document.getElementById("tabVault");
-    const tabCalc  = document.getElementById("tabCalc");
-    tabVault.addEventListener("click", ()=>{
-      tabVault.classList.add("active");
-      tabCalc.classList.remove("active");
-      flashSub("金库页面：待接入（目前保留换算功能）");
+    const vaultBalanceEl = document.getElementById("vaultBalance");
+    const vaultCashEl = document.getElementById("vaultCash");
+    const vaultCardEl = document.getElementById("vaultCard");
+    const vaultListEl = document.getElementById("vaultList");
+
+    function sumVault(){
+      const list = loadVault();
+      let twdBalance = 0;
+      let cash = 0;
+      let card = 0;
+
+      // 简化：开销不再区分现金/卡片（你要求去掉方式选择）
+      // 所以 cash/card 先都显示 0，或你要的话也可以把它们合并成「已花 RM」
+      list.forEach(r=>{
+        if (r.kind === "exchange_in") twdBalance += Number(r.amount || 0);
+      });
+
+      return {twdBalance, cash, card, list};
+    }
+
+    function renderVault(){
+      const {twdBalance, cash, card, list} = sumVault();
+      vaultBalanceEl.textContent = String(Math.round(twdBalance));
+      vaultCashEl.textContent = String(cash);
+      vaultCardEl.textContent = String(card);
+
+      vaultListEl.innerHTML = "";
+      if (!list.length){
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "暂无金库记录";
+        vaultListEl.appendChild(empty);
+        return;
+      }
+
+      list.forEach(r=>{
+        const row = document.createElement("div");
+        row.className = "vaultItem";
+        row.dataset.id = r.id;
+
+        const left = document.createElement("div");
+        left.className = "left";
+        const emo = document.createElement("div");
+        emo.className = "emoji";
+        emo.textContent = r.emo || (r.kind==="exchange_in" ? "🔄" : "🧾");
+
+        const txt = document.createElement("div");
+        txt.className = "txt";
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = (r.kind==="exchange_in") ? "换汇存入" : "开销";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${fmtTime(r.ts)}${r.kind==="exchange_in" ? ` · Rate ${Number(r.rate).toFixed(3)}` : ""}`;
+
+        txt.appendChild(name);
+        txt.appendChild(meta);
+
+        left.appendChild(emo);
+        left.appendChild(txt);
+
+        const amt = document.createElement("div");
+        amt.className = "amt";
+        amt.textContent = (r.kind==="exchange_in") ? `+${Number(r.amount)} TWD` : `-${Number(r.amount).toFixed(2)} RM`;
+
+        row.appendChild(left);
+        row.appendChild(amt);
+
+        row.addEventListener("click", ()=> openDetail(r.id, "vault"));
+        vaultListEl.appendChild(row);
+      });
+    }
+
+    // =====================
+    // Vault add modal (去换钱 / 记开销 with emoji)
+    // =====================
+    const vaultOverlay = document.getElementById("vaultOverlay");
+    const vaultModalIcon = document.getElementById("vaultModalIcon");
+    const vaultModalTitle = document.getElementById("vaultModalTitle");
+    const vaultModalSub = document.getElementById("vaultModalSub");
+    const vaultModeChip = document.getElementById("vaultModeChip");
+    const vaultModeHint = document.getElementById("vaultModeHint");
+    const vaultInputPreview = document.getElementById("vaultInputPreview");
+    const vaultInputUnit = document.getElementById("vaultInputUnit");
+    const vaultCalcHint = document.getElementById("vaultCalcHint");
+    const vaultConfirmBtn = document.getElementById("vaultConfirmBtn");
+    const emojiPick = document.getElementById("emojiPick");
+
+    let vaultMode = "exchange_in"; // exchange_in | expense
+    let vaultAmount = 0;
+    let vaultEmo = "🔄";
+
+    function openVaultModal(mode){
+      vaultMode = mode;
+      vaultAmount = 0;
+      vaultEmo = (mode==="exchange_in") ? "🔄" : "🍔";
+
+      if (mode==="exchange_in"){
+        vaultModalIcon.textContent = "🔄";
+        vaultModalTitle.textContent = "换汇存入";
+        vaultModalSub.textContent = "输入 TWD 数字即可";
+        vaultModeChip.textContent = "🔄 换汇存入";
+        vaultModeHint.textContent = "输入 TWD";
+        vaultInputUnit.textContent = "TWD";
+        vaultCalcHint.textContent = `将按当前汇率 1:${Number(currentRate).toFixed(3)} 折合 RM`;
+        emojiPick.style.display = "none";
+      }else{
+        vaultModalIcon.textContent = "🧾";
+        vaultModalTitle.textContent = "记录开销";
+        vaultModalSub.textContent = "选一个表情分类，再输入 RM 数字";
+        vaultModeChip.textContent = "🧾 开销";
+        vaultModeHint.textContent = "输入 RM";
+        vaultInputUnit.textContent = "RM";
+        vaultCalcHint.textContent = "不需要备注，点进详情才会看到备注（此处默认空）";
+        emojiPick.style.display = "flex";
+      }
+
+      vaultInputPreview.textContent = "0";
+      vaultOverlay.classList.add("show");
+    }
+    function closeVaultModal(){
+      vaultOverlay.classList.remove("show");
+    }
+
+    document.getElementById("vaultGoExchange").addEventListener("click", ()=> openVaultModal("exchange_in"));
+    document.getElementById("vaultAddExpense").addEventListener("click", ()=> openVaultModal("expense"));
+
+    document.getElementById("closeVault").addEventListener("click", closeVaultModal);
+    document.getElementById("vaultCancelBtn").addEventListener("click", closeVaultModal);
+    vaultOverlay.addEventListener("click", (e)=>{
+      if (e.target === vaultOverlay) closeVaultModal();
     });
-    tabCalc.addEventListener("click", ()=>{
-      tabCalc.classList.add("active");
-      tabVault.classList.remove("active");
-      flashSub("换算模式");
+
+    emojiPick.addEventListener("click", (e)=>{
+      const chip = e.target.closest(".chip");
+      if (!chip) return;
+      const emo = chip.dataset.emo;
+      if (!emo) return;
+      vaultEmo = emo;
+
+      // 选中态
+      [...emojiPick.querySelectorAll(".chip")].forEach(c=>{
+        c.style.outline = "none";
+      });
+      chip.style.outline = "2px solid rgba(20,168,116,.35)";
+      chip.style.outlineOffset = "2px";
+    });
+
+    // 这里为了简单：金库弹窗直接用 prompt 输入数字（你要我做漂亮数字键盘我也能做）
+    vaultConfirmBtn.addEventListener("click", ()=>{
+      const label = (vaultMode==="exchange_in") ? "请输入存入的 TWD 数字" : "请输入开销的 RM 数字";
+      const v = prompt(label, "0");
+      const num = Number(v);
+      if (!Number.isFinite(num) || num <= 0) return;
+
+      vaultAmount = num;
+      vaultInputPreview.textContent = String(num);
+
+      const rec = {
+        id: `${Date.now()}_${vaultMode}_${num}`,
+        ts: Date.now(),
+        kind: vaultMode,
+        amount: num,
+        emo: vaultEmo,
+        note: "",
+        rate: Number(currentRate)
+      };
+      addVault(rec);
+      renderVault();
+      closeVaultModal();
     });
 
     // =====================
-    // 初次加载：确保旧记录被迁移回来
+    // Init
     // =====================
     migrateHistoryOnce();
+    renderVault();
+    showCalc(); // 默认在换算页
   </script>
 </body>
 </html>
