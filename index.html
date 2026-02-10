@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v16.4 (Auto Fill + History Top)</title>
+  <title>UsTrip Finance v16.5 (Strict Live Rate + Modal Polish)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
 
@@ -33,7 +33,7 @@
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
     .no-select { user-select: none; -webkit-user-select:none; }
 
-    /* 让 main 真正吃满（nav 在正常流里，不会盖住内容） */
+    /* main 真正吃满 */
     main.app-main {
       flex: 1 1 auto;
       min-height: 0;
@@ -42,14 +42,13 @@
       flex-direction: column;
     }
 
-    /* ========= Calc 页：上内容 + 下键盘，键盘自动填满剩余 ========= */
+    /* ===== Calc layout ===== */
     .calc-page {
       flex: 1 1 auto;
       min-height: 0;
       display: flex;
       flex-direction: column;
     }
-
     .calc-top {
       flex: 0 0 auto;
       padding: 5.5rem 1.5rem 1rem;
@@ -57,7 +56,6 @@
       flex-direction: column;
       justify-content: flex-end;
     }
-
     .calc-twd {
       font-size: clamp(2.5rem, 10vw, 4.5rem);
       line-height: 1;
@@ -66,7 +64,6 @@
       font-size: clamp(2rem, 8vw, 3.2rem);
       line-height: 1.1;
     }
-
     .calc-keyboard-area {
       flex: 1 1 auto;
       min-height: 0;
@@ -105,16 +102,12 @@
       border-bottom: 2px solid rgba(148,163,184,0.35);
     }
     .calc-btn:active { transform: scale(0.95); }
-
     .btn-num { background: #fff; color: rgb(30 41 59); }
     html.dark .btn-num { background: rgb(30 41 59); color: rgb(241 245 249); border-bottom-color: rgba(15,23,42,0.6); }
-
     .btn-op { background: rgba(99,102,241,0.10); color: rgb(79 70 229); font-size: 1.15rem; font-weight: 900; }
     html.dark .btn-op { background: rgba(99,102,241,0.22); color: rgb(199 210 254); }
-
     .btn-ac { background: rgba(239,68,68,0.10); color: rgb(239 68 68); font-size: 1.05rem; font-weight: 900; }
     html.dark .btn-ac { background: rgba(239,68,68,0.18); color: rgb(252 165 165); }
-
     .btn-eq {
       background: rgb(16 185 129);
       color: #fff;
@@ -125,14 +118,13 @@
     }
     .btn-eq:active { filter: brightness(0.95); }
 
-    /* ======== History：放到顶部按钮，面板 fixed 全屏，不占键盘 ======== */
+    /* ===== History drawer ===== */
     .fade-enter-active, .fade-leave-active { transition: opacity 0.18s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
-
     .sheet-enter-active, .sheet-leave-active { transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     .sheet-enter-from, .sheet-leave-to { transform: translateY(100%); }
 
-    /* 资产页原样保留 */
+    /* ===== Assets ===== */
     .transaction-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
     .item-exchange { border-left-color: #10b981; }
     .item-card { border-left-color: #6366f1; }
@@ -146,14 +138,104 @@
     .input-row { @apply flex items-center justify-between; }
     .input-value { @apply w-full bg-transparent font-black text-2xl outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-700; }
     .input-unit { @apply text-xs font-bold text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded ml-2; }
+
+    /* ===== Modal polish (你截图那页) ===== */
+    .modal-sheet {
+      max-height: min(78dvh, 620px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 2px;
+    }
+    .modal-footer {
+      flex: none;
+      padding-top: 14px;
+    }
+
+    /* 去掉 number input 上下箭头（桌面/安卓） */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] { -moz-appearance: textfield; }
+
+    .exchange-card {
+      background: rgba(241,245,249,0.55);
+      border: 1px solid rgba(226,232,240,0.9);
+      border-radius: 1.5rem;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    html.dark .exchange-card {
+      background: rgba(15,23,42,0.55);
+      border-color: rgba(51,65,85,0.9);
+    }
+
+    .money-field {
+      background: #fff;
+      border: 1px solid rgba(226,232,240,0.9);
+      border-radius: 1.5rem;
+      padding: 14px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    html.dark .money-field {
+      background: rgba(30,41,59,0.9);
+      border-color: rgba(51,65,85,0.9);
+    }
+
+    .money-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      font-size: 1.35rem;
+      font-weight: 900;
+      outline: none;
+      color: rgb(15 23 42);
+    }
+    html.dark .money-input { color: rgb(241 245 249); }
+
+    .unit-pill {
+      font-size: 0.85rem;
+      font-weight: 900;
+      padding: 8px 10px;
+      border-radius: 0.9rem;
+      background: rgba(226,232,240,0.8);
+      color: rgb(71 85 105);
+      white-space: nowrap;
+    }
+    html.dark .unit-pill { background: rgba(15,23,42,0.75); color: rgb(203 213 225); }
+
+    .swap-dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 9999px;
+      display: grid;
+      place-items: center;
+      margin: 10px auto;
+      background: rgba(241,245,249,0.9);
+      border: 1px solid rgba(226,232,240,0.9);
+      color: rgb(148 163 184);
+    }
+    html.dark .swap-dot { background: rgba(30,41,59,0.9); border-color: rgba(51,65,85,0.9); color: rgb(148 163 184); }
   </style>
 </head>
 
 <body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-
 <div id="app">
 
-  <!-- Header（仍然浮在上面没问题） -->
   <header class="absolute top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center pointer-events-none">
     <div class="flex items-center gap-3 pointer-events-auto">
       <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-all duration-300"
@@ -173,7 +255,6 @@
     </div>
   </header>
 
-  <!-- Main（真正吃满，下面 nav 不会盖住） -->
   <main class="app-main bg-white dark:bg-slate-950 transition-colors duration-300">
 
     <!-- Assets -->
@@ -213,12 +294,18 @@
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center text-base" :class="getIconColor(item)"><i :class="getIcon(item)"></i></div>
             <div>
-              <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">{{ item.type === 'exchange' ? '换台币' : item.name }}</p>
-              <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mono mt-0.5">{{ item.date }} · {{ item.method === 'card' ? 'Card' : 'Cash' }}</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200 text-sm">
+                {{ item.type === 'exchange' ? ('换台币 · ' + (item.rateUsed ? ('Rate ' + item.rateUsed) : '')) : item.name }}
+              </p>
+              <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mono mt-0.5">
+                {{ item.date }} · {{ item.method === 'card' ? 'Card' : 'Cash' }}
+              </p>
             </div>
           </div>
           <div class="text-right">
-            <p class="text-base font-black mono" :class="item.type === 'exchange' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'">{{ item.type === 'exchange' ? '+' : '-' }}{{ item.type === 'exchange' ? item.targetAmount : item.amount }}</p>
+            <p class="text-base font-black mono" :class="item.type === 'exchange' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'">
+              {{ item.type === 'exchange' ? '+' : '-' }}{{ item.type === 'exchange' ? item.targetAmount : item.amount }}
+            </p>
             <button @click="deleteItem(item)" class="text-[9px] text-slate-300 hover:text-red-400 font-bold px-1 py-1 opacity-60 hover:opacity-100">DEL</button>
           </div>
         </div>
@@ -231,20 +318,25 @@
       <div class="calc-top z-10">
         <div class="flex items-start justify-between gap-3 mb-2 pointer-events-auto">
           <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <div class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full">
                 Rate: {{ activeRate }} <span class="opacity-50">TWD/MYR</span>
               </div>
 
-              <!-- 历史按钮：放上面，不占键盘 -->
               <button @click="toggleHistory"
                 class="text-[10px] font-black px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 shadow-sm active:scale-95 transition flex items-center gap-1">
-                <i class="fas fa-history text-emerald-500"></i>
-                历史
+                <i class="fas fa-history text-emerald-500"></i>历史
               </button>
+
+              <div class="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full">
+                当前: {{ twdPerMyrFromJags }} <span class="opacity-50">TWD/MYR</span>
+              </div>
             </div>
 
+            <!-- 模式：新增 当前（严格用 JAGS 实时价） -->
             <div class="flex bg-slate-100 dark:bg-slate-800/60 rounded-full p-0.5 w-fit">
+              <button @click="rateMode='live'" class="px-3 py-1 rounded-full text-[10px] font-black transition"
+                :class="rateMode==='live'?'bg-white dark:bg-slate-950 shadow-sm text-slate-900 dark:text-white':'text-slate-400'">当前</button>
               <button @click="rateMode='avg'" class="px-3 py-1 rounded-full text-[10px] font-black transition"
                 :class="rateMode==='avg'?'bg-white dark:bg-slate-950 shadow-sm text-slate-900 dark:text-white':'text-slate-400'">平均</button>
               <button @click="rateMode='last'" class="px-3 py-1 rounded-full text-[10px] font-black transition"
@@ -286,7 +378,6 @@
         </div>
       </div>
 
-      <!-- 键盘：自动填满剩余高度 -->
       <div class="calc-keyboard-area pb-safe no-select">
         <div class="calc-grid">
           <button @click="key('AC')" class="calc-btn btn-ac">AC</button>
@@ -317,7 +408,7 @@
 
   </main>
 
-  <!-- Bottom Nav：回归正常布局，不再覆盖页面 -->
+  <!-- Bottom Nav：不覆盖页面 -->
   <nav class="flex-none pb-safe px-6 pt-3 pb-4">
     <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full px-6 py-2 flex gap-8 shadow-xl border border-slate-100 dark:border-slate-700 justify-center">
       <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition active:scale-90"
@@ -334,7 +425,7 @@
 
   <input type="file" ref="importInput" class="hidden" @change="handleImport" accept=".json">
 
-  <!-- History Drawer：fixed 全屏，不占键盘 -->
+  <!-- History Drawer -->
   <transition name="fade">
     <div v-if="showHistory" class="fixed inset-0 z-[120]">
       <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[3px]" @click="toggleHistory"></div>
@@ -373,80 +464,105 @@
     </div>
   </transition>
 
-  <!-- Modal（原样保留） -->
+  <!-- Modal -->
   <transition name="fade">
     <div v-if="showModal" class="fixed inset-0 z-[110] flex items-center justify-center p-6">
       <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-[4px]" @click="showModal=false"></div>
 
       <transition name="sheet" appear>
-        <div class="bg-white dark:bg-slate-950 w-full max-w-[340px] rounded-[2rem] p-6 relative z-10 shadow-2xl transition-colors border border-slate-100 dark:border-slate-800">
-          <h3 class="text-lg font-black mb-6 text-slate-900 dark:text-white flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm"
-              :class="modalType==='exchange'?'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400':'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'">
-              <i class="fas text-sm" :class="modalType==='exchange'?'fa-sync-alt':'fa-pen'"></i>
-            </div>
-            {{ modalType==='exchange'?'存入资金':'记录支出' }}
-          </h3>
-
-          <div v-if="modalType==='exchange'" class="mb-6">
-            <div class="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Jags Rate (Sell)</span>
-                <a href="https://www.jagsmoney.com/daily-rates/" target="_blank" class="text-[10px] text-blue-500 font-bold underline">查看官网</a>
+        <div class="bg-white dark:bg-slate-950 w-full max-w-[360px] rounded-[2.2rem] p-6 relative z-10 shadow-2xl transition-colors border border-slate-100 dark:border-slate-800 modal-sheet">
+          <div class="flex items-center justify-between gap-3 flex-none">
+            <h3 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
+                :class="modalType==='exchange'?'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400':'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'">
+                <i class="fas text-sm" :class="modalType==='exchange'?'fa-sync-alt':'fa-pen'"></i>
               </div>
-              <div class="flex items-center gap-2">
-                <input type="number" v-model="jagsRate"
-                  class="w-20 bg-white dark:bg-slate-800 p-2 rounded-lg text-lg font-black outline-none text-center shadow-sm dark:text-white border border-slate-100 dark:border-slate-700"
+              {{ modalType==='exchange'?'存入资金':'记录支出' }}
+            </h3>
+          </div>
+
+          <div class="modal-body mt-5">
+            <div v-if="modalType==='exchange'" class="exchange-card mb-5">
+              <div class="min-w-0">
+                <div class="text-[11px] font-black tracking-widest text-slate-400">JAGS RATE (SELL)</div>
+                <a href="https://www.jagsmoney.com/daily-rates/" target="_blank" class="text-[11px] font-bold text-blue-500 underline inline-block mt-1">查看官网</a>
+                <div class="text-[10px] font-bold text-slate-400 mt-2">
+                  实时换算: <span class="mono text-slate-700 dark:text-slate-200">{{ twdPerMyrFromJags }}</span> TWD/MYR
+                </div>
+              </div>
+              <div class="flex items-center gap-10">
+                <input
+                  type="number"
+                  inputmode="decimal"
+                  v-model="jagsRate"
+                  class="w-24 bg-white dark:bg-slate-800 px-3 py-2 rounded-xl text-xl font-black outline-none text-center shadow-sm dark:text-white border border-slate-100 dark:border-slate-700"
                   placeholder="12.63">
               </div>
             </div>
-          </div>
 
-          <div v-if="modalType==='exchange'" class="space-y-4">
-            <div class="modern-input-group">
-              <div class="input-label-row"><span class="input-label">付出</span></div>
-              <div class="input-row">
-                <input type="number" v-model.number="newItem.baseAmount" @input="calcFromMYR" class="input-value text-left" placeholder="0">
-                <span class="input-unit">MYR</span>
+            <div v-if="modalType==='exchange'">
+              <div class="text-sm font-black text-slate-700 dark:text-slate-200 mb-2">付出</div>
+              <div class="money-field">
+                <input
+                  type="number"
+                  inputmode="decimal"
+                  v-model.number="newItem.baseAmount"
+                  @input="calcFromMYR"
+                  class="money-input mono"
+                  placeholder="0.00">
+                <div class="unit-pill">MYR</div>
+              </div>
+
+              <div class="swap-dot"><i class="fas fa-arrow-down"></i></div>
+
+              <div class="text-sm font-black text-emerald-600 dark:text-emerald-400 mb-2">换回</div>
+              <div class="money-field" style="border-color: rgba(16,185,129,0.25);">
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  v-model.number="newItem.targetAmount"
+                  @input="calcFromTWD"
+                  class="money-input mono"
+                  placeholder="0">
+                <div class="unit-pill" style="background: rgba(16,185,129,0.12); color: rgb(16 185 129);">TWD</div>
+              </div>
+
+              <div class="text-[11px] font-bold text-slate-400 mt-3">
+                本次将按实时价 <span class="mono text-slate-700 dark:text-slate-200">{{ twdPerMyrFromJags }}</span> TWD/MYR 记录
               </div>
             </div>
-            <div class="flex justify-center -my-3 relative z-10">
-              <i class="fas fa-arrow-down bg-white dark:bg-slate-900 text-slate-300 rounded-full p-1 border dark:border-slate-800 text-xs"></i>
-            </div>
-            <div class="modern-input-group !border-emerald-100 dark:!border-emerald-900/30 focus-within:!border-emerald-400">
-              <div class="input-label-row"><span class="input-label !text-emerald-500">换回</span></div>
-              <div class="input-row">
-                <input type="number" v-model.number="newItem.targetAmount" @input="calcFromTWD" class="input-value text-left !text-emerald-600 dark:!text-emerald-400" placeholder="0">
-                <span class="input-unit !text-emerald-600 !bg-emerald-100 dark:!bg-emerald-900/50">TWD</span>
+
+            <div v-if="modalType==='expense'" class="space-y-4">
+              <div class="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
+                <button v-for="m in ['cash','card']" @click="newItem.method=m"
+                  class="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2"
+                  :class="newItem.method===m?'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white':'text-slate-400 hover:text-slate-500'">
+                  <i class="fas" :class="m==='cash'?'fa-coins':'fa-credit-card'"></i>{{m==='cash'?'现金':'刷卡'}}
+                </button>
+              </div>
+
+              <div class="modern-input-group">
+                <div class="input-label-row"><span class="input-label">内容</span></div>
+                <input v-model="newItem.name" class="input-value text-base font-bold" placeholder="如: 晚餐">
+              </div>
+
+              <div class="modern-input-group">
+                <div class="input-label-row"><span class="input-label">金额</span></div>
+                <div class="input-row">
+                  <input type="number" inputmode="decimal" v-model.number="newItem.amount" class="input-value mono" placeholder="0.00">
+                  <span class="input-unit">{{newItem.method==='card'?'MYR':'TWD'}}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div v-if="modalType==='expense'" class="space-y-4">
-            <div class="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-              <button v-for="m in ['cash','card']" @click="newItem.method=m"
-                class="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2"
-                :class="newItem.method===m?'bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white':'text-slate-400 hover:text-slate-500'">
-                <i class="fas" :class="m==='cash'?'fa-coins':'fa-credit-card'"></i>{{m==='cash'?'现金':'刷卡'}}
-              </button>
-            </div>
-            <div class="modern-input-group">
-              <div class="input-label-row"><span class="input-label">内容</span></div>
-              <input v-model="newItem.name" class="input-value text-base font-bold" placeholder="如: 晚餐">
-            </div>
-            <div class="modern-input-group">
-              <div class="input-label-row"><span class="input-label">金额</span></div>
-              <div class="input-row">
-                <input type="number" v-model.number="newItem.amount" class="input-value" placeholder="0.00">
-                <span class="input-unit">{{newItem.method==='card'?'MYR':'TWD'}}</span>
-              </div>
-            </div>
+          <div class="modal-footer pb-safe">
+            <button @click="saveItem"
+              class="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-black py-4 rounded-2xl shadow-lg active:scale-95 transition flex justify-center items-center gap-2">
+              <i class="fas fa-check"></i> 确认
+            </button>
           </div>
 
-          <button @click="saveItem"
-            class="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 rounded-xl mt-6 shadow-lg active:scale-95 transition flex justify-center items-center gap-2">
-            <i class="fas fa-check"></i> 确认
-          </button>
         </div>
       </transition>
     </div>
@@ -456,11 +572,11 @@
 
 <script>
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  const { createApp, ref, computed, onMounted } = Vue;
+  const { createApp, ref, computed, onMounted, watch } = Vue;
 
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v16_4_autofill";
+      const STORAGE_KEY = "ustrip_v16_5_strict_live_rate";
       const currentTab = ref("calc");
       const isDark = ref(false);
 
@@ -481,38 +597,32 @@
       const calcHistory = ref([]);
 
       const jagsRate = ref(12.63);
-      const rateMode = ref("avg");
+
+      // 新增：live 模式（严格用实时价）
+      const rateMode = ref("live");
       const manualRate = ref("7.900");
 
-      const toggleDark = () => {
-        isDark.value = !isDark.value;
-        const meta = document.getElementById('theme-color');
-        if (isDark.value) {
-          document.documentElement.classList.add('dark');
-          if (meta) meta.setAttribute('content', '#0f172a');
-        } else {
-          document.documentElement.classList.remove('dark');
-          if (meta) meta.setAttribute('content', '#ffffff');
-        }
-        save();
-      };
-
+      // JAGS Rate(Sell) -> TWD/MYR
+      // 仍沿用你原本逻辑：假设 jagsRate 是 100 TWD 需要多少 MYR
       const twdPerMyrFromJags = computed(() => {
         const x = parseFloat(String(jagsRate.value));
         if (!x) return "7.900";
         return (100 / x).toFixed(3);
       });
 
+      // Modal：严格用当前 twdPerMyrFromJags 来互算
       const calcFromMYR = () => {
         const base = parseFloat(newItem.value.baseAmount);
         const rate = parseFloat(twdPerMyrFromJags.value);
-        if (!base || !rate) return;
+        if (!rate) return;
+        if (!base && base !== 0) return;
         newItem.value.targetAmount = Math.round(base * rate);
       };
       const calcFromTWD = () => {
         const twd = parseFloat(newItem.value.targetAmount);
         const rate = parseFloat(twdPerMyrFromJags.value);
-        if (!twd || !rate) return;
+        if (!rate) return;
+        if (!twd && twd !== 0) return;
         newItem.value.baseAmount = (twd / rate).toFixed(2);
       };
 
@@ -528,14 +638,21 @@
         return b>0?(t/b).toFixed(3):"7.100";
       });
 
+      // 计算器 activeRate：live/avg/last/manual
       const activeRate = computed(() => {
+        if (rateMode.value === 'live') return twdPerMyrFromJags.value;
+
         if (rateMode.value === 'avg') return averageRate.value;
+
         if (rateMode.value === 'manual') {
           const m = parseFloat(String(manualRate.value));
           return (m ? m : 7.1).toFixed(3);
         }
+
+        // last：用最近一笔换钱记录的 rateUsed（更严格）
         if (exchangeRecords.value.length > 0) {
           const r = exchangeRecords.value[0];
+          if (r.rateUsed) return String(r.rateUsed);
           const b = parseFloat(r.baseAmount);
           const t = parseFloat(r.targetAmount);
           if (b && t) return (t/b).toFixed(3);
@@ -546,7 +663,6 @@
       const safeCalc = (expr) => {
         try {
           if (/[^0-9+\-*/.()]/.test(expr)) return 0;
-          // eslint-disable-next-line no-new-func
           return new Function('return ' + expr)();
         } catch { return 0; }
       };
@@ -623,13 +739,34 @@
           ? { baseAmount: null, targetAmount: null }
           : { method: 'cash', amount: null, name: '' };
         showModal.value = true;
+
+        // 弹窗打开后先同步一次，保证两边一致（避免显示怪）
+        if (t === 'exchange') {
+          const b = parseFloat(newItem.value.baseAmount);
+          const t2 = parseFloat(newItem.value.targetAmount);
+          if (b) calcFromMYR();
+          else if (t2) calcFromTWD();
+        }
       };
 
       const saveItem = () => {
         const id = Date.now();
         const d = new Date().toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}).replace('/','-');
-        if (modalType.value === 'exchange') exchangeRecords.value.unshift({ ...newItem.value, id, date: d });
-        else expenseRecords.value.unshift({ ...newItem.value, id, date: d });
+
+        if (modalType.value === 'exchange') {
+          const base = parseFloat(newItem.value.baseAmount) || 0;
+          const target = parseFloat(newItem.value.targetAmount) || 0;
+          const rateUsed = twdPerMyrFromJags.value; // 严格：记录当下实时价
+          exchangeRecords.value.unshift({
+            id, date: d,
+            baseAmount: base.toFixed(2),
+            targetAmount: Math.round(target),
+            rateUsed
+          });
+        } else {
+          expenseRecords.value.unshift({ ...newItem.value, id, date: d });
+        }
+
         save();
         showModal.value = false;
       };
@@ -638,6 +775,19 @@
         if(!confirm("删?")) return;
         if(i.type==='exchange') exchangeRecords.value = exchangeRecords.value.filter(r=>r.id!==i.id);
         else expenseRecords.value = expenseRecords.value.filter(r=>r.id!==i.id);
+        save();
+      };
+
+      const toggleDark = () => {
+        isDark.value = !isDark.value;
+        const meta = document.getElementById('theme-color');
+        if (isDark.value) {
+          document.documentElement.classList.add('dark');
+          if (meta) meta.setAttribute('content', '#0f172a');
+        } else {
+          document.documentElement.classList.remove('dark');
+          if (meta) meta.setAttribute('content', '#ffffff');
+        }
         save();
       };
 
@@ -678,6 +828,11 @@
         r.readAsText(e.target.files[0]);
       };
 
+      // 防止背景滚动穿透（打开 modal / history 时锁 body）
+      watch([showModal, showHistory], ([m,h]) => {
+        document.body.style.overflow = (m || h) ? 'hidden' : 'hidden'; // 页面本身就是 hidden，保持一致
+      });
+
       onMounted(() => {
         const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
         exchangeRecords.value = d.ex || [];
@@ -698,7 +853,12 @@
         }
 
         if (exchangeRecords.value.length === 0) {
-          exchangeRecords.value.push({ id: 1, date: '02-04', baseAmount: 402.55, targetAmount: 3200 });
+          exchangeRecords.value.push({
+            id: 1, date: '02-04',
+            baseAmount: "402.55",
+            targetAmount: 3200,
+            rateUsed: twdPerMyrFromJags.value
+          });
           save();
         }
       });
