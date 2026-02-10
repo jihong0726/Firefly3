@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v16.4 (CDN Safe, No @apply)</title>
+  <title>UsTrip Finance v16.5 (Nav Safe Padding Fix)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
 
@@ -16,9 +16,6 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" />
 
   <style>
-    /* =========================
-       Base / Layout
-       ========================= */
     html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
     body {
       font-family: "Noto Sans SC", sans-serif;
@@ -40,22 +37,28 @@
       position: relative;
     }
     html.dark #app { background: rgb(2 6 23); }
+
     input, button { outline: none !important; }
     .mono { font-family: 'JetBrains Mono', monospace; }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
     .no-select { user-select: none; -webkit-user-select:none; }
 
-    /* =========================
-       Transitions
-       ========================= */
+    /* ========= 关键修复：给内容预留导航高度 ========= */
+    :root{
+      --nav-block: 96px; /* 约等于底部胶囊 + 上下 padding 的高度 */
+    }
+    /* main 内容区底部预留 = 导航高度 + 安全区 */
+    .main-safe-bottom{
+      padding-bottom: calc(var(--nav-block) + env(safe-area-inset-bottom));
+    }
+
     .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
-
     .slide-enter-active, .slide-leave-active { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .slide-enter-from, .slide-leave-to { transform: translateY(100%); }
 
     /* =========================
-       Calc Page Layout (Flex Safe)
+       Calc Page Layout
        ========================= */
     .calc-page {
       height: 100%;
@@ -78,14 +81,8 @@
       min-height: 0;
     }
 
-    .calc-twd {
-      font-size: clamp(2.5rem, 10vw, 4.5rem);
-      line-height: 1;
-    }
-    .calc-myr {
-      font-size: clamp(2rem, 8vw, 3.2rem);
-      line-height: 1.1;
-    }
+    .calc-twd { font-size: clamp(2.5rem, 10vw, 4.5rem); line-height: 1; }
+    .calc-myr { font-size: clamp(2rem, 8vw, 3.2rem); line-height: 1.1; }
 
     .calc-keyboard-area {
       flex: 1 1 auto;
@@ -102,10 +99,12 @@
       box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
       transition: background-color .3s;
       overflow: hidden;
+
+      /* 关键修复：键盘区底部也预留给导航，避免 0/= 被盖住 */
+      padding-bottom: calc(var(--nav-block) + env(safe-area-inset-bottom));
     }
     html.dark .calc-keyboard-area { background: rgb(15 23 42); }
 
-    /* History capsule */
     .history-capsule {
       position: absolute;
       top: 0.75rem;
@@ -135,7 +134,6 @@
     }
     html.dark .capsule-text { color: rgb(203 213 225); }
 
-    /* History panel */
     .history-panel {
       position: absolute;
       inset: 0;
@@ -155,7 +153,6 @@
       border-top-color: rgb(51 65 85);
     }
 
-    /* Calc grid */
     .calc-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -166,7 +163,6 @@
       min-height: 0;
     }
 
-    /* Buttons - NO @apply */
     .calc-btn{
       border-radius: 1.5rem;
       display: flex;
@@ -202,7 +198,6 @@
     .btn-eq:active{ transform: scale(.98); }
     html.dark .btn-eq{ box-shadow:none; }
 
-    /* Input group (Modal) - NO @apply */
     .modern-input-group{
       background: rgb(248 250 252);
       border-radius: 1rem;
@@ -211,7 +206,6 @@
       transition: background-color .2s, border-color .2s, box-shadow .2s;
     }
     html.dark .modern-input-group{ background: rgb(15 23 42); }
-
     .modern-input-group:focus-within{
       background: #fff;
       border-color: rgb(209 250 229);
@@ -248,19 +242,32 @@
     }
     html.dark .input-unit{ background: rgb(30 41 59); color: rgb(148 163 184); }
 
-    /* Transactions */
     .transaction-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
     .item-exchange { border-left-color: #10b981; }
     .item-card { border-left-color: #6366f1; }
     .item-cash { border-left-color: #fb923c; }
+
+    /* ========= 关键修复：底部导航改 fixed 并居中到 max-width 480 ========= */
+    .bottom-nav-fixed{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: 100%;
+      max-width: 480px;
+      z-index: 60;
+      pointer-events: none;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .bottom-nav-fixed .nav-inner{
+      pointer-events: auto;
+    }
   </style>
 </head>
 
 <body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-
 <div id="app">
 
-  <!-- Header -->
   <header class="absolute top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center pointer-events-none">
     <div class="flex items-center gap-3 pointer-events-auto">
       <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-all duration-300"
@@ -274,7 +281,6 @@
       <button @click="toggleDark" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center transition-colors active:scale-90 hover:bg-slate-200 dark:hover:bg-slate-700">
         <i class="fas text-sm" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon'"></i>
       </button>
-
       <template v-if="currentTab === 'assets'">
         <button @click="exportAllData" class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center justify-center transition-colors"><i class="fas fa-save"></i></button>
         <button @click="triggerImport" class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center justify-center transition-colors"><i class="fas fa-upload"></i></button>
@@ -282,10 +288,10 @@
     </div>
   </header>
 
-  <main class="flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-950 transition-colors duration-300">
+  <!-- main 加 main-safe-bottom，给底部导航预留空间 -->
+  <main class="flex-1 overflow-hidden relative flex flex-col bg-white dark:bg-slate-950 transition-colors duration-300 main-safe-bottom">
 
-    <!-- Assets Tab -->
-    <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-6 pt-20 space-y-6 pb-28">
+    <div v-if="currentTab === 'assets'" class="flex-1 overflow-y-auto p-6 pt-20 space-y-6">
       <section class="bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 p-8 rounded-[2.5rem] text-white shadow-2xl shadow-slate-200 dark:shadow-none relative overflow-hidden">
         <div class="relative z-10">
           <div class="flex justify-between items-start mb-8">
@@ -339,7 +345,6 @@
       </div>
     </div>
 
-    <!-- Calc Tab -->
     <div v-if="currentTab === 'calc'" class="calc-page transition-colors duration-300">
 
       <div class="calc-top">
@@ -350,14 +355,11 @@
             </div>
 
             <div class="flex bg-slate-100 dark:bg-slate-800/60 rounded-full p-0.5 scale-90 origin-right">
-              <button @click="rateMode='avg'"
-                      class="px-2 py-1 rounded-full text-[9px] font-black transition"
+              <button @click="rateMode='avg'" class="px-2 py-1 rounded-full text-[9px] font-black transition"
                       :class="rateMode==='avg'?'bg-white dark:bg-slate-950 shadow-sm text-slate-900 dark:text-white':'text-slate-400'">平均</button>
-              <button @click="rateMode='last'"
-                      class="px-2 py-1 rounded-full text-[9px] font-black transition"
+              <button @click="rateMode='last'" class="px-2 py-1 rounded-full text-[9px] font-black transition"
                       :class="rateMode==='last'?'bg-white dark:bg-slate-950 shadow-sm text-slate-900 dark:text-white':'text-slate-400'">最近</button>
-              <button @click="rateMode='manual'"
-                      class="px-2 py-1 rounded-full text-[9px] font-black transition"
+              <button @click="rateMode='manual'" class="px-2 py-1 rounded-full text-[9px] font-black transition"
                       :class="rateMode==='manual'?'bg-white dark:bg-slate-950 shadow-sm text-slate-900 dark:text-white':'text-slate-400'">手动</button>
             </div>
           </div>
@@ -383,9 +385,7 @@
 
           <div class="w-full bg-emerald-500 dark:bg-emerald-600 text-white rounded-[1.8rem] p-4 shadow-xl shadow-emerald-200/40 dark:shadow-none flex flex-col items-end justify-center active:scale-[0.98] transition-all cursor-pointer hover:shadow-2xl hover:bg-emerald-500/90 gap-0.5 pointer-events-auto"
                @click="saveCalculation">
-            <div class="calc-myr font-black mono tracking-tight">
-              {{ calcResult }}
-            </div>
+            <div class="calc-myr font-black mono tracking-tight">{{ calcResult }}</div>
             <div class="flex items-center gap-1 opacity-80">
               <span class="text-[10px] font-bold uppercase tracking-wider">折合马币 (RM)</span>
               <i class="fas fa-save text-xs ml-1"></i>
@@ -395,7 +395,6 @@
       </div>
 
       <div class="calc-keyboard-area pb-safe no-select">
-
         <div class="history-capsule" @click="toggleHistory">
           <i class="fas fa-history" style="color: rgb(16 185 129); font-size: .9rem;"></i>
           <span class="capsule-text">历史记录</span>
@@ -415,7 +414,6 @@
 
             <div class="space-y-3 pb-4 flex-1 overflow-y-auto">
               <div v-if="calcHistory.length===0" class="text-center py-10 text-slate-300 text-sm">暂无记录</div>
-
               <div v-for="(rec,i) in calcHistory" :key="i"
                    class="bg-white dark:bg-slate-800 p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100 dark:border-slate-700/50">
                 <div>
@@ -467,32 +465,31 @@
 
   </main>
 
-  <!-- Bottom Nav -->
-  <nav class="flex-none bg-white/0 dark:bg-slate-950/0 border-t border-transparent absolute bottom-0 left-0 right-0 flex justify-around pb-6 pt-3 z-50 pb-safe pointer-events-none">
-    <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full px-6 py-2 flex gap-8 shadow-xl border border-slate-100 dark:border-slate-700 pointer-events-auto">
-      <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition active:scale-90"
-              :class="currentTab==='assets'?'text-slate-900 dark:text-white':'text-slate-400 dark:text-slate-500'">
-        <i class="fas fa-wallet text-xl"></i><span class="text-[9px] font-bold">金库</span>
-      </button>
-      <div class="w-px bg-slate-200 dark:bg-slate-700 h-8 self-center"></div>
-      <button @click="currentTab='calc'" class="flex flex-col items-center gap-1 transition active:scale-90"
-              :class="currentTab==='calc'?'text-emerald-500':'text-slate-400 dark:text-slate-500'">
-        <i class="fas fa-calculator text-xl"></i><span class="text-[9px] font-bold">换算</span>
-      </button>
+  <!-- Bottom Nav (fixed, centered) -->
+  <nav class="bottom-nav-fixed">
+    <div class="flex justify-around pb-6 pt-3">
+      <div class="nav-inner bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full px-6 py-2 flex gap-8 shadow-xl border border-slate-100 dark:border-slate-700">
+        <button @click="currentTab='assets'" class="flex flex-col items-center gap-1 transition active:scale-90"
+                :class="currentTab==='assets'?'text-slate-900 dark:text-white':'text-slate-400 dark:text-slate-500'">
+          <i class="fas fa-wallet text-xl"></i><span class="text-[9px] font-bold">金库</span>
+        </button>
+        <div class="w-px bg-slate-200 dark:bg-slate-700 h-8 self-center"></div>
+        <button @click="currentTab='calc'" class="flex flex-col items-center gap-1 transition active:scale-90"
+                :class="currentTab==='calc'?'text-emerald-500':'text-slate-400 dark:text-slate-500'">
+          <i class="fas fa-calculator text-xl"></i><span class="text-[9px] font-bold">换算</span>
+        </button>
+      </div>
     </div>
   </nav>
 
-  <!-- Import -->
   <input type="file" ref="importInput" class="hidden" @change="handleImport" accept=".json">
 
-  <!-- Modal -->
   <transition name="fade">
     <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6">
       <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-[4px]" @click="showModal=false"></div>
 
       <transition name="slide" appear>
         <div class="bg-white dark:bg-slate-950 w-full max-w-[340px] rounded-[2rem] p-6 relative z-10 shadow-2xl transition-colors border border-slate-100 dark:border-slate-800">
-
           <h3 class="text-lg font-black mb-6 text-slate-900 dark:text-white flex items-center gap-2">
             <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm"
                  :class="modalType==='exchange'?'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400':'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'">
@@ -565,7 +562,6 @@
                   class="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 rounded-xl mt-6 shadow-lg active:scale-95 transition flex justify-center items-center gap-2">
             <i class="fas fa-check"></i> 确认
           </button>
-
         </div>
       </transition>
     </div>
@@ -580,7 +576,7 @@
 
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v16_4_cdn_safe";
+      const STORAGE_KEY = "ustrip_v16_5_nav_fix";
 
       const currentTab = ref("assets");
       const isDark = ref(false);
@@ -661,7 +657,6 @@
           return m.toFixed(3);
         }
 
-        // last
         if (exchangeRecords.value.length > 0) {
           const r = exchangeRecords.value[0];
           const base = parseFloat(r.baseAmount);
@@ -674,12 +669,10 @@
         return fallback;
       });
 
-      // Safe math eval (numbers + operators only)
       const safeCalc = (expr) => {
         try {
           const s = String(expr || "");
           if (/[^0-9+\-*/.()]/.test(s)) return 0;
-          // avoid obvious operator tail like "1+"
           if (/[+\-*/.]$/.test(s)) return 0;
           // eslint-disable-next-line no-new-func
           const v = new Function('return (' + s + ')')();
@@ -695,23 +688,14 @@
       });
 
       const totalCardSpent = computed(() =>
-        expenseRecords.value
-          .filter(e=>e.method==='card')
-          .reduce((s,e)=>s+(parseFloat(e.amount)||0),0)
-          .toFixed(2)
+        expenseRecords.value.filter(e=>e.method==='card').reduce((s,e)=>s+(parseFloat(e.amount)||0),0).toFixed(2)
       );
-
       const totalCashSpent = computed(() =>
-        expenseRecords.value
-          .filter(e=>e.method==='cash')
-          .reduce((s,e)=>s+(parseFloat(e.amount)||0),0)
+        expenseRecords.value.filter(e=>e.method==='cash').reduce((s,e)=>s+(parseFloat(e.amount)||0),0)
       );
 
       const allTransactions = computed(() =>
-        [
-          ...exchangeRecords.value.map(r=>({...r,type:'exchange'})),
-          ...expenseRecords.value.map(r=>({...r,type:'expense'}))
-        ].sort((a,b)=>b.id-a.id)
+        [...exchangeRecords.value.map(r=>({...r,type:'exchange'})), ...expenseRecords.value.map(r=>({...r,type:'expense'}))].sort((a,b)=>b.id-a.id)
       );
 
       const key = (k) => {
@@ -728,9 +712,7 @@
           calcInput.value += k;
           return;
         }
-        // number or dot
-        if (k === '.' && calcInput.value.includes('.') && /(\.\d*)$/.test(calcInput.value)) {
-          // prevent multiple dots in the current number chunk
+        if (k === '.') {
           const parts = calcInput.value.split(/[\+\-\*\/]/);
           if (parts.length && parts[parts.length-1].includes('.')) return;
         }
@@ -808,7 +790,7 @@
         const content = raw ? raw : JSON.stringify({});
         const a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([content],{type:"application/json"}));
-        a.download = "UsTrip_v16_4.json";
+        a.download = "UsTrip_v16_5.json";
         a.click();
       };
 
@@ -822,7 +804,6 @@
         r.onload = (ev) => {
           try {
             const d = JSON.parse(ev.target.result);
-
             exchangeRecords.value = d.ex || [];
             expenseRecords.value  = d.ep || [];
             calcHistory.value     = d.ch || [];
@@ -880,26 +861,22 @@
       });
 
       return {
-        // state
         currentTab, isDark, showHistory,
         showModal, modalType, newItem, importInput,
         exchangeRecords, expenseRecords,
         calcInput, calcExpr, calcNote, calcHistory,
         jagsRate, rateMode, manualRate,
 
-        // computed
         twdBalance, averageRate, activeRate,
         totalCardSpent, totalCashSpent, allTransactions,
         calcResult, twdPerMyrFromJags,
 
-        // actions
         toggleDark, toggleHistory,
         key, saveCalculation, clearHistory, exportHistoryCSV,
         openModal, saveItem, deleteItem,
         exportAllData, triggerImport, handleImport,
         calcFromMYR, calcFromTWD,
 
-        // view helpers
         getTranClass: (i)=> i.type==='exchange' ? 'item-exchange' : (i.method==='card' ? 'item-card' : 'item-cash'),
         getIcon: (i)=> i.type==='exchange' ? 'fas fa-sync' : (i.method==='card' ? 'fas fa-credit-card' : 'fas fa-wallet'),
         getIconColor: (i)=> i.type==='exchange'
@@ -911,6 +888,5 @@
     }
   }).mount("#app");
 </script>
-
 </body>
 </html>
