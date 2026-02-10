@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance | 黄金比例版</title>
+  <title>UsTrip Finance v16.0</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -28,30 +28,34 @@
     html.dark .glass-nav { background-color: transparent; border: none; }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-    /* 🌟 键盘区域 - 强制 65% 高度 + 浅灰背景 */
+    /* 🌟 键盘区域 - 强制 65% 高度 + 浅灰背景 (增加对比度) */
     .calc-keyboard-area { 
       @apply h-[65%] bg-slate-100 dark:bg-slate-900 rounded-t-[2.5rem] relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex flex-col transition-colors duration-300; 
     }
     
-    /* 网格 - 撑满键盘区 */
+    /* 🌟 网格修复 - 关键点：grid-rows-5 让按钮强制撑满高度 */
     .calc-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
+      grid-template-rows: repeat(5, 1fr); /* 强制5行平分高度 */
       gap: 12px; 
       padding: 24px 20px 20px; 
       height: 100%; 
     }
     
-    /* 🌟 按钮 - 纯白悬浮感 */
+    /* 🌟 按钮 - 纯白悬浮感 + 底部边框模拟立体感 */
     .calc-btn { 
       @apply rounded-[1.5rem] flex items-center justify-center text-3xl font-bold transition-all duration-100 active:scale-95 shadow-sm border-b-2 border-slate-200 dark:border-slate-800; 
+      height: 100%; width: 100%;
     }
     
     .btn-num { @apply bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100; }
+    
     /* 侧边功能键颜色加深 */
-    .btn-op { @apply bg-slate-200/80 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 text-2xl font-black; }
-    .btn-ac { @apply bg-slate-200/80 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-xl font-black; }
-    /* 等号键 */
+    .btn-op { @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300 text-2xl font-black border-indigo-100; }
+    .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-xl font-black border-red-100; }
+    
+    /* 等号键 - 绿色 */
     .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-3xl active:bg-emerald-600 border-none; }
 
     /* 历史胶囊 */
@@ -85,15 +89,15 @@
 
 <div id="app">
 
-  <header class="glass-nav flex-none px-6 py-4 flex justify-between items-center z-50 transition-colors duration-300 absolute top-0 left-0 right-0">
-    <div class="flex items-center gap-3">
+  <header class="glass-nav flex-none px-6 py-4 flex justify-between items-center z-50 transition-colors duration-300 absolute top-0 left-0 right-0 pointer-events-none">
+    <div class="flex items-center gap-3 pointer-events-auto">
       <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-all duration-300" 
            :class="currentTab === 'assets' ? 'bg-slate-800 dark:bg-slate-700' : 'bg-emerald-500'">
         <i class="fas" :class="currentTab === 'assets' ? 'fa-wallet' : 'fa-calculator'"></i>
       </div>
       <h1 v-if="currentTab==='assets'" class="text-xl font-black tracking-tight text-slate-900 dark:text-white">我的金库</h1>
     </div>
-    <div class="flex gap-4 text-slate-400">
+    <div class="flex gap-4 text-slate-400 pointer-events-auto">
       <button @click="toggleDark" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center transition-colors active:scale-90 hover:bg-slate-200 dark:hover:bg-slate-700"><i class="fas text-sm" :class="isDark ? 'fa-sun text-yellow-400' : 'fa-moon'"></i></button>
       <template v-if="currentTab === 'assets'">
         <button @click="exportAllData" class="w-10 h-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center justify-center transition-colors"><i class="fas fa-save"></i></button>
@@ -146,7 +150,7 @@
           </div>
           <div class="text-right">
             <p class="text-base font-black mono" :class="item.type === 'exchange' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'">{{ item.type === 'exchange' ? '+' : '-' }}{{ item.type === 'exchange' ? item.targetAmount : item.amount }}</p>
-            <button @click="deleteItem(item)" class="text-[9px] text-slate-300 hover:text-red-400 font-bold px-1 py-1 opacity-60 hover:opacity-100">删除</button>
+            <button @click="deleteItem(item)" class="text-[9px] text-slate-300 hover:text-red-400 font-bold px-1 py-1 opacity-60 hover:opacity-100">DEL</button>
           </div>
         </div>
       </div>
@@ -155,11 +159,11 @@
     <div v-if="currentTab === 'calc'" class="flex flex-col h-full bg-white dark:bg-slate-950 transition-colors duration-300">
       
       <div class="h-[35%] flex flex-col p-6 pt-20 z-10 justify-end pb-4 relative">
-        <div class="absolute top-6 left-6 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full">
+        <div class="absolute top-6 left-6 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full pointer-events-auto">
            汇率: {{ averageRate }}
         </div>
 
-        <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-200 dark:placeholder-slate-700 outline-none transition-all focus:placeholder-slate-400 mb-2" placeholder="备注...">
+        <input v-model="calcNote" class="w-full bg-transparent text-right text-sm font-bold text-slate-400 placeholder-slate-200 dark:placeholder-slate-700 outline-none transition-all focus:placeholder-slate-400 mb-2 pointer-events-auto" placeholder="备注...">
 
         <div class="flex flex-col items-end gap-1">
           <div class="h-6 text-slate-400 font-bold text-lg mono opacity-50">{{ calcExpr }}</div>
@@ -169,7 +173,7 @@
             <span class="text-xl text-slate-300 dark:text-slate-600 font-bold ml-1">TWD</span>
           </div>
 
-          <div class="w-full bg-emerald-500 dark:bg-emerald-600 text-white rounded-[1.8rem] p-4 shadow-xl shadow-emerald-200/40 dark:shadow-none flex flex-col items-end justify-center active:scale-[0.98] transition-all cursor-pointer hover:shadow-2xl hover:bg-emerald-500/90 gap-0.5" @click="saveCalculation">
+          <div class="w-full bg-emerald-500 dark:bg-emerald-600 text-white rounded-[1.8rem] p-4 shadow-xl shadow-emerald-200/40 dark:shadow-none flex flex-col items-end justify-center active:scale-[0.98] transition-all cursor-pointer hover:shadow-2xl hover:bg-emerald-500/90 gap-0.5 pointer-events-auto" @click="saveCalculation">
             <div class="text-[3rem] font-black mono tracking-tight leading-none">
               {{ calcResult }}
             </div>
@@ -337,7 +341,7 @@
   const { createApp, ref, computed, onMounted, watch } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v16_golden_ratio";
+      const STORAGE_KEY = "ustrip_v16_final_grid";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
