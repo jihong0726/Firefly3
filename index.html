@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v18.2</title>
+  <title>UsTrip Finance v18.3</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -83,7 +83,7 @@
     .capsule-text { font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: rgb(71 85 105); }
     html.dark .capsule-text { color: rgb(203 213 225); }
 
-    /* 滑动列表 */
+    /* 🌟 滑动列表优化 & PC端布局 */
     .swipe-list-item {
       position: relative;
       overflow: hidden;
@@ -104,8 +104,10 @@
     }
     html.dark .swipe-content { background: #1e293b; border-color: #334155; }
     
+    /* PC端 Hover Actions (不再遮挡) */
     @media (hover: hover) {
       .swipe-list-item:hover .pc-actions { opacity: 1; pointer-events: auto; }
+      .swipe-content { padding-right: 90px; } /* 给PC端按钮留空 */
     }
     .pc-actions {
       position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
@@ -117,8 +119,10 @@
       font-size: 14px; cursor: pointer; color: white; shadow-sm;
     }
     .pc-btn-pin { background: #eab308; }
+    .pc-btn-pin.active { background: #ca8a04; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
     .pc-btn-del { background: #ef4444; }
 
+    /* 移动端背景层 */
     .swipe-actions {
       position: absolute; top: 0; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: space-between; z-index: 1;
@@ -141,51 +145,31 @@
     .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg font-black border-red-100 dark:border-red-900; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600 border-none; }
 
-    /* ================= 🌟 弹窗优化：一体化转换器 ================= */
+    /* ================= 🌟 弹窗优化：右置按钮 ================= */
     .rate-card {
       @apply bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex justify-between items-center mb-6;
     }
     
-    /* 🌟 一体化转换卡片容器 */
-    .converter-card {
-      @apply bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden relative;
+    /* 🌟 新版融合输入框 */
+    .merged-input-box {
+      @apply flex items-center bg-slate-50 dark:bg-slate-900 border-2 border-transparent rounded-2xl p-2 transition-all shadow-sm;
     }
-    
-    /* 上半部 (输入) */
-    .converter-top {
-      @apply p-5 transition-colors cursor-pointer;
-    }
-    .converter-top:hover { @apply bg-black/5 dark:bg-white/5; }
-    
-    /* 下半部 (结果) */
-    .converter-bottom {
-      @apply p-5 bg-white dark:bg-black/20 cursor-pointer transition-colors;
-    }
-    .converter-bottom:hover { @apply bg-black/5 dark:bg-white/5; }
+    /* 激活状态边框色 */
+    .box-focus-myr { @apply focus-within:border-blue-400 focus-within:bg-blue-50/30 dark:focus-within:bg-blue-900/10; }
+    .box-focus-twd { @apply focus-within:border-orange-400 focus-within:bg-orange-50/30 dark:focus-within:bg-orange-900/10; }
 
-    /* 中间互换按钮 */
-    .swap-btn-wrap {
-      @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10;
-    }
-    .swap-btn {
-      @apply w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-400 transition-transform active:scale-90 active:rotate-180;
+    .merged-input {
+      @apply flex-1 bg-transparent font-black text-3xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 px-2 min-w-0;
     }
 
-    /* 内部文字样式 */
-    .conv-label { @apply text-xs font-bold text-slate-400 uppercase tracking-wider mb-1; }
-    .conv-row { @apply flex justify-between items-center; }
-    .conv-input { @apply w-full bg-transparent font-black text-3xl outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-700 p-0 m-0 leading-tight; }
-    .conv-unit { @apply text-lg font-black ml-2; }
-    
-    /* 颜色状态 */
-    .text-myr { @apply text-blue-500; }
-    .text-twd { @apply text-orange-500; }
-
-    /* 开销输入框 */
-    .expense-input-box {
-      @apply bg-orange-50 dark:bg-orange-900/20 p-2 rounded-2xl flex items-center border border-transparent focus-within:border-orange-300;
+    /* 右侧胶囊切换按钮 */
+    .currency-pill-btn {
+      @apply flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all cursor-pointer select-none active:scale-95 ml-2 text-white shadow-sm;
     }
+    .pill-myr { @apply bg-blue-500 shadow-blue-200 dark:shadow-none; }
+    .pill-twd { @apply bg-orange-500 shadow-orange-200 dark:shadow-none; }
 
+    /* 分类 Chip */
     .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
     .cat-item {
       @apply flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-pointer transition-all active:scale-90;
@@ -324,31 +308,34 @@
         <div v-if="showHistory" class="absolute inset-0 bg-slate-50 dark:bg-slate-900 rounded-t-[2.5rem] z-20 pt-14 px-6 overflow-y-auto border-t border-slate-200 dark:border-slate-800 flex flex-col">
           
           <div class="space-y-3 pb-safe">
-              <div v-if="calcHistory.length===0" class="text-center py-10 text-slate-300 text-sm">暂无记录</div>
+              <div v-if="sortedHistory.length===0" class="text-center py-10 text-slate-300 text-sm">暂无记录</div>
               
-              <div v-for="(rec,i) in calcHistory" :key="rec.id" 
+              <div v-for="(rec,i) in sortedHistory" :key="rec.id" 
                    class="swipe-list-item group"
-                   @touchstart="touchStart($event, i)"
-                   @touchmove="touchMove($event, i)"
-                   @touchend="touchEnd($event, i)">
+                   @touchstart="touchStart($event, rec.id)"
+                   @touchmove="touchMove($event, rec.id)"
+                   @touchend="touchEnd($event, rec.id)">
                 
                 <div class="pc-actions">
-                  <div class="pc-btn pc-btn-pin" @click.stop="pinItem(i)" title="置顶"><i class="fas fa-thumbtack"></i></div>
-                  <div class="pc-btn pc-btn-del" @click.stop="delItem(i)" title="删除"><i class="fas fa-trash-alt"></i></div>
+                  <div class="pc-btn pc-btn-pin" :class="rec.pinned?'active':''" @click.stop="togglePin(rec.id)" title="置顶"><i class="fas fa-thumbtack"></i></div>
+                  <div class="pc-btn pc-btn-del" @click.stop="delItem(rec.id)" title="删除"><i class="fas fa-trash-alt"></i></div>
                 </div>
 
                 <div class="swipe-actions">
-                  <div class="action-btn action-left" @click.stop="pinItem(i)">
-                    <i class="fas fa-thumbtack mr-1"></i> 置顶
+                  <div class="action-btn action-left" @click.stop="togglePin(rec.id)">
+                    <i class="fas fa-thumbtack mr-1"></i> {{ rec.pinned ? '取消' : '置顶' }}
                   </div>
-                  <div class="action-btn action-right" @click.stop="delItem(i)">
+                  <div class="action-btn action-right" @click.stop="delItem(rec.id)">
                     <i class="fas fa-trash-alt mr-1"></i> 删除
                   </div>
                 </div>
 
                 <div class="swipe-content" :style="{ transform: `translateX(${swipeOffsets[rec.id] || 0}px)` }">
                   <div class="flex-1">
-                    <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '未备注' }}</div>
+                    <div class="flex items-center gap-2">
+                      <i v-if="rec.pinned" class="fas fa-thumbtack text-yellow-500 text-xs"></i>
+                      <span class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '未备注' }}</span>
+                    </div>
                     <div class="text-xs text-slate-400 mt-0.5">{{ rec.twd }} TWD (Rate: {{rec.rateUsed}})</div>
                   </div>
                   <div class="text-right">
@@ -426,28 +413,23 @@
         </div>
 
         <div v-if="modalType==='exchange'" class="space-y-4">
-          <div class="converter-card">
-            
-            <div class="converter-top" :class="exMode==='MYR'?'bg-blue-50/50 dark:bg-blue-900/10':'bg-orange-50/50 dark:bg-orange-900/10'" @click="toggleExMode">
-              <div class="conv-label">输入金额</div>
-              <div class="conv-row">
-                <input type="number" v-model.number="exInputAmount" class="conv-input" placeholder="0">
-                <div class="conv-unit" :class="exMode==='MYR'?'text-myr':'text-twd'">{{ exMode }}</div>
-              </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 mb-2 block ml-2 uppercase tracking-wide">输入金额</label>
+            <div class="merged-input-box" :class="exMode==='MYR'?'box-focus-myr':'box-focus-twd'">
+              <input type="number" v-model.number="exInputAmount" class="merged-input" placeholder="0">
+              <button @click="toggleExMode" class="currency-pill-btn" :class="exMode==='MYR'?'pill-myr':'pill-twd'">
+                {{ exMode }} <i class="fas fa-exchange-alt text-xs opacity-70"></i>
+              </button>
             </div>
-
-            <div class="swap-btn-wrap" @click.stop="toggleExMode">
-              <div class="swap-btn"><i class="fas fa-exchange-alt"></i></div>
+          </div>
+          
+          <div class="flex justify-center -my-3 relative z-10"><i class="fas fa-arrow-down bg-white dark:bg-slate-900 text-slate-300 rounded-full p-1 border dark:border-slate-800 text-xs"></i></div>
+          
+          <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 flex justify-between items-center border border-slate-100 dark:border-slate-800/50">
+            <span class="text-xs font-bold text-slate-400">自动换算为</span>
+            <div class="text-xl font-black" :class="exMode==='MYR'?'text-orange-500':'text-blue-500'">
+               {{ exResult }} <span class="text-sm">{{ exMode==='MYR'?'TWD':'MYR' }}</span>
             </div>
-
-            <div class="converter-bottom" @click="toggleExMode">
-              <div class="conv-label">自动换算为</div>
-              <div class="conv-row">
-                <div class="text-2xl font-black opacity-60">{{ exResult }}</div>
-                <div class="conv-unit text-slate-400">{{ exMode==='MYR'?'TWD':'MYR' }}</div>
-              </div>
-            </div>
-
           </div>
         </div>
 
@@ -467,8 +449,8 @@
 
           <div>
              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1 mb-2 block">消费金额 (TWD)</label>
-             <div class="expense-input-box">
-                <input type="number" v-model.number="newItem.amount" class="w-full bg-transparent text-3xl font-black p-2 text-slate-900 dark:text-white outline-none placeholder-slate-300" placeholder="0.00">
+             <div class="merged-input-box box-focus-twd">
+                <input type="number" v-model.number="newItem.amount" class="merged-input" placeholder="0.00">
                 <span class="text-sm font-bold text-orange-500 mr-4">TWD</span>
              </div>
           </div>
@@ -490,7 +472,7 @@
   const { createApp, ref, computed, onMounted, reactive } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v18_2_smart_ui";
+      const STORAGE_KEY = "ustrip_v18_3_right_ui";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -519,20 +501,18 @@
       let startX = 0;
       let activeId = null;
 
-      const touchStart = (e, idx) => { 
+      const touchStart = (e, id) => { 
         startX = e.touches[0].clientX; 
-        activeId = calcHistory.value[idx].id; 
+        activeId = id; 
       };
-      const touchMove = (e, idx) => {
-        const id = calcHistory.value[idx].id;
+      const touchMove = (e, id) => {
         if(activeId !== id) return;
         const diff = e.touches[0].clientX - startX;
         if(diff < -100) swipeOffsets[id] = -100;
         else if(diff > 100) swipeOffsets[id] = 100;
         else swipeOffsets[id] = diff;
       };
-      const touchEnd = (e, idx) => {
-        const id = calcHistory.value[idx].id;
+      const touchEnd = (e, id) => {
         if(Math.abs(swipeOffsets[id]) > 60) {
            swipeOffsets[id] = swipeOffsets[id] > 0 ? 100 : -100; 
         } else {
@@ -540,19 +520,29 @@
         }
       };
       
-      const delItem = (idx) => { 
-        const id = calcHistory.value[idx].id;
-        calcHistory.value.splice(idx, 1); 
+      const delItem = (id) => { 
+        calcHistory.value = calcHistory.value.filter(item => item.id !== id);
         delete swipeOffsets[id]; 
         save(); 
       };
-      const pinItem = (idx) => { 
-        const id = calcHistory.value[idx].id;
-        const item = calcHistory.value.splice(idx, 1)[0];
-        calcHistory.value.unshift(item);
-        swipeOffsets[id] = 0; 
-        save();
+      
+      const togglePin = (id) => { 
+        const item = calcHistory.value.find(i => i.id === id);
+        if(item) {
+          item.pinned = !item.pinned; // 切换置顶状态
+          swipeOffsets[id] = 0; 
+          save();
+        }
       };
+
+      // 🌟 智能排序：置顶优先 -> 金额大优先 -> 时间倒序
+      const sortedHistory = computed(() => {
+        return [...calcHistory.value].sort((a, b) => {
+          if (a.pinned !== b.pinned) return b.pinned ? 1 : -1; // 置顶优先
+          if (a.pinned && b.pinned) return parseFloat(b.myr) - parseFloat(a.myr); // 置顶内部按金额降序
+          return b.id - a.id; // 其他按时间倒序
+        });
+      });
 
       const twdPerMyrFromJags = computed(() => {
         const x = parseFloat(String(jagsRate.value));
@@ -602,7 +592,7 @@
         const v = parseFloat(calcInput.value); if(!v)return;
         const d = new Date();
         const id = Date.now() + Math.random();
-        calcHistory.value.unshift({id, twd:v, myr:calcResult.value, note:calcNote.value, time:`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`});
+        calcHistory.value.unshift({id, twd:v, myr:calcResult.value, note:calcNote.value, time:`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`, pinned: false});
         calcNote.value=""; calcInput.value="0"; calcExpr.value=""; save(); 
       };
       const clearHistory = () => { if(confirm("清空?")){calcHistory.value=[];save();} };
@@ -653,7 +643,7 @@
 
       return { 
         currentTab, isDark, toggleDark, showHistory, toggleHistory, showModal, modalType, newItem, twdBalance, averageRate, 
-        totalCardSpent, totalCashSpent, allTransactions, calcInput, calcExpr, calcResult, calcNote, calcHistory, 
+        totalCardSpent, totalCashSpent, allTransactions, calcInput, calcExpr, calcResult, calcNote, calcHistory, sortedHistory,
         key, saveCalculation, clearHistory, openModal, closeModal:()=>showModal.value=false, saveItem, deleteItem, exportAllData, triggerImport, handleImport, importInput, exportHistoryCSV,
         getTranClass: (i)=>i.type==='exchange'?'item-exchange':(i.method==='card'?'item-card':'item-expense'),
         getIcon: (i)=>i.type==='exchange'?'fas fa-sync':(i.method==='card'?'fas fa-credit-card':'fas fa-wallet'),
@@ -661,7 +651,7 @@
         jagsRate, 
         exMode, toggleExMode, exInputAmount, exResult,
         categories, selectedCat,
-        touchStart, touchMove, touchEnd, swipeOffsets, delItem, pinItem
+        touchStart, touchMove, touchEnd, swipeOffsets, delItem, pinItem, togglePin
       };
     }
   }).mount("#app");
