@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v18.0</title>
+  <title>UsTrip Finance v18.1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -83,20 +83,19 @@
     .capsule-text { font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: rgb(71 85 105); }
     html.dark .capsule-text { color: rgb(203 213 225); }
 
-    /* 🌟 滑动列表优化 */
+    /* 🌟 滑动列表优化 & PC端 Hover */
     .swipe-list-item {
       position: relative;
       overflow: hidden;
       border-radius: 1rem;
       margin-bottom: 0.75rem;
-      /* 关键：硬件加速，防止卡顿 */
       transform: translate3d(0,0,0);
     }
     .swipe-content {
       position: relative;
       z-index: 10;
       background: white;
-      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); /* 平滑回弹 */
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
       display: flex;
       align-items: center;
       padding: 1rem;
@@ -105,6 +104,23 @@
     }
     html.dark .swipe-content { background: #1e293b; border-color: #334155; }
     
+    /* PC端 Hover 显示操作按钮 */
+    @media (hover: hover) {
+      .swipe-list-item:hover .pc-actions { opacity: 1; pointer-events: auto; }
+    }
+    .pc-actions {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      display: flex; gap: 8px;
+    }
+    .pc-btn {
+      width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; cursor: pointer; color: white; shadow-sm;
+    }
+    .pc-btn-pin { background: #eab308; }
+    .pc-btn-del { background: #ef4444; }
+
+    /* 移动端背景层 */
     .swipe-actions {
       position: absolute; top: 0; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: space-between; z-index: 1;
@@ -132,26 +148,31 @@
       @apply bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex justify-between items-center mb-6;
     }
     
-    /* 🌟 新版输入框容器 */
+    /* 🌟 新版输入框容器 (带背景色) */
     .split-input-row {
-      @apply flex items-stretch gap-3;
+      @apply flex items-stretch gap-3 p-1 rounded-2xl transition-colors;
     }
+    /* 背景色状态 */
+    .bg-myr { @apply bg-blue-50 dark:bg-blue-900/10; }
+    .bg-twd { @apply bg-orange-50 dark:bg-orange-900/10; }
     
     /* 左侧：纯数字输入 */
     .input-left-area {
-      @apply flex-1 bg-slate-50 dark:bg-slate-900 border-2 border-transparent rounded-2xl px-4 py-3 flex flex-col justify-center transition-all focus-within:bg-white dark:focus-within:bg-black focus-within:border-emerald-400 focus-within:shadow-md;
+      @apply flex-1 flex flex-col justify-center px-2;
     }
-    .input-label-mini { @apply text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1; }
-    .input-core { @apply w-full bg-transparent font-black text-3xl outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-700 p-0 m-0 leading-tight; }
+    .input-label-mini { @apply text-[10px] font-bold opacity-50 uppercase tracking-wider mb-1 ml-1; }
+    .input-core { @apply w-full bg-transparent font-black text-4xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-700 p-0 m-0 leading-tight; }
 
-    /* 右侧：巨大的切换按钮 */
+    /* 右侧：巨大的切换按钮 (实心色块) */
     .currency-big-btn {
-      @apply w-28 flex flex-col items-center justify-center rounded-2xl cursor-pointer active:scale-95 transition-all shadow-sm select-none border-2 border-transparent;
+      @apply w-24 rounded-xl cursor-pointer active:scale-95 transition-all shadow-sm select-none border-2 border-transparent flex flex-col items-center justify-center text-white;
     }
-    .btn-myr-style { @apply bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 border-blue-200 dark:border-blue-800; }
-    .btn-twd-style { @apply bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 border-orange-200 dark:border-orange-800; }
+    /* 按钮颜色 */
+    .btn-myr-solid { @apply bg-blue-500 shadow-blue-200 dark:shadow-none; }
+    .btn-twd-solid { @apply bg-orange-500 shadow-orange-200 dark:shadow-none; }
+    
     .cur-code { @apply text-lg font-black leading-none; }
-    .cur-icon { @apply text-xs opacity-60 mt-1; }
+    .cur-icon { @apply text-xs opacity-80 mt-1; }
 
     /* 分类 Chip */
     .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
@@ -295,11 +316,16 @@
               <div v-if="calcHistory.length===0" class="text-center py-10 text-slate-300 text-sm">暂无记录</div>
               
               <div v-for="(rec,i) in calcHistory" :key="rec.id" 
-                   class="swipe-list-item"
+                   class="swipe-list-item group"
                    @touchstart="touchStart($event, i)"
                    @touchmove="touchMove($event, i)"
                    @touchend="touchEnd($event, i)">
                 
+                <div class="pc-actions">
+                  <div class="pc-btn pc-btn-pin" @click.stop="pinItem(i)" title="置顶"><i class="fas fa-thumbtack"></i></div>
+                  <div class="pc-btn pc-btn-del" @click.stop="delItem(i)" title="删除"><i class="fas fa-trash-alt"></i></div>
+                </div>
+
                 <div class="swipe-actions">
                   <div class="action-btn action-left" @click.stop="pinItem(i)">
                     <i class="fas fa-thumbtack mr-1"></i> 置顶
@@ -395,12 +421,12 @@
         <div v-if="modalType==='exchange'" class="space-y-4">
           
           <div>
-            <div class="split-input-row">
+            <div class="split-input-row" :class="exMode==='MYR' ? 'bg-myr' : 'bg-twd'">
               <div class="input-left-area">
                 <span class="input-label-mini">输入金额</span>
                 <input type="number" v-model.number="exInputAmount" class="input-core" placeholder="0">
               </div>
-              <button @click="toggleExMode" class="currency-big-btn" :class="exMode==='MYR' ? 'btn-myr-style' : 'btn-twd-style'">
+              <button @click="toggleExMode" class="currency-big-btn" :class="exMode==='MYR' ? 'btn-myr-solid' : 'btn-twd-solid'">
                 <span class="cur-code">{{ exMode }}</span>
                 <i class="fas fa-exchange-alt cur-icon"></i>
               </button>
@@ -433,9 +459,9 @@
 
           <div>
              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1 mb-2 block">消费金额 (TWD)</label>
-             <div class="exchange-input-box box-twd !p-1">
-                <input type="number" v-model.number="newItem.amount" class="exchange-input !ml-2" placeholder="0.00">
-                <span class="text-sm font-bold text-slate-400 mr-4">TWD</span>
+             <div class="bg-orange-50 dark:bg-orange-900/20 p-2 rounded-2xl flex items-center border border-transparent focus-within:border-orange-300">
+                <input type="number" v-model.number="newItem.amount" class="w-full bg-transparent text-3xl font-black p-2 text-slate-900 dark:text-white outline-none placeholder-slate-300" placeholder="0.00">
+                <span class="text-sm font-bold text-orange-500 mr-4">TWD</span>
              </div>
           </div>
           
@@ -456,7 +482,7 @@
   const { createApp, ref, computed, onMounted, reactive } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v18_0_perf";
+      const STORAGE_KEY = "ustrip_v18_1_final";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -480,7 +506,7 @@
       const categories = [ { name: '饮食', emoji: '🍔' }, { name: '交通', emoji: '🚗' }, { name: '购物', emoji: '🛍️' }, { name: '娱乐', emoji: '🎮' }, { name: '住宿', emoji: '🏨' }, { name: '零食', emoji: '🍦' }, { name: '其他', emoji: '📦' } ];
       const selectedCat = ref(categories[0]);
 
-      // 🌟 ID 追踪的滑动逻辑
+      // 滑动逻辑
       const swipeOffsets = reactive({});
       let startX = 0;
       let activeId = null;
@@ -516,7 +542,7 @@
         const id = calcHistory.value[idx].id;
         const item = calcHistory.value.splice(idx, 1)[0];
         calcHistory.value.unshift(item);
-        swipeOffsets[id] = 0; // 重置位置
+        swipeOffsets[id] = 0; 
         save();
       };
 
@@ -567,7 +593,7 @@
       const saveCalculation = () => {
         const v = parseFloat(calcInput.value); if(!v)return;
         const d = new Date();
-        const id = Date.now() + Math.random(); // 唯一ID
+        const id = Date.now() + Math.random();
         calcHistory.value.unshift({id, twd:v, myr:calcResult.value, note:calcNote.value, time:`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`});
         calcNote.value=""; calcInput.value="0"; calcExpr.value=""; save(); 
       };
@@ -608,7 +634,6 @@
       onMounted(() => {
         const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
         exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; 
-        // 🌟 迁移旧数据，补全 ID
         calcHistory.value = (d.ch||[]).map(r => ({...r, id: r.id || Date.now() + Math.random()}));
         
         if(d.jrate) jagsRate.value = d.jrate;
