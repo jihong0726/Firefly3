@@ -1,586 +1,1589 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v19.0</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+<title>UsTrip Finance v20.0</title>
 <style>
-/* Reset & Base */
-:root {
-  --bg: #f8fafc; --text: #0f172a; --card-bg: #fff; --border: #e2e8f0;
-  --primary: #10b981; --accent-blue: #3b82f6; --accent-orange: #f97316; --danger: #ef4444;
-  --safe-b: env(safe-area-inset-bottom);
-}
-body.dark {
-  --bg: #0f172a; --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
-}
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+  :root{
+    --bg:#f7fafc;
+    --text:#0f172a;
+    --muted:#64748b;
+    --card:#ffffff;
+    --border:#e2e8f0;
+    --primary:#10b981;
+    --blue:#3b82f6;
+    --orange:#f97316;
+    --danger:#ef4444;
 
-/* Header */
-.header {
-  padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10;
-}
-.header h1 { font-size: 20px; margin: 0; font-weight: 900; }
-.btn-icon {
-  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg);
-  display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text); font-size: 16px;
-}
+    --safe-b: env(safe-area-inset-bottom);
+    --safe-t: env(safe-area-inset-top);
 
-/* Main Content Area */
-.main { flex: 1; position: relative; overflow: hidden; }
-.page {
-  position: absolute; inset: 0; display: none; flex-direction: column;
-  padding: 20px; overflow-y: auto; overflow-x: hidden;
-}
-.page.active { display: flex; }
+    --header-h: 64px;
+    --tab-h: 74px; /* 不含 safe-area */
+    --radius-1: 18px;
+    --radius-2: 24px;
+    --shadow-1: 0 10px 30px rgba(15, 23, 42, .08);
+    --shadow-2: 0 18px 50px rgba(15, 23, 42, .12);
+  }
 
-/* Assets Page */
-.card {
-  background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-radius: 24px; padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px;
-}
-.card-val { font-size: 42px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
-.card-sub { font-size: 12px; opacity: 0.7; display: flex; gap: 16px; }
+  body.dark{
+    --bg:#0b1220;
+    --text:#eef2f7;
+    --muted:#94a3b8;
+    --card:#111b2e;
+    --border:#1f2a44;
+    --shadow-1: 0 10px 30px rgba(0,0,0,.25);
+    --shadow-2: 0 18px 50px rgba(0,0,0,.35);
+  }
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.btn-lg {
-  background: var(--card-bg); border: 1px solid var(--border); padding: 16px; border-radius: 20px;
-  display: flex; align-items: center; gap: 12px; font-weight: bold; cursor: pointer;
-}
-.btn-lg:active { transform: scale(0.98); }
-.icon-box { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:-apple-system, system-ui, Segoe UI, Roboto, sans-serif;
+    color:var(--text);
+    background: radial-gradient(1200px 600px at 20% 0%, rgba(16,185,129,.18), transparent 60%),
+                radial-gradient(900px 500px at 90% 10%, rgba(59,130,246,.16), transparent 60%),
+                var(--bg);
+    overflow:hidden; /* 三段式：页面本体不滚动 */
+  }
 
-.list-item {
-  background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 14px;
-  margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-}
+  /* ====== App Layout: Header / Content / Tab ====== */
+  .app{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    padding-top: var(--safe-t);
+  }
 
-/* Calc Page */
-.calc-page { display: flex; flex-direction: column; height: 100%; padding: 0; }
-.display { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; }
-.calc-expr { font-size: 16px; color: #64748b; margin-bottom: 4px; height: 20px; }
-.calc-val { font-size: 56px; font-weight: 800; line-height: 1; width: 100%; text-align: right; word-break: break-all; }
-.calc-res {
-  background: var(--primary); color: white; padding: 12px 20px; border-radius: 16px; margin-top: 10px;
-  width: 100%; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-}
-.calc-res:active { opacity: 0.9; transform: scale(0.99); }
+  .header{
+    height: var(--header-h);
+    padding: 10px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex: 0 0 auto;
+  }
 
-.keyboard {
-  background: #f1f5f9; border-top-left-radius: 32px; border-top-right-radius: 32px;
-  padding: 30px 16px 16px; position: relative; z-index: 20; height: 55%; flex-shrink: 0;
-}
-.dark .keyboard { background: #0f172a; border-top: 1px solid var(--border); }
+  .header-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
 
-/* 历史胶囊 */
-.hist-pill {
-  position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
-  background: var(--card-bg); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px;
-  font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; gap: 6px;
-}
+  .app-icon{
+    width:44px; height:44px;
+    border-radius:14px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), transparent 55%),
+                linear-gradient(135deg, rgba(16,185,129,1), rgba(16,185,129,.65));
+    display:grid; place-items:center;
+    box-shadow: var(--shadow-1);
+    flex:0 0 auto;
+  }
+  .app-icon span{ font-size:20px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.18)); }
 
-.keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; height: 100%; }
-.key {
-  border: none; border-radius: 16px; background: var(--card-bg); color: var(--text); font-size: 22px; font-weight: 600;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.05); cursor: pointer;
-}
-.key:active { transform: translateY(2px); box-shadow: none; }
-.key.op { color: var(--accent-blue); background: #eff6ff; }
-.key.ac { color: var(--danger); background: #fef2f2; }
-.key.eq { background: var(--primary); color: white; grid-row: span 2; }
-.dark .key { background: #334155; }
-.dark .key.op { background: #1e293b; }
-.dark .key.ac { background: #331515; }
+  .title-wrap{ min-width:0; }
+  .title{
+    margin:0;
+    font-size:28px;
+    font-weight:900;
+    letter-spacing:-0.02em;
+    line-height:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .subtitle{
+    margin-top:4px;
+    font-size:12px;
+    color:var(--muted);
+    font-weight:700;
+  }
 
-/* Tab Bar */
-.tab-bar {
-  border-top: 1px solid var(--border); background: var(--card-bg); padding: 10px 0 calc(10px + var(--safe-b));
-  display: flex; justify-content: space-around; z-index: 30;
-}
-.tab-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #94a3b8; cursor: pointer; }
-.tab-btn.active { color: var(--primary); font-weight: bold; }
-.tab-icon { font-size: 20px; }
+  .header-right{
+    display:flex; align-items:center; gap:10px;
+  }
 
-/* Modal */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-  z-index: 100; display: none; align-items: center; justify-content: center;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--card-bg); width: 85%; max-width: 360px; border-radius: 24px; padding: 24px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-@keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .icon-btn{
+    width:44px; height:44px;
+    border-radius:16px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    display:grid; place-items:center;
+    cursor:pointer;
+    box-shadow: 0 10px 25px rgba(15,23,42,.06);
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    user-select:none;
+  }
+  .icon-btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-1); }
+  .icon-btn:active{ transform: translateY(1px) scale(.98); box-shadow:none; }
 
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-title { font-size: 18px; font-weight: 900; }
+  .theme-btn{
+    position:relative;
+    overflow:hidden;
+  }
+  .theme-badge{
+    position:absolute;
+    right:6px; bottom:6px;
+    width:10px; height:10px; border-radius:99px;
+    background: var(--primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--card) 70%, transparent);
+    opacity:.9;
+  }
 
-/* Input Group (Color changing) */
-.input-wrap {
-  border: 2px solid transparent; background: var(--bg); border-radius: 16px; padding: 8px;
-  display: flex; align-items: center; margin-bottom: 16px; transition: 0.2s;
-}
-.input-wrap:focus-within { background: var(--card-bg); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.input-wrap.focus-blue:focus-within { border-color: var(--accent-blue); }
-.input-wrap.focus-orange:focus-within { border-color: var(--accent-orange); }
+  /* ===== Content ===== */
+  .content{
+    flex: 1 1 auto;
+    min-height:0;
+    padding: 10px 14px 0;
+    position:relative;
+  }
 
-.real-input {
-  flex: 1; border: none; background: transparent; font-size: 28px; font-weight: 800; outline: none; color: var(--text); min-width: 0;
-}
-.pill-btn {
-  padding: 8px 16px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; cursor: pointer;
-}
-.bg-blue { background: var(--accent-blue); }
-.bg-orange { background: var(--accent-orange); }
+  .page{
+    height:100%;
+    display:none;
+  }
+  .page.active{ display:flex; flex-direction:column; gap:12px; }
 
-.full-btn {
-  width: 100%; border: none; padding: 16px; border-radius: 16px; background: #0f172a; color: white; font-weight: bold; font-size: 16px; cursor: pointer;
-}
-.dark .full-btn { background: #fff; color: #0f172a; }
+  /* ===== Bottom Tab (fixed) ===== */
+  .tabbar{
+    flex: 0 0 auto;
+    height: calc(var(--tab-h) + var(--safe-b));
+    padding: 10px 12px calc(10px + var(--safe-b));
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    border-top:1px solid var(--border);
+  }
 
-/* Categories */
-.cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
-.cat {
-  aspect-ratio: 1; border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; cursor: pointer; background: var(--bg);
-}
-.cat.active { background: #eff6ff; border-color: var(--accent-blue); color: var(--accent-blue); }
-.cat-icon { font-size: 24px; margin-bottom: 4px; }
-.cat-name { font-size: 10px; font-weight: bold; }
+  .tab-inner{
+    height: 100%;
+    border-radius: 22px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 96%, transparent);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 8px;
+    gap:8px;
+    box-shadow: 0 18px 40px rgba(15,23,42,.10);
+  }
 
-/* History List */
-.hist-list { max-height: 50vh; overflow-y: auto; }
-.hist-item {
-  padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
-}
-.hist-actions { display: none; gap: 8px; }
-.hist-item:hover .hist-actions { display: flex; } /* PC Hover */
-.btn-mini { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; color: white; cursor: pointer; }
-.bg-yellow { background: #eab308; }
-.bg-red { background: #ef4444; }
+  .tab{
+    flex:1;
+    height:100%;
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-weight:900;
+    cursor:pointer;
+    color: color-mix(in srgb, var(--text) 45%, var(--muted));
+    user-select:none;
+    transition: background .15s ease, transform .12s ease, color .15s ease;
+  }
+  .tab span{ font-size:18px; }
+  .tab.active{
+    background: radial-gradient(900px 90px at 20% 50%, rgba(16,185,129,.16), transparent 60%),
+                color-mix(in srgb, var(--card) 86%, rgba(16,185,129,.06));
+    color: var(--text);
+  }
+  .tab:active{ transform: scale(.99); }
 
-/* Helpers */
-.hidden { display: none !important; }
+  /* ===== Cards / Common ===== */
+  .card{
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    border:1px solid var(--border);
+    border-radius: var(--radius-2);
+    box-shadow: var(--shadow-1);
+  }
+
+  /* ===== Assets Page ===== */
+  .asset-hero{
+    padding:18px 18px 16px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #0b1220, #0f172a);
+    color:#fff;
+    border: none;
+  }
+  body.dark .asset-hero{
+    background: linear-gradient(135deg, #0a0f1c, #0e162a);
+  }
+  .hero-top{
+    display:flex; align-items:center; justify-content:space-between;
+    opacity:.86;
+    font-weight:800;
+    font-size:12px;
+  }
+  .hero-rate{
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.12);
+    font-weight:900;
+  }
+  .hero-balance{
+    margin-top:12px;
+    font-size:54px;
+    font-weight:950;
+    letter-spacing:-0.03em;
+    line-height:1;
+  }
+  .hero-sub{
+    margin-top:10px;
+    display:flex;
+    gap:16px;
+    font-size:12px;
+    opacity:.78;
+    font-weight:800;
+  }
+
+  .action-row{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  .action-btn{
+    padding: 14px 14px;
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    border:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    box-shadow: var(--shadow-1);
+    user-select:none;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .action-btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-2); }
+  .action-btn:active{ transform: translateY(1px) scale(.99); box-shadow:none; }
+  .action-icon{
+    width:44px; height:44px;
+    border-radius:16px;
+    display:grid; place-items:center;
+    font-size:20px;
+    font-weight:900;
+  }
+  .action-title{
+    font-weight:950;
+    font-size:16px;
+  }
+  .action-sub{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:800;
+    margin-top:2px;
+  }
+
+  .records{
+    flex:1;
+    min-height:0;
+    overflow:auto; /* 金库列表可以滚动 */
+    padding-bottom: 10px;
+  }
+
+  .rec{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 12px 12px;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    border:1px solid var(--border);
+    margin-bottom:10px;
+  }
+  .rec-left{
+    display:flex; align-items:center; gap:10px;
+    min-width:0;
+  }
+  .rec-dot{
+    width:12px; height:12px; border-radius:999px;
+    background: var(--primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+    flex:0 0 auto;
+  }
+  .rec-title{
+    font-weight:950;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .rec-meta{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:800;
+    margin-top:2px;
+  }
+  .rec-right{
+    text-align:right;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex:0 0 auto;
+  }
+  .rec-amt{
+    font-weight:950;
+    letter-spacing:-.01em;
+  }
+  .rec-amt small{
+    font-weight:900;
+    opacity:.7;
+    margin-left:6px;
+  }
+  .rec-subamt{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:900;
+  }
+
+  .rec-del{
+    width:34px; height:34px;
+    border-radius: 12px;
+    border:1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
+    background: color-mix(in srgb, var(--danger) 10%, transparent);
+    display:grid; place-items:center;
+    cursor:pointer;
+    user-select:none;
+    transition: transform .12s ease, background .12s ease;
+    font-weight:950;
+    color: var(--danger);
+  }
+  .rec-del:hover{ background: color-mix(in srgb, var(--danger) 16%, transparent); }
+  .rec-del:active{ transform: scale(.98); }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    font-weight:900;
+    color: var(--muted);
+    user-select:none;
+  }
+
+  /* ===== Calc Page ===== */
+  .calc-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .rate-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 14px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    font-weight:950;
+    color: var(--muted);
+    user-select:none;
+    white-space:nowrap;
+  }
+  .rate-pill strong{ color: var(--text); letter-spacing:-.01em; }
+
+  .history-btn{
+    padding: 10px 14px;
+    border-radius: 999px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    cursor:pointer;
+    font-weight:950;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    user-select:none;
+  }
+  .history-btn:active{ transform: scale(.99); }
+
+  /* 中间内容（不滚动） */
+  .calc-mid{
+    flex:1;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    overflow:hidden; /* 关键：不滑动 */
+  }
+
+  .swap-card{
+    padding: 16px;
+    border-radius: 26px;
+    background: linear-gradient(90deg,
+      color-mix(in srgb, var(--blue) 18%, transparent),
+      color-mix(in srgb, var(--primary) 16%, transparent)
+    );
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-1);
+  }
+
+  .swap-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    align-items:stretch;
+  }
+
+  .side{
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    padding: 14px 14px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .side.left::before{
+    content:"";
+    position:absolute; inset:0;
+    background: radial-gradient(500px 150px at 30% 0%, rgba(59,130,246,.18), transparent 55%);
+    pointer-events:none;
+  }
+  .side.right::before{
+    content:"";
+    position:absolute; inset:0;
+    background: radial-gradient(500px 150px at 70% 0%, rgba(16,185,129,.16), transparent 55%);
+    pointer-events:none;
+  }
+
+  .side-top{
+    position:relative;
+    z-index:1;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom: 10px;
+    color: var(--muted);
+    font-weight:950;
+    font-size:12px;
+  }
+
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    font-weight:950;
+    color: var(--text);
+    user-select:none;
+  }
+  .dot{
+    width:10px; height:10px; border-radius:999px;
+    background: var(--blue);
+    box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+  }
+  .dot.green{
+    background: var(--primary);
+    box-shadow: 0 0 0 4px rgba(16,185,129,.12);
+  }
+  .locked{
+    opacity:.7;
+  }
+
+  .value{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    font-weight:950;
+    letter-spacing:-.03em;
+    line-height:1;
+  }
+
+  .value .num{
+    font-size: 54px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 100%;
+  }
+  .value .unit{
+    font-size: 16px;
+    font-weight:950;
+    opacity:.75;
+    white-space:nowrap;
+  }
+
+  .value.right .num{ color: var(--primary); }
+
+  .hint{
+    position:relative;
+    z-index:1;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight:900;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+
+  .save-row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .save-btn{
+    width: 100%;
+    max-width: 420px;
+    margin-left:auto;
+    padding: 14px 16px;
+    border-radius: 999px;
+    border:none;
+    cursor:pointer;
+    color:#fff;
+    font-weight:950;
+    background: linear-gradient(135deg, rgba(16,185,129,1), rgba(16,185,129,.72));
+    box-shadow: 0 18px 40px rgba(16,185,129,.20);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    user-select:none;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  }
+  .save-btn:hover{ transform: translateY(-1px); }
+  .save-btn:active{ transform: translateY(1px) scale(.99); box-shadow:none; }
+  .save-btn[disabled]{ opacity:.45; cursor:not-allowed; box-shadow:none; transform:none; }
+
+  /* ===== Keyboard (Fixed) ===== */
+  .kbd-wrap{
+    flex: 0 0 auto;
+    padding-bottom: 12px; /* 给一点喘息 */
+  }
+
+  .keyboard{
+    width:100%;
+    max-width: 600px;        /* 防止宽屏拉伸 */
+    margin: 0 auto;          /* 居中 */
+    border-radius: 28px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    box-shadow: var(--shadow-2);
+    padding: 14px;
+  }
+
+  .keys{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr); /* 3列数字 + 1列运算符 */
+    gap: 12px;
+    align-items:stretch;
+  }
+
+  .key{
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 94%, transparent);
+    border-radius: 22px;
+    cursor:pointer;
+    user-select:none;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:950;
+    font-size: 22px;
+
+    min-height: 74px;            /* 手机端不会太扁 */
+    aspect-ratio: 1 / 1;         /* 让按键更接近方形 */
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    box-shadow: 0 10px 24px rgba(15,23,42,.06);
+  }
+
+  /* 宽屏时稍微高一点 */
+  @media (min-width: 900px){
+    .key{ min-height: 86px; font-size:24px; }
+    .value .num{ font-size: 64px; }
+  }
+
+  .key:hover{
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-1);
+  }
+  .key:active{
+    transform: translateY(1px) scale(.99);
+    box-shadow:none;
+  }
+
+  .key.fn{
+    background: color-mix(in srgb, var(--blue) 10%, var(--card));
+    color: color-mix(in srgb, var(--blue) 80%, var(--text));
+  }
+  .key.ac{
+    background: color-mix(in srgb, var(--danger) 10%, var(--card));
+    color: var(--danger);
+  }
+  .key.op{
+    background: color-mix(in srgb, var(--primary) 10%, var(--card));
+    color: color-mix(in srgb, var(--primary) 85%, var(--text));
+  }
+  .key.eq{
+    background: linear-gradient(135deg, rgba(16,185,129,1), rgba(16,185,129,.70));
+    color:#fff;
+    border: none;
+    box-shadow: 0 20px 40px rgba(16,185,129,.22);
+    aspect-ratio: auto; /* 让它可以变大 */
+  }
+  .key.eq:hover{ box-shadow: 0 24px 50px rgba(16,185,129,.26); }
+
+  /* Grid Placement: 数字在左三列，运算符最右列 */
+  .k-ac   { grid-column: 1; grid-row: 1; }
+  .k-del  { grid-column: 2; grid-row: 1; }
+  .k-dot  { grid-column: 3; grid-row: 1; }
+  .k-div  { grid-column: 4; grid-row: 1; }
+
+  .k-7 { grid-column: 1; grid-row: 2; }
+  .k-8 { grid-column: 2; grid-row: 2; }
+  .k-9 { grid-column: 3; grid-row: 2; }
+  .k-mul{ grid-column: 4; grid-row: 2; }
+
+  .k-4 { grid-column: 1; grid-row: 3; }
+  .k-5 { grid-column: 2; grid-row: 3; }
+  .k-6 { grid-column: 3; grid-row: 3; }
+  .k-sub{ grid-column: 4; grid-row: 3; }
+
+  .k-1 { grid-column: 1; grid-row: 4; }
+  .k-2 { grid-column: 2; grid-row: 4; }
+  .k-3 { grid-column: 3; grid-row: 4; }
+  .k-add{ grid-column: 4; grid-row: 4; }
+
+  .k-0  { grid-column: 1 / span 2; grid-row: 5; aspect-ratio:auto; }
+  .k-00 { grid-column: 3; grid-row: 5; }
+  .k-eq { grid-column: 4; grid-row: 5 / span 1; }
+
+  /* ===== Modal ===== */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(8px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+    padding: 18px;
+  }
+  .overlay.open{ display:flex; }
+
+  .modal{
+    width:min(520px, 100%);
+    border-radius: 26px;
+    background: color-mix(in srgb, var(--card) 94%, transparent);
+    border:1px solid var(--border);
+    box-shadow: var(--shadow-2);
+    overflow:hidden;
+  }
+  .modal-h{
+    padding: 14px 14px 10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border-bottom:1px solid var(--border);
+  }
+  .modal-h .t{
+    font-weight:950;
+    font-size:18px;
+  }
+  .modal-b{
+    padding: 14px;
+    max-height: min(70vh, 540px);
+    overflow:auto; /* 弹窗内部可滚动 */
+  }
+
+  .row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
+
+  .input{
+    width:100%;
+    padding: 12px 14px;
+    font-size: 22px;
+    font-weight:950;
+    border-radius: 18px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    outline:none;
+    color: var(--text);
+  }
+
+  .seg{
+    display:flex;
+    border:1px solid var(--border);
+    border-radius: 18px;
+    overflow:hidden;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+  }
+  .seg button{
+    flex:1;
+    padding: 10px 12px;
+    border:none;
+    cursor:pointer;
+    font-weight:950;
+    background: transparent;
+    color: var(--muted);
+  }
+  .seg button.active{
+    background: linear-gradient(135deg, rgba(16,185,129,.18), transparent);
+    color: var(--text);
+  }
+
+  .btn{
+    width:100%;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border:none;
+    cursor:pointer;
+    font-weight:950;
+    background: #0f172a;
+    color:#fff;
+  }
+  body.dark .btn{ background:#fff; color:#0f172a; }
+  .btn:active{ transform: scale(.99); }
+
+  .mini{
+    width:auto;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border:1px solid var(--border);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    cursor:pointer;
+    font-weight:950;
+  }
+  .mini.danger{
+    border-color: color-mix(in srgb, var(--danger) 30%, var(--border));
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 10%, transparent);
+  }
+
+  /* small helper */
+  .muted{ color: var(--muted); font-weight:900; font-size:12px; }
+  .divider{ height:1px; background: var(--border); margin: 12px 0; }
+
 </style>
 </head>
+
 <body>
+<div class="app" id="app">
 
-<div id="app">
+  <!-- ===== Header (Fixed) ===== -->
   <div class="header">
-    <h1 id="headerTitle">我的金库</h1>
-    <div style="display:flex; gap:10px;">
-      <div class="btn-icon" onclick="app.toggleTheme()">🌓</div>
-      <div class="btn-icon" onclick="app.exportData()">📥</div>
-      <input type="file" id="fileInput" hidden onchange="app.importData(this)">
-      <div class="btn-icon" onclick="document.getElementById('fileInput').click()">📤</div>
+    <div class="header-left">
+      <div class="app-icon"><span>🧾</span></div>
+      <div class="title-wrap">
+        <h1 class="title" id="hdrTitle">我的金库</h1>
+        <div class="subtitle" id="hdrSub">记录换汇与开销</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="icon-btn theme-btn" id="themeBtn" title="切换夜间模式">
+        <span id="themeIcon">🌙</span>
+        <span class="theme-badge" id="themeBadge"></span>
+      </div>
     </div>
   </div>
 
-  <div class="main">
-    <div id="page-assets" class="page active">
-      <div class="card">
-        <div style="font-size:12px; opacity:0.7">台币剩余 (TWD)</div>
-        <div class="card-val" id="assetBalance">0.00</div>
-        <div class="card-sub">
-          <span id="assetIn">总存: 0</span>
-          <span id="assetOut">总花: 0</span>
+  <!-- ===== Content (Middle) ===== -->
+  <div class="content">
+
+    <!-- Assets Page -->
+    <div class="page active" id="pageAssets">
+      <div class="asset-hero card">
+        <div class="hero-top">
+          <div>台币余额</div>
+          <div class="hero-rate" id="heroRate">1 : 7.949</div>
+        </div>
+        <div class="hero-balance" id="twdBalance">0</div>
+        <div class="hero-sub">
+          <div>总存: <span id="sumIn">0</span></div>
+          <div>总花: <span id="sumOut">0</span></div>
         </div>
       </div>
 
-      <div class="grid-2">
-        <div class="btn-lg" onclick="app.openExchange()">
-          <div class="icon-box" style="background:#dbeafe; color:#2563eb">💱</div>
-          存入资金
-        </div>
-        <div class="btn-lg" onclick="app.openExpense()">
-          <div class="icon-box" style="background:#ffedd5; color:#ea580c">💸</div>
-          记录开销
-        </div>
-      </div>
-
-      <div id="recordsList" style="padding-bottom:100px;"></div>
-    </div>
-
-    <div id="page-calc" class="page calc-page">
-      <div class="display">
-        <div class="calc-expr" id="calcExpr"></div>
-        <div class="calc-val" id="calcInput">0</div>
-        <div class="calc-res" onclick="app.saveCalc()">
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <span style="font-size:12px; opacity:0.8">折合马币 (Rate: <span id="calcRate"></span>)</span>
-            <span style="font-size:24px; font-weight:800;" id="calcResult">0.00 MYR</span>
+      <div class="action-row">
+        <div class="action-btn" id="btnDeposit">
+          <div class="action-icon" style="background: rgba(59,130,246,.12); color: var(--blue);">💱</div>
+          <div>
+            <div class="action-title">换汇存入</div>
+            <div class="action-sub">可自定义汇率</div>
           </div>
-          <span style="font-size:20px">💾</span>
+        </div>
+        <div class="action-btn" id="btnExpense">
+          <div class="action-icon" style="background: rgba(249,115,22,.12); color: var(--orange);">💸</div>
+          <div>
+            <div class="action-title">记录开销</div>
+            <div class="action-sub">用分类快速记账</div>
+          </div>
         </div>
       </div>
-      <div class="keyboard">
-        <div class="hist-pill" onclick="app.openHistory()">
-          <span>📜 历史记录</span>
-        </div>
-        <div class="keys-grid">
-          <button class="key ac" onclick="app.onKey('AC')">AC</button>
-          <button class="key ac" onclick="app.onKey('DEL')">⌫</button>
-          <button class="key op" onclick="app.onKey('%')">%</button>
-          <button class="key op" onclick="app.onKey('/')">÷</button>
-          <button class="key" onclick="app.onKey('7')">7</button>
-          <button class="key" onclick="app.onKey('8')">8</button>
-          <button class="key" onclick="app.onKey('9')">9</button>
-          <button class="key op" onclick="app.onKey('*')">×</button>
-          <button class="key" onclick="app.onKey('4')">4</button>
-          <button class="key" onclick="app.onKey('5')">5</button>
-          <button class="key" onclick="app.onKey('6')">6</button>
-          <button class="key op" onclick="app.onKey('-')">-</button>
-          <button class="key" onclick="app.onKey('1')">1</button>
-          <button class="key" onclick="app.onKey('2')">2</button>
-          <button class="key" onclick="app.onKey('3')">3</button>
-          <button class="key op" onclick="app.onKey('+')">+</button>
-          <button class="key" onclick="app.onKey('0')">0</button>
-          <button class="key" onclick="app.onKey('00')">00</button>
-          <button class="key" onclick="app.onKey('.')">.</button>
-          <button class="key eq" onclick="app.onKey('=')">=</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="tab-bar">
-    <div class="tab-btn active" id="tab-assets" onclick="app.setTab('assets')">
-      <span class="tab-icon">👛</span>
-      <span>金库</span>
+      <div class="records" id="recordList"></div>
     </div>
-    <div class="tab-btn" id="tab-calc" onclick="app.setTab('calc')">
-      <span class="tab-icon">🧮</span>
-      <span>换算</span>
+
+    <!-- Calc Page -->
+    <div class="page" id="pageCalc">
+      <div class="calc-top">
+        <div class="rate-pill" id="ratePill">
+          <span>⚡</span>
+          <span>当前汇率</span>
+          <strong id="rateText">1 : 7.949</strong>
+          <span class="muted">TWD/MYR</span>
+        </div>
+        <div class="history-btn" id="btnHistory"><span>🕘</span><span>历史</span></div>
+      </div>
+
+      <div class="calc-mid">
+        <div class="swap-card" id="swapCard">
+          <div class="swap-grid">
+            <!-- Left: input -->
+            <div class="side left">
+              <div class="side-top">
+                <div class="tag"><span class="dot"></span><span>输入</span></div>
+                <div class="muted">可编辑</div>
+              </div>
+              <div class="value">
+                <div class="num" id="inputTwd">0</div>
+                <div class="unit">TWD</div>
+              </div>
+              <div class="hint">
+                <span>你输入的金额</span>
+                <span class="pill" id="inputPreview">0 TWD</span>
+              </div>
+            </div>
+
+            <!-- Right: result (readonly) -->
+            <div class="side right">
+              <div class="side-top">
+                <div class="tag locked"><span class="dot green"></span><span>换算</span></div>
+                <div class="muted">仅展示</div>
+              </div>
+              <div class="value right">
+                <div class="num" id="resultRm">0.00</div>
+                <div class="unit">RM</div>
+              </div>
+              <div class="hint">
+                <span>自动折合结果</span>
+                <span class="pill" id="resultPreview">RM 0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="save-row">
+            <div class="muted">点击保存会加入历史记录</div>
+            <button class="save-btn" id="btnSaveCalc" disabled>
+              <span>💾</span><span>保存</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Keyboard fixed -->
+        <div class="kbd-wrap">
+          <div class="keyboard">
+            <div class="keys">
+              <button class="key ac k-ac"  data-k="AC">AC</button>
+              <button class="key fn k-del" data-k="DEL">⌫</button>
+              <button class="key fn k-dot" data-k=".">.</button>
+              <button class="key op k-div" data-k="/">÷</button>
+
+              <button class="key k-7" data-k="7">7</button>
+              <button class="key k-8" data-k="8">8</button>
+              <button class="key k-9" data-k="9">9</button>
+              <button class="key op k-mul" data-k="*">×</button>
+
+              <button class="key k-4" data-k="4">4</button>
+              <button class="key k-5" data-k="5">5</button>
+              <button class="key k-6" data-k="6">6</button>
+              <button class="key op k-sub" data-k="-">-</button>
+
+              <button class="key k-1" data-k="1">1</button>
+              <button class="key k-2" data-k="2">2</button>
+              <button class="key k-3" data-k="3">3</button>
+              <button class="key op k-add" data-k="+">+</button>
+
+              <button class="key k-0" data-k="0">0</button>
+              <button class="key fn k-00" data-k="00">00</button>
+              <button class="key eq k-eq" data-k="=">=</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- ===== Tab (Fixed) ===== -->
+  <div class="tabbar">
+    <div class="tab-inner">
+      <div class="tab active" id="tabAssets"><span>👛</span><div>金库</div></div>
+      <div class="tab" id="tabCalc"><span>🧮</span><div>换算</div></div>
     </div>
   </div>
 </div>
 
-<div id="modalOverlay" class="modal-overlay" onclick="if(event.target===this) app.closeModal()">
-  <div class="modal" id="modalContent"></div>
+<!-- ===== Modal ===== -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
 </div>
 
 <script>
-const app = {
-  data: {
-    tab: 'assets',
-    theme: 'light',
+(function(){
+  const STORE_KEY = "ustrip_v20";
+  const PINNED_ID = "PINNED_3200_TWD";
+
+  const state = {
+    tab: "assets",
+    theme: "light",
+    rate: 7.949,   // TWD per 1 MYR
+    calcExpr: "0",
     history: [],
-    records: [],
-    rate: 12.63,
-    calcIn: '0',
-    calcExpr: '',
-    exMode: 'MYR',
-    exVal: '',
-    expCat: 0,
-    expVal: ''
-  },
-  cats: [
-    {n:'饮食',i:'🍔'},{n:'交通',i:'🚗'},{n:'购物',i:'🛍️'},{n:'娱乐',i:'🎮'},{n:'住宿',i:'🏨'},
-    {n:'零食',i:'🍦'},{n:'礼物',i:'🎁'},{n:'医疗',i:'💊'},{n:'生活',i:'💡'},{n:'其他',i:'📦'}
-  ],
+    records: []
+  };
 
-  init() {
-    const s = localStorage.getItem('ustrip_v19_vanilla');
-    if(s) this.data = {...this.data, ...JSON.parse(s)};
-    
-    // 补全ID
-    this.data.history.forEach(i => { if(!i.id) i.id = Date.now()+Math.random(); });
-    this.data.records.forEach(i => { if(!i.id) i.id = Date.now()+Math.random(); });
+  const cats = [
+    { n:"饮食", i:"🍔" }, { n:"交通", i:"🚗" }, { n:"购物", i:"🛍️" }, { n:"娱乐", i:"🎮" }, { n:"住宿", i:"🏨" },
+    { n:"零食", i:"🍦" }, { n:"礼物", i:"🎁" }, { n:"医疗", i:"💊" }, { n:"生活", i:"💡" }, { n:"其他", i:"📦" }
+  ];
 
-    this.renderTheme();
-    this.setTab(this.data.tab);
-  },
-
-  save() {
-    localStorage.setItem('ustrip_v19_vanilla', JSON.stringify(this.data));
-    this.renderAssets();
-  },
-
-  renderTheme() {
-    document.body.className = this.data.theme;
-  },
-
-  toggleTheme() {
-    this.data.theme = this.data.theme==='light'?'dark':'light';
-    this.renderTheme();
-    this.save();
-  },
-
-  setTab(t) {
-    this.data.tab = t;
-    document.getElementById('page-assets').className = `page ${t==='assets'?'active':''}`;
-    document.getElementById('page-calc').className = `page calc-page ${t==='calc'?'active':''}`;
-    document.getElementById('tab-assets').className = `tab-btn ${t==='assets'?'active':''}`;
-    document.getElementById('tab-calc').className = `tab-btn ${t==='calc'?'active':''}`;
-    document.getElementById('headerTitle').innerText = t==='assets'?'我的金库':'汇率计算';
-    if(t==='assets') this.renderAssets();
-    else this.renderCalc();
-  },
-
-  // --- Assets Logic ---
-  renderAssets() {
-    const totalIn = this.data.records.filter(r=>r.type==='in').reduce((a,b)=>a+b.twd,0);
-    const totalOut = this.data.records.filter(r=>r.type==='out').reduce((a,b)=>a+b.twd,0);
-    document.getElementById('assetBalance').innerText = (totalIn - totalOut).toFixed(2);
-    document.getElementById('assetIn').innerText = '总存: '+totalIn.toFixed(0);
-    document.getElementById('assetOut').innerText = '总花: '+totalOut.toFixed(0);
-
-    const listEl = document.getElementById('recordsList');
-    listEl.innerHTML = this.data.records.sort((a,b)=>b.id-a.id).map(r => `
-      <div class="list-item">
-        <div>
-          <div style="font-weight:bold">${r.title}</div>
-          <div style="font-size:12px;opacity:0.6">${new Date(r.id).toLocaleDateString()}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-weight:bold; color:${r.type==='in'?'var(--primary)':'var(--text)'}">
-            ${r.type==='in'?'+':'-'}${r.twd.toFixed(2)}
-          </div>
-          <div style="font-size:10px;opacity:0.6">${r.rm?'RM '+r.rm:''}</div>
-        </div>
-        <div class="btn-mini bg-red" style="margin-left:10px" onclick="app.delRec(${r.id})">✕</div>
-      </div>
-    `).join('') || '<div style="text-align:center;padding:20px;opacity:0.5">暂无记录</div>';
-  },
-
-  delRec(id) {
-    if(confirm('删除此条记录?')) {
-      this.data.records = this.data.records.filter(r=>r.id!==id);
-      this.save();
-    }
-  },
-
-  // --- Calc Logic ---
-  getRate() { return 100/this.data.rate; }, // 100 TWD = x MYR -> Rate = TWD per MYR
-
-  renderCalc() {
-    document.getElementById('calcInput').innerText = this.data.calcIn;
-    document.getElementById('calcExpr').innerText = this.data.calcExpr;
-    const rate = this.getRate();
-    document.getElementById('calcRate').innerText = rate.toFixed(3);
-    
-    let res = 0;
-    try { res = eval(this.data.calcIn) || 0; } catch {}
-    document.getElementById('calcResult').innerText = (res/rate).toFixed(2) + ' MYR';
-  },
-
-  onKey(k) {
-    if(k==='AC') { this.data.calcIn = '0'; this.data.calcExpr = ''; }
-    else if(k==='DEL') { 
-      this.data.calcIn = this.data.calcIn.length>1 ? this.data.calcIn.slice(0,-1) : '0';
-    }
-    else if(k==='=') {
-      try { 
-        this.data.calcIn = String(parseFloat(eval(this.data.calcIn).toFixed(4))); 
-        this.data.calcExpr = '';
-      } catch {}
-    }
-    else {
-      if(['+','-','*','/','%'].includes(k)) {
-        this.data.calcExpr = this.data.calcIn;
-        this.data.calcIn += k;
-      } else {
-        this.data.calcIn = (this.data.calcIn==='0'&&k!=='.') ? k : this.data.calcIn+k;
+  // ---- Helpers
+  const $ = (id)=>document.getElementById(id);
+  const fmtTwd = (n)=> `${stripZeros(n)} TWD`;
+  const fmtRm  = (n)=> `RM ${stripZeros(n,2)}`;
+  function stripZeros(num, fixed=null){
+    if(num === "" || num === null || num === undefined) return "0";
+    const x = Number(num);
+    if(!isFinite(x)) return "0";
+    if(fixed === null){
+      // integer-like
+      const s = String(x);
+      if(s.includes(".")){
+        const t = x.toFixed(8).replace(/0+$/,'').replace(/\.$/,'');
+        return t;
       }
+      return s;
     }
-    this.renderCalc();
-  },
+    return x.toFixed(fixed);
+  }
 
-  saveCalc() {
-    try {
-      const twd = parseFloat(eval(this.data.calcIn));
-      const rate = this.getRate();
-      if(!twd) return;
-      this.data.history.unshift({
-        id: Date.now(),
-        twd: twd.toFixed(2),
-        rm: (twd/rate).toFixed(2),
-        rate: rate.toFixed(3),
-        pinned: false,
-        pinTime: 0,
-        note: ''
+  function nowId(){ return Date.now() + Math.random(); }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORE_KEY);
+      if(raw){
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved || {});
+      }
+    }catch(e){}
+
+    // theme apply
+    document.body.classList.toggle("dark", state.theme === "dark");
+    updateThemeIcon();
+
+    // ensure pinned record exists
+    ensurePinnedRecord();
+
+    // sanitize arrays
+    if(!Array.isArray(state.records)) state.records = [];
+    if(!Array.isArray(state.history)) state.history = [];
+  }
+
+  function save(){
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  }
+
+  function ensurePinnedRecord(){
+    if(!Array.isArray(state.records)) state.records = [];
+    const exists = state.records.some(r => r.id === PINNED_ID);
+    if(!exists){
+      // 默认记录：3200 TWD / RM 402.55（不可删）
+      state.records.unshift({
+        id: PINNED_ID,
+        type: "in",
+        title: "💱 换汇存入",
+        twd: 3200,
+        rm: 402.55,
+        rate: 7.949,
+        pinned: true,
+        createdAt: Date.now() - 86400000
       });
-      this.data.calcIn='0';
-      this.save();
-      alert('已保存');
-      this.renderCalc();
-    } catch {}
-  },
+    }
+  }
 
-  // --- Modals ---
-  openModal(html) {
-    document.getElementById('modalContent').innerHTML = html;
-    document.getElementById('modalOverlay').className = 'modal-overlay open';
-  },
-  closeModal() {
-    document.getElementById('modalOverlay').className = 'modal-overlay';
-  },
+  function setTab(tab){
+    state.tab = tab;
+    const isAssets = tab === "assets";
+    $("pageAssets").classList.toggle("active", isAssets);
+    $("pageCalc").classList.toggle("active", !isAssets);
+    $("tabAssets").classList.toggle("active", isAssets);
+    $("tabCalc").classList.toggle("active", !isAssets);
 
-  // Exchange Modal
-  openExchange() {
-    this.data.exMode = 'MYR'; this.data.exVal = '';
-    this.renderExchange();
-  },
-  renderExchange() {
-    const mode = this.data.exMode;
-    const rate = this.getRate();
-    const val = parseFloat(this.data.exVal)||0;
-    let res = mode==='MYR' ? (val*rate).toFixed(0) : (val/rate).toFixed(2);
-    
-    this.openModal(`
-      <div class="modal-header">
-        <div class="modal-title">存入资金</div>
-        <div class="btn-icon" onclick="app.closeModal()">✕</div>
-      </div>
-      
-      <div class="card" style="padding:16px; margin-bottom:16px; background:var(--bg)">
-        <div style="font-size:10px; font-weight:bold; color:#64748b">JAGS RATE (100 TWD)</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-          <input type="number" value="${this.data.rate}" oninput="app.data.rate=parseFloat(this.value)||1; app.renderExchange()" style="width:80px;padding:4px;border-radius:8px;border:1px solid var(--border);text-align:center;font-weight:bold">
-          <span style="font-size:14px;font-weight:bold">MYR</span>
-        </div>
-      </div>
+    $("hdrTitle").textContent = isAssets ? "我的金库" : "换算";
+    $("hdrSub").textContent   = isAssets ? "记录换汇与开销" : "输入台币，自动折合马币";
 
-      <div class="input-wrap ${mode==='MYR'?'focus-blue':'focus-orange'}">
-        <input type="number" class="real-input" placeholder="0" value="${this.data.exVal}" oninput="app.data.exVal=this.value; app.renderExchange()" autofocus>
-        <div class="pill-btn ${mode==='MYR'?'bg-blue':'bg-orange'}" onclick="app.data.exMode='${mode==='MYR'?'TWD':'MYR'}'; app.data.exVal=''; app.renderExchange()">
-          ${mode} ⇄
-        </div>
-      </div>
+    renderAll();
+    save();
+  }
 
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 8px">
-        <span style="font-size:12px;font-weight:bold;color:#64748b">自动换算</span>
-        <span style="font-size:24px;font-weight:900;color:var(--primary)">${res} <span style="font-size:14px">${mode==='MYR'?'TWD':'MYR'}</span></span>
-      </div>
+  function updateThemeIcon(){
+    const dark = document.body.classList.contains("dark");
+    $("themeIcon").textContent = dark ? "☀️" : "🌙";
+    $("themeBadge").style.background = dark ? "#3b82f6" : "#10b981";
+  }
 
-      <button class="full-btn" style="margin-top:20px" onclick="app.submitEx()">确认存入</button>
-    `);
-    // Focus hack
-    setTimeout(()=>document.querySelector('.real-input').focus(), 50);
-  },
-  submitEx() {
-    const val = parseFloat(this.data.exVal);
-    if(!val) return;
-    const rate = this.getRate();
-    let twd = 0, rm = 0;
-    if(this.data.exMode==='MYR') { rm=val; twd=val*rate; }
-    else { twd=val; rm=val/rate; }
-    
-    this.data.records.unshift({id:Date.now(), type:'in', title:'存入资金', twd:twd, rm:rm.toFixed(2)});
-    this.save();
-    this.closeModal();
-  },
+  function toggleTheme(){
+    state.theme = (state.theme === "light") ? "dark" : "light";
+    document.body.classList.toggle("dark", state.theme === "dark");
+    updateThemeIcon();
+    save();
+  }
 
-  // Expense Modal
-  openExpense() {
-    this.data.expCat = 0; this.data.expVal = '';
-    this.renderExpense();
-  },
-  renderExpense() {
-    const catsHtml = this.cats.map((c,i) => `
-      <div class="cat ${this.data.expCat===i?'active':''}" onclick="app.data.expCat=${i}; app.renderExpense()">
-        <div style="font-size:24px">${c.i}</div>
-        <div style="font-size:10px;font-weight:bold;margin-top:4px">${c.n}</div>
-      </div>
-    `).join('');
-    
-    this.openModal(`
-      <div class="modal-header">
-        <div class="modal-title">记录开销</div>
-        <div class="btn-icon" onclick="app.closeModal()">✕</div>
-      </div>
-      <div class="cats">${catsHtml}</div>
-      <div class="input-wrap focus-orange">
-        <input type="number" class="real-input" placeholder="0" value="${this.data.expVal}" oninput="app.data.expVal=this.value" autofocus>
-        <span style="font-weight:bold;color:var(--accent-orange);margin-right:8px">TWD</span>
-      </div>
-      <button class="full-btn" onclick="app.submitExp()">确认记账</button>
-    `);
-    setTimeout(()=>document.querySelector('.real-input').focus(), 50);
-  },
-  submitExp() {
-    const val = parseFloat(this.data.expVal);
-    if(!val) return;
-    const c = this.cats[this.data.expCat];
-    this.data.records.unshift({id:Date.now(), type:'out', title: c.i+' '+c.n, twd:val});
-    this.save();
-    this.closeModal();
-  },
+  // ----- Assets rendering
+  function computeTotals(){
+    ensurePinnedRecord();
 
-  // History Modal
-  openHistory() {
-    const list = this.data.history.sort((a,b) => {
-      if(a.pinned && !b.pinned) return -1;
-      if(!a.pinned && b.pinned) return 1;
-      if(a.pinned) return b.pinTime - a.pinTime;
-      return b.id - a.id;
+    const totalIn  = state.records.filter(r=>r.type==="in").reduce((a,b)=>a + Number(b.twd||0), 0);
+    const totalOut = state.records.filter(r=>r.type==="out").reduce((a,b)=>a + Number(b.twd||0), 0);
+    const balance = totalIn - totalOut;
+    return { totalIn, totalOut, balance };
+  }
+
+  function renderAssets(){
+    const { totalIn, totalOut, balance } = computeTotals();
+    $("twdBalance").textContent = stripZeros(balance, 0);
+    $("sumIn").textContent = stripZeros(totalIn, 0);
+    $("sumOut").textContent = stripZeros(totalOut, 0);
+
+    $("heroRate").textContent = `1 : ${stripZeros(state.rate,3)}`;
+    $("rateText").textContent = `1 : ${stripZeros(state.rate,3)}`;
+
+    // list
+    const list = $("recordList");
+    const items = [...state.records].sort((a,b)=>{
+      const ta = (a.pinned ? 1 : 0);
+      const tb = (b.pinned ? 1 : 0);
+      if(tb !== ta) return tb - ta; // pinned first
+      const da = a.createdAt || 0;
+      const db = b.createdAt || 0;
+      return db - da;
     });
 
-    const html = list.map(r => `
-      <div class="hist-item">
-        <div>
-          <div style="font-weight:bold;font-size:14px">
-            ${r.pinned?'📌 ':''}${r.note||'未备注'}
-          </div>
-          <div style="font-size:10px;opacity:0.6">${r.twd} TWD @ ${r.rate}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="text-align:right">
-            <div style="font-weight:bold;font-size:16px;color:var(--primary)">${r.rm}</div>
-            <div style="font-size:10px;opacity:0.6">MYR</div>
-          </div>
-          <div class="hist-actions">
-            <div class="btn-mini bg-yellow" onclick="app.pinHist(${r.id})">⬆</div>
-            <div class="btn-mini bg-red" onclick="app.delHist(${r.id})">✕</div>
-          </div>
-        </div>
-      </div>
-    `).join('') || '<div style="text-align:center;padding:20px;opacity:0.5">暂无历史</div>';
+    if(items.length === 0){
+      list.innerHTML = `<div class="card" style="padding:18px;border-radius:22px;text-align:center;color:var(--muted);font-weight:900;">暂无记录</div>`;
+      return;
+    }
 
-    this.openModal(`
-      <div class="modal-header">
-        <div class="modal-title">历史记录</div>
-        <div style="display:flex;gap:10px">
-          <button onclick="app.clearHist()" style="border:none;background:none;color:var(--danger);font-weight:bold;cursor:pointer">清空</button>
-          <div class="btn-icon" onclick="app.closeModal()">✕</div>
-        </div>
-      </div>
-      <div class="hist-list">${html}</div>
-    `);
-  },
-  pinHist(id) {
-    const item = this.data.history.find(r=>r.id===id);
-    if(item) { item.pinned = !item.pinned; item.pinTime = Date.now(); }
-    this.save(); this.openHistory();
-  },
-  delHist(id) {
-    this.data.history = this.data.history.filter(r=>r.id!==id);
-    this.save(); this.openHistory();
-  },
-  clearHist() {
-    if(confirm('清空所有?')) { this.data.history=[]; this.save(); this.openHistory(); }
-  },
+    list.innerHTML = items.map(r=>{
+      const date = new Date(r.createdAt || Date.now()).toLocaleString(undefined, {month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"});
+      const isIn = r.type === "in";
+      const twdSign = isIn ? "+" : "-";
+      const twdColor = isIn ? "var(--primary)" : "var(--text)";
+      const rmText = (r.rm !== undefined && r.rm !== null) ? fmtRm(r.rm) : "";
 
-  // IO
-  exportData() {
-    const b = new Blob([JSON.stringify(this.data)],{type:'application/json'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='backup.json'; a.click();
-  },
-  importData(el) {
-    const f = el.files[0];
-    if(!f) return;
-    const r = new FileReader();
-    r.onload = e => {
-      try { this.data = JSON.parse(e.target.result); this.save(); alert('导入成功'); location.reload(); }
-      catch { alert('文件错误'); }
-    };
-    r.readAsText(f);
+      const canDelete = !r.pinned && r.id !== PINNED_ID;
+
+      return `
+        <div class="rec">
+          <div class="rec-left">
+            <div class="rec-dot" style="background:${isIn ? "var(--primary)" : "var(--orange)"}; box-shadow:0 0 0 4px ${isIn ? "rgba(16,185,129,.18)" : "rgba(249,115,22,.16)"};"></div>
+            <div style="min-width:0">
+              <div class="rec-title">${escapeHtml(r.title || (isIn ? "存入" : "开销"))}</div>
+              <div class="rec-meta">${date}${r.pinned ? " · 固定记录" : ""}</div>
+            </div>
+          </div>
+          <div class="rec-right">
+            <div>
+              <div class="rec-amt" style="color:${twdColor}">${twdSign}${stripZeros(r.twd,2)}<small>TWD</small></div>
+              <div class="rec-subamt">${rmText}</div>
+            </div>
+            ${
+              canDelete
+                ? `<div class="rec-del" title="删除" data-del="${r.id}">✕</div>`
+                : `<div class="rec-del" style="opacity:.35;cursor:not-allowed;" title="不可删除">🔒</div>`
+            }
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // bind delete
+    list.querySelectorAll("[data-del]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del");
+        delRecord(id);
+      });
+    });
   }
-};
 
-app.init();
+  function delRecord(id){
+    // pinned cannot delete
+    if(id === PINNED_ID) return;
+    const r = state.records.find(x => String(x.id) === String(id));
+    if(!r || r.pinned) return;
+
+    if(confirm("删除这条记录？")){
+      state.records = state.records.filter(x => String(x.id) !== String(id));
+      save();
+      renderAssets();
+    }
+  }
+
+  // ----- Calc logic
+  function evalSafe(expr){
+    // allow digits, operators, dot, percent
+    if(!/^[0-9+\-*/%. ]+$/.test(expr)) return 0;
+    try{
+      // percent: convert "50%" -> "(50/100)"
+      const normalized = expr.replace(/(\d+(\.\d+)?)%/g, "($1/100)");
+      const v = Function('"use strict"; return ('+normalized+')')();
+      if(typeof v !== "number" || !isFinite(v)) return 0;
+      return v;
+    }catch(e){
+      return 0;
+    }
+  }
+
+  function getTwdInput(){
+    const v = evalSafe(state.calcExpr);
+    return v;
+  }
+
+  function calcRmFromTwd(twd){
+    const rate = Number(state.rate || 1);
+    if(!rate || rate <= 0) return 0;
+    return twd / rate;
+  }
+
+  function renderCalc(){
+    $("heroRate").textContent = `1 : ${stripZeros(state.rate,3)}`;
+    $("rateText").textContent = `1 : ${stripZeros(state.rate,3)}`;
+
+    const twd = getTwdInput();
+    const rm = calcRmFromTwd(twd);
+
+    $("inputTwd").textContent = stripZeros(twd, twd % 1 === 0 ? 0 : 2);
+    $("resultRm").textContent = stripZeros(rm, 2);
+
+    $("inputPreview").textContent = fmtTwd(twd);
+    $("resultPreview").textContent = fmtRm(rm);
+
+    $("btnSaveCalc").disabled = !(twd > 0);
+  }
+
+  function onKey(k){
+    const expr = state.calcExpr;
+
+    if(k === "AC"){
+      state.calcExpr = "0";
+      renderCalc();
+      return;
+    }
+    if(k === "DEL"){
+      if(expr.length <= 1){
+        state.calcExpr = "0";
+      }else{
+        state.calcExpr = expr.slice(0,-1);
+        if(state.calcExpr === "" || state.calcExpr === "-") state.calcExpr = "0";
+      }
+      renderCalc();
+      return;
+    }
+    if(k === "="){
+      const v = evalSafe(expr);
+      // keep up to 4 decimals then strip
+      const fixed = Number(v.toFixed(4));
+      state.calcExpr = String(fixed).replace(/\.0+$/,'').replace(/(\.\d*?)0+$/,'$1');
+      renderCalc();
+      return;
+    }
+
+    // append
+    let next = expr;
+
+    const isOp = ["+","-","*","/","%"].includes(k);
+    if(next === "0" && !isOp && k !== "."){
+      next = k;
+    }else{
+      // avoid double operators
+      if(isOp){
+        if(/[+\-*/%]$/.test(next)) next = next.slice(0,-1) + k;
+        else next += k;
+      }else if(k === "."){
+        // prevent two dots in the current number segment
+        const seg = next.split(/[+\-*/%]/).pop() || "";
+        if(seg.includes(".")) { /* ignore */ }
+        else next += ".";
+      }else{
+        next += k;
+      }
+    }
+
+    state.calcExpr = next;
+    renderCalc();
+  }
+
+  function saveCalcToHistory(){
+    const twd = getTwdInput();
+    if(!(twd > 0)) return;
+
+    const rm = calcRmFromTwd(twd);
+
+    state.history.unshift({
+      id: nowId(),
+      twd: Number(twd.toFixed(2)),
+      rm: Number(rm.toFixed(2)),
+      rate: Number(Number(state.rate).toFixed(3)),
+      createdAt: Date.now()
+    });
+
+    // reset
+    state.calcExpr = "0";
+    save();
+    renderCalc();
+    // 要求：不要跳出通知（不 alert / 不 toast）
+  }
+
+  // ----- Modals
+  function openModal(title, bodyHtml, footerHtml=""){
+    const overlay = $("overlay");
+    const modal = $("modal");
+    modal.innerHTML = `
+      <div class="modal-h">
+        <div class="t">${escapeHtml(title)}</div>
+        <button class="mini" id="modalClose">✕</button>
+      </div>
+      <div class="modal-b">
+        ${bodyHtml}
+        ${footerHtml ? `<div class="divider"></div>${footerHtml}` : ""}
+      </div>
+    `;
+    overlay.classList.add("open");
+    $("modalClose").addEventListener("click", closeModal);
+    overlay.addEventListener("click", onOverlayClick, { once:true });
+  }
+  function onOverlayClick(e){
+    if(e.target === $("overlay")) closeModal();
+  }
+  function closeModal(){
+    $("overlay").classList.remove("open");
+    $("modal").innerHTML = "";
+  }
+
+  function openHistory(){
+    // pinned history is not requested; only pinned record in vault is required
+    const list = Array.isArray(state.history) ? state.history : [];
+    const html = list.length
+      ? list.map(h=>{
+          const date = new Date(h.createdAt||Date.now()).toLocaleString(undefined, {month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"});
+          return `
+            <div class="rec" style="margin-bottom:10px;">
+              <div class="rec-left">
+                <div class="rec-dot" style="background:var(--primary);"></div>
+                <div style="min-width:0">
+                  <div class="rec-title">${fmtTwd(h.twd)}</div>
+                  <div class="rec-meta">${date} · 汇率 1:${stripZeros(h.rate,3)}</div>
+                </div>
+              </div>
+              <div class="rec-right">
+                <div style="text-align:right;">
+                  <div class="rec-amt" style="color:var(--primary)">${fmtRm(h.rm)}</div>
+                  <div class="rec-subamt"></div>
+                </div>
+                <div class="rec-del" data-hdel="${h.id}" title="删除">✕</div>
+              </div>
+            </div>
+          `;
+        }).join("")
+      : `<div class="card" style="padding:18px;border-radius:22px;text-align:center;color:var(--muted);font-weight:900;">暂无历史</div>`;
+
+    openModal("历史记录", `
+      ${html}
+      <div class="divider"></div>
+      <button class="mini danger" id="clearHistory" style="width:100%;">清空历史</button>
+    `);
+
+    // bind delete
+    $("modal").querySelectorAll("[data-hdel]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-hdel");
+        state.history = state.history.filter(x => String(x.id) !== String(id));
+        save();
+        closeModal();
+        openHistory();
+      });
+    });
+
+    $("clearHistory").addEventListener("click", ()=>{
+      if(confirm("清空全部历史？")){
+        state.history = [];
+        save();
+        closeModal();
+      }
+    });
+  }
+
+  // ----- Deposit (custom rate + choose input currency)
+  function openDeposit(){
+    ensurePinnedRecord();
+
+    const body = `
+      <div class="row">
+        <div class="muted">汇率（TWD/MYR）</div>
+        <input class="input" id="depRate" inputmode="decimal" placeholder="7.949" value="${stripZeros(state.rate,3)}" />
+      </div>
+
+      <div class="row">
+        <div class="muted">输入币种</div>
+        <div class="seg" style="flex:1;">
+          <button id="segTwd" class="active">输入 TWD</button>
+          <button id="segRm">输入 RM</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="muted">输入金额</div>
+        <input class="input" id="depAmount" inputmode="decimal" placeholder="0" value="" />
+      </div>
+
+      <div class="card" style="padding:14px;border-radius:22px;">
+        <div class="muted" style="margin-bottom:8px;">将存入</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+          <div style="font-weight:950;font-size:22px;" id="depTwdShow">0 TWD</div>
+          <div style="font-weight:950;font-size:22px;color:var(--primary);" id="depRmShow">RM 0.00</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <button class="btn" id="depConfirm">确认存入</button>
+    `;
+
+    openModal("换汇存入", body);
+
+    let mode = "TWD"; // or "RM"
+    const depRate = $("depRate");
+    const depAmount = $("depAmount");
+    const segTwd = $("segTwd");
+    const segRm = $("segRm");
+
+    function normalizeRate(){
+      const r = Number(depRate.value);
+      if(isFinite(r) && r > 0) return r;
+      return state.rate || 7.949;
+    }
+
+    function calcPreview(){
+      const r = normalizeRate();
+      const v = Number(depAmount.value);
+      const amt = (isFinite(v) && v > 0) ? v : 0;
+
+      let twd=0, rm=0;
+      if(mode === "TWD"){
+        twd = amt;
+        rm = (r>0) ? (amt / r) : 0;
+      }else{
+        rm = amt;
+        twd = amt * r;
+      }
+
+      $("depTwdShow").textContent = `${stripZeros(twd, twd%1===0?0:2)} TWD`;
+      $("depRmShow").textContent  = `RM ${stripZeros(rm,2)}`;
+    }
+
+    segTwd.addEventListener("click", ()=>{
+      mode="TWD";
+      segTwd.classList.add("active");
+      segRm.classList.remove("active");
+      depAmount.value = "";
+      calcPreview();
+      depAmount.focus();
+    });
+    segRm.addEventListener("click", ()=>{
+      mode="RM";
+      segRm.classList.add("active");
+      segTwd.classList.remove("active");
+      depAmount.value = "";
+      calcPreview();
+      depAmount.focus();
+    });
+
+    depRate.addEventListener("input", calcPreview);
+    depAmount.addEventListener("input", calcPreview);
+
+    $("depConfirm").addEventListener("click", ()=>{
+      const r = normalizeRate();
+      const v = Number(depAmount.value);
+      if(!(isFinite(v) && v > 0)) return;
+
+      // set global rate to latest user input
+      state.rate = Number(r.toFixed(3));
+
+      let twd=0, rm=0;
+      if(mode === "TWD"){
+        twd = v;
+        rm  = v / state.rate;
+      }else{
+        rm  = v;
+        twd = v * state.rate;
+      }
+
+      state.records.unshift({
+        id: nowId(),
+        type: "in",
+        title: "💱 换汇存入",
+        twd: Number(twd.toFixed(2)),
+        rm: Number(rm.toFixed(2)),
+        rate: state.rate,
+        pinned: false,
+        createdAt: Date.now()
+      });
+
+      save();
+      closeModal();
+      renderAll();
+    });
+
+    // focus
+    setTimeout(()=>depAmount.focus(), 50);
+    calcPreview();
+  }
+
+  // ----- Expense
+  function openExpense(){
+    const catButtons = cats.map((c, idx)=>`
+      <button class="mini" data-cat="${idx}" style="display:flex;align-items:center;gap:10px;width:100%;justify-content:flex-start;padding:12px 12px;border-radius:18px;margin-bottom:8px;">
+        <span style="font-size:22px;">${c.i}</span>
+        <span style="font-weight:950;">${escapeHtml(c.n)}</span>
+      </button>
+    `).join("");
+
+    const body = `
+      <div class="muted" style="margin-bottom:10px;">选择分类</div>
+      <div id="catList">${catButtons}</div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div class="muted">金额</div>
+        <input class="input" id="expAmount" inputmode="decimal" placeholder="0" value="" />
+      </div>
+
+      <button class="btn" id="expConfirm">确认记账</button>
+    `;
+
+    openModal("记录开销", body);
+
+    let selected = 0;
+    const expAmount = $("expAmount");
+    const catList = $("catList");
+
+    // mark first
+    function highlight(){
+      [...catList.querySelectorAll("[data-cat]")].forEach(btn=>{
+        const on = Number(btn.getAttribute("data-cat")) === selected;
+        btn.style.background = on ? "linear-gradient(135deg, rgba(249,115,22,.14), transparent)" : "";
+        btn.style.borderColor = on ? "rgba(249,115,22,.35)" : "var(--border)";
+        btn.style.color = on ? "var(--text)" : "var(--text)";
+      });
+    }
+    highlight();
+
+    catList.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-cat]");
+      if(!btn) return;
+      selected = Number(btn.getAttribute("data-cat")) || 0;
+      highlight();
+    });
+
+    $("expConfirm").addEventListener("click", ()=>{
+      const v = Number(expAmount.value);
+      if(!(isFinite(v) && v > 0)) return;
+      const c = cats[selected] || cats[0];
+
+      state.records.unshift({
+        id: nowId(),
+        type: "out",
+        title: `${c.i} ${c.n}`,
+        twd: Number(v.toFixed(2)),
+        rm: null,
+        rate: state.rate,
+        pinned: false,
+        createdAt: Date.now()
+      });
+
+      save();
+      closeModal();
+      renderAll();
+    });
+
+    setTimeout(()=>expAmount.focus(), 50);
+  }
+
+  // ----- Escape
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
+  }
+
+  function renderAll(){
+    // shared rate text
+    $("heroRate").textContent = `1 : ${stripZeros(state.rate,3)}`;
+    $("rateText").textContent = `1 : ${stripZeros(state.rate,3)}`;
+    renderAssets();
+    renderCalc();
+  }
+
+  // ===== Bind UI
+  function bind(){
+    $("tabAssets").addEventListener("click", ()=>setTab("assets"));
+    $("tabCalc").addEventListener("click", ()=>setTab("calc"));
+
+    $("themeBtn").addEventListener("click", toggleTheme);
+
+    $("btnDeposit").addEventListener("click", openDeposit);
+    $("btnExpense").addEventListener("click", openExpense);
+
+    $("btnHistory").addEventListener("click", openHistory);
+    $("btnSaveCalc").addEventListener("click", saveCalcToHistory);
+
+    // keyboard
+    document.querySelectorAll(".key[data-k]").forEach(btn=>{
+      btn.addEventListener("click", ()=>onKey(btn.getAttribute("data-k")));
+    });
+
+    // prevent accidental scroll bounce on iOS
+    document.addEventListener("touchmove", (e)=>{
+      // allow scroll inside .records and modal body only
+      const inScrollable = e.target.closest(".records") || e.target.closest(".modal-b");
+      if(!inScrollable) e.preventDefault();
+    }, { passive:false });
+  }
+
+  // ===== init
+  load();
+  bind();
+  setTab(state.tab || "assets");
+  renderAll();
+})();
 </script>
 </body>
 </html>
