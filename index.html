@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v18.1</title>
+  <title>UsTrip Finance v18.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -83,7 +83,7 @@
     .capsule-text { font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: rgb(71 85 105); }
     html.dark .capsule-text { color: rgb(203 213 225); }
 
-    /* 🌟 滑动列表优化 & PC端 Hover */
+    /* 滑动列表 */
     .swipe-list-item {
       position: relative;
       overflow: hidden;
@@ -104,7 +104,6 @@
     }
     html.dark .swipe-content { background: #1e293b; border-color: #334155; }
     
-    /* PC端 Hover 显示操作按钮 */
     @media (hover: hover) {
       .swipe-list-item:hover .pc-actions { opacity: 1; pointer-events: auto; }
     }
@@ -120,7 +119,6 @@
     .pc-btn-pin { background: #eab308; }
     .pc-btn-del { background: #ef4444; }
 
-    /* 移动端背景层 */
     .swipe-actions {
       position: absolute; top: 0; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: space-between; z-index: 1;
@@ -143,38 +141,51 @@
     .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg font-black border-red-100 dark:border-red-900; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600 border-none; }
 
-    /* ================= 🌟 弹窗优化：分体式输入 ================= */
+    /* ================= 🌟 弹窗优化：一体化转换器 ================= */
     .rate-card {
       @apply bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex justify-between items-center mb-6;
     }
     
-    /* 🌟 新版输入框容器 (带背景色) */
-    .split-input-row {
-      @apply flex items-stretch gap-3 p-1 rounded-2xl transition-colors;
+    /* 🌟 一体化转换卡片容器 */
+    .converter-card {
+      @apply bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden relative;
     }
-    /* 背景色状态 */
-    .bg-myr { @apply bg-blue-50 dark:bg-blue-900/10; }
-    .bg-twd { @apply bg-orange-50 dark:bg-orange-900/10; }
     
-    /* 左侧：纯数字输入 */
-    .input-left-area {
-      @apply flex-1 flex flex-col justify-center px-2;
+    /* 上半部 (输入) */
+    .converter-top {
+      @apply p-5 transition-colors cursor-pointer;
     }
-    .input-label-mini { @apply text-[10px] font-bold opacity-50 uppercase tracking-wider mb-1 ml-1; }
-    .input-core { @apply w-full bg-transparent font-black text-4xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-700 p-0 m-0 leading-tight; }
-
-    /* 右侧：巨大的切换按钮 (实心色块) */
-    .currency-big-btn {
-      @apply w-24 rounded-xl cursor-pointer active:scale-95 transition-all shadow-sm select-none border-2 border-transparent flex flex-col items-center justify-center text-white;
-    }
-    /* 按钮颜色 */
-    .btn-myr-solid { @apply bg-blue-500 shadow-blue-200 dark:shadow-none; }
-    .btn-twd-solid { @apply bg-orange-500 shadow-orange-200 dark:shadow-none; }
+    .converter-top:hover { @apply bg-black/5 dark:bg-white/5; }
     
-    .cur-code { @apply text-lg font-black leading-none; }
-    .cur-icon { @apply text-xs opacity-80 mt-1; }
+    /* 下半部 (结果) */
+    .converter-bottom {
+      @apply p-5 bg-white dark:bg-black/20 cursor-pointer transition-colors;
+    }
+    .converter-bottom:hover { @apply bg-black/5 dark:bg-white/5; }
 
-    /* 分类 Chip */
+    /* 中间互换按钮 */
+    .swap-btn-wrap {
+      @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10;
+    }
+    .swap-btn {
+      @apply w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-400 transition-transform active:scale-90 active:rotate-180;
+    }
+
+    /* 内部文字样式 */
+    .conv-label { @apply text-xs font-bold text-slate-400 uppercase tracking-wider mb-1; }
+    .conv-row { @apply flex justify-between items-center; }
+    .conv-input { @apply w-full bg-transparent font-black text-3xl outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-700 p-0 m-0 leading-tight; }
+    .conv-unit { @apply text-lg font-black ml-2; }
+    
+    /* 颜色状态 */
+    .text-myr { @apply text-blue-500; }
+    .text-twd { @apply text-orange-500; }
+
+    /* 开销输入框 */
+    .expense-input-box {
+      @apply bg-orange-50 dark:bg-orange-900/20 p-2 rounded-2xl flex items-center border border-transparent focus-within:border-orange-300;
+    }
+
     .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
     .cat-item {
       @apply flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-pointer transition-all active:scale-90;
@@ -355,22 +366,18 @@
         <button @click="key('DEL')" class="calc-btn btn-op"><i class="fas fa-backspace"></i></button>
         <button @click="key('%')" class="calc-btn btn-op">%</button>
         <button @click="key('/')" class="calc-btn btn-op">÷</button>
-        
         <button @click="key('7')" class="calc-btn btn-num">7</button>
         <button @click="key('8')" class="calc-btn btn-num">8</button>
         <button @click="key('9')" class="calc-btn btn-num">9</button>
         <button @click="key('*')" class="calc-btn btn-op">×</button>
-
         <button @click="key('4')" class="calc-btn btn-num">4</button>
         <button @click="key('5')" class="calc-btn btn-num">5</button>
         <button @click="key('6')" class="calc-btn btn-num">6</button>
         <button @click="key('-')" class="calc-btn btn-op">-</button>
-
         <button @click="key('1')" class="calc-btn btn-num">1</button>
         <button @click="key('2')" class="calc-btn btn-num">2</button>
         <button @click="key('3')" class="calc-btn btn-num">3</button>
         <button @click="key('+')" class="calc-btn btn-op">+</button>
-
         <button @click="key('0')" class="calc-btn btn-num">0</button>
         <button @click="key('00')" class="calc-btn btn-num">00</button>
         <button @click="key('.')" class="calc-btn btn-num">.</button>
@@ -419,27 +426,28 @@
         </div>
 
         <div v-if="modalType==='exchange'" class="space-y-4">
-          
-          <div>
-            <div class="split-input-row" :class="exMode==='MYR' ? 'bg-myr' : 'bg-twd'">
-              <div class="input-left-area">
-                <span class="input-label-mini">输入金额</span>
-                <input type="number" v-model.number="exInputAmount" class="input-core" placeholder="0">
+          <div class="converter-card">
+            
+            <div class="converter-top" :class="exMode==='MYR'?'bg-blue-50/50 dark:bg-blue-900/10':'bg-orange-50/50 dark:bg-orange-900/10'" @click="toggleExMode">
+              <div class="conv-label">输入金额</div>
+              <div class="conv-row">
+                <input type="number" v-model.number="exInputAmount" class="conv-input" placeholder="0">
+                <div class="conv-unit" :class="exMode==='MYR'?'text-myr':'text-twd'">{{ exMode }}</div>
               </div>
-              <button @click="toggleExMode" class="currency-big-btn" :class="exMode==='MYR' ? 'btn-myr-solid' : 'btn-twd-solid'">
-                <span class="cur-code">{{ exMode }}</span>
-                <i class="fas fa-exchange-alt cur-icon"></i>
-              </button>
             </div>
-          </div>
-          
-          <div class="flex justify-center -my-3 relative z-10"><i class="fas fa-arrow-down bg-white dark:bg-slate-900 text-slate-300 rounded-full p-1 border dark:border-slate-800 text-xs"></i></div>
-          
-          <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 flex justify-between items-center border border-slate-100 dark:border-slate-800/50">
-            <span class="text-xs font-bold text-slate-400">自动换算为</span>
-            <div class="text-xl font-black" :class="exMode==='MYR'?'text-orange-500':'text-blue-500'">
-               {{ exResult }} <span class="text-sm">{{ exMode==='MYR'?'TWD':'MYR' }}</span>
+
+            <div class="swap-btn-wrap" @click.stop="toggleExMode">
+              <div class="swap-btn"><i class="fas fa-exchange-alt"></i></div>
             </div>
+
+            <div class="converter-bottom" @click="toggleExMode">
+              <div class="conv-label">自动换算为</div>
+              <div class="conv-row">
+                <div class="text-2xl font-black opacity-60">{{ exResult }}</div>
+                <div class="conv-unit text-slate-400">{{ exMode==='MYR'?'TWD':'MYR' }}</div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -459,7 +467,7 @@
 
           <div>
              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1 mb-2 block">消费金额 (TWD)</label>
-             <div class="bg-orange-50 dark:bg-orange-900/20 p-2 rounded-2xl flex items-center border border-transparent focus-within:border-orange-300">
+             <div class="expense-input-box">
                 <input type="number" v-model.number="newItem.amount" class="w-full bg-transparent text-3xl font-black p-2 text-slate-900 dark:text-white outline-none placeholder-slate-300" placeholder="0.00">
                 <span class="text-sm font-bold text-orange-500 mr-4">TWD</span>
              </div>
@@ -482,7 +490,7 @@
   const { createApp, ref, computed, onMounted, reactive } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v18_1_final";
+      const STORAGE_KEY = "ustrip_v18_2_smart_ui";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
