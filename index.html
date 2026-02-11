@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v18.3</title>
+  <title>UsTrip Finance v18.4 (Fix)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -21,7 +21,7 @@
     body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
     
     /* 2. App 容器 */
-    #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; }
+    #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; position: relative; }
     
     input, button { outline: none !important; }
     .mono { font-family: 'JetBrains Mono', monospace; }
@@ -33,19 +33,22 @@
       overflow-y: auto; 
       overflow-x: hidden;
       padding: 80px 20px 20px;
+      height: 100%; /* 确保填满 */
     }
 
-    /* ================= 🔵 计算页面 ================= */
+    /* ================= 🔵 计算页面 (修复塌陷) ================= */
     .page-fixed {
-      flex: 1;
+      position: absolute; /* 强制覆盖 */
+      top: 0; left: 0; right: 0; bottom: 80px; /* 留出底部 Tab 空间 */
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
+      z-index: 10;
     }
 
+    /* 上半区：显示屏 */
     .calc-display-area {
-      flex: 1;
+      flex: 1; /* 自动占据剩余空间 */
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -55,9 +58,10 @@
     .font-clamp-big { font-size: clamp(3rem, 12vw, 5rem); line-height: 1; }
     .font-clamp-mid { font-size: clamp(2rem, 8vw, 3.5rem); line-height: 1.1; }
 
+    /* 下半区：键盘 (修复高度塌陷：使用 vh 单位) */
     .calc-keyboard-area {
-      flex: 0 0 auto;
-      height: 55%;
+      flex: 0 0 55vh; /* 🌟 强制占据视口高度的 55% */
+      max-height: 60%; /* 双重保险 */
       background: rgb(241 245 249);
       border-top-left-radius: 2.5rem;
       border-top-right-radius: 2.5rem;
@@ -71,6 +75,7 @@
     }
     html.dark .calc-keyboard-area { background: rgb(15 23 42); }
 
+    /* 历史胶囊 */
     .history-capsule {
       position: absolute; top: 0.8rem; left: 50%; transform: translateX(-50%);
       background: #fff; padding: .5rem 1rem; border-radius: 99px;
@@ -83,7 +88,7 @@
     .capsule-text { font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: rgb(71 85 105); }
     html.dark .capsule-text { color: rgb(203 213 225); }
 
-    /* 🌟 滑动列表优化 & PC端布局 */
+    /* 滑动列表 */
     .swipe-list-item {
       position: relative;
       overflow: hidden;
@@ -104,10 +109,9 @@
     }
     html.dark .swipe-content { background: #1e293b; border-color: #334155; }
     
-    /* PC端 Hover Actions (不再遮挡) */
     @media (hover: hover) {
       .swipe-list-item:hover .pc-actions { opacity: 1; pointer-events: auto; }
-      .swipe-content { padding-right: 90px; } /* 给PC端按钮留空 */
+      .swipe-content { padding-right: 90px; }
     }
     .pc-actions {
       position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
@@ -122,7 +126,6 @@
     .pc-btn-pin.active { background: #ca8a04; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
     .pc-btn-del { background: #ef4444; }
 
-    /* 移动端背景层 */
     .swipe-actions {
       position: absolute; top: 0; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: space-between; z-index: 1;
@@ -131,7 +134,7 @@
     .action-left { background: #eab308; justify-content: flex-start; }
     .action-right { background: #ef4444; justify-content: flex-end; }
 
-    /* 键盘 */
+    /* 键盘网格 */
     .calc-grid { 
       display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); 
       gap: 10px; padding: 0 16px 16px; flex: 1; 
@@ -145,16 +148,14 @@
     .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg font-black border-red-100 dark:border-red-900; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600 border-none; }
 
-    /* ================= 🌟 弹窗优化：右置按钮 ================= */
+    /* 弹窗组件 */
     .rate-card {
       @apply bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex justify-between items-center mb-6;
     }
     
-    /* 🌟 新版融合输入框 */
     .merged-input-box {
       @apply flex items-center bg-slate-50 dark:bg-slate-900 border-2 border-transparent rounded-2xl p-2 transition-all shadow-sm;
     }
-    /* 激活状态边框色 */
     .box-focus-myr { @apply focus-within:border-blue-400 focus-within:bg-blue-50/30 dark:focus-within:bg-blue-900/10; }
     .box-focus-twd { @apply focus-within:border-orange-400 focus-within:bg-orange-50/30 dark:focus-within:bg-orange-900/10; }
 
@@ -162,14 +163,12 @@
       @apply flex-1 bg-transparent font-black text-3xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 px-2 min-w-0;
     }
 
-    /* 右侧胶囊切换按钮 */
     .currency-pill-btn {
       @apply flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all cursor-pointer select-none active:scale-95 ml-2 text-white shadow-sm;
     }
     .pill-myr { @apply bg-blue-500 shadow-blue-200 dark:shadow-none; }
     .pill-twd { @apply bg-orange-500 shadow-orange-200 dark:shadow-none; }
 
-    /* 分类 Chip */
     .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
     .cat-item {
       @apply flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-pointer transition-all active:scale-90;
@@ -186,6 +185,8 @@
       padding-top: 10px;
       padding-bottom: calc(10px + env(safe-area-inset-bottom));
       z-index: 40;
+      /* 确保底部导航栏始终在最上层，防止被遮挡 */
+      position: relative; 
     }
     html.dark .bottom-nav { background: rgba(15,23,42,0.95); border-color: #1e293b; }
 
@@ -472,7 +473,7 @@
   const { createApp, ref, computed, onMounted, reactive } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v18_3_right_ui";
+      const STORAGE_KEY = "ustrip_v18_4_fix";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -496,7 +497,6 @@
       const categories = [ { name: '饮食', emoji: '🍔' }, { name: '交通', emoji: '🚗' }, { name: '购物', emoji: '🛍️' }, { name: '娱乐', emoji: '🎮' }, { name: '住宿', emoji: '🏨' }, { name: '零食', emoji: '🍦' }, { name: '其他', emoji: '📦' } ];
       const selectedCat = ref(categories[0]);
 
-      // 滑动逻辑
       const swipeOffsets = reactive({});
       let startX = 0;
       let activeId = null;
@@ -529,18 +529,17 @@
       const togglePin = (id) => { 
         const item = calcHistory.value.find(i => i.id === id);
         if(item) {
-          item.pinned = !item.pinned; // 切换置顶状态
+          item.pinned = !item.pinned;
           swipeOffsets[id] = 0; 
           save();
         }
       };
 
-      // 🌟 智能排序：置顶优先 -> 金额大优先 -> 时间倒序
       const sortedHistory = computed(() => {
         return [...calcHistory.value].sort((a, b) => {
-          if (a.pinned !== b.pinned) return b.pinned ? 1 : -1; // 置顶优先
-          if (a.pinned && b.pinned) return parseFloat(b.myr) - parseFloat(a.myr); // 置顶内部按金额降序
-          return b.id - a.id; // 其他按时间倒序
+          if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
+          if (a.pinned && b.pinned) return parseFloat(b.myr) - parseFloat(a.myr);
+          return b.id - a.id;
         });
       });
 
