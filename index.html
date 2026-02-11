@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v18.8</title>
+  <title>UsTrip Finance v18.9</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -422,7 +422,7 @@
   const { createApp, ref, computed, onMounted, reactive } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v18_8_final";
+      const STORAGE_KEY = "ustrip_v18_9_final";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -446,7 +446,6 @@
       const categories = [ { name: '饮食', emoji: '🍔' }, { name: '交通', emoji: '🚗' }, { name: '购物', emoji: '🛍️' }, { name: '娱乐', emoji: '🎮' }, { name: '住宿', emoji: '🏨' }, { name: '零食', emoji: '🍦' }, { name: '其他', emoji: '📦' } ];
       const selectedCat = ref(categories[0]);
 
-      // 滑动逻辑
       const swipeOffsets = reactive({});
       let startX = 0;
       let activeId = null;
