@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v17.1</title>
+  <title>UsTrip Finance v17.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -20,12 +20,11 @@
     html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
     body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
     
-    /* 2. App 容器：纵向弹性布局，物理隔离各个区域 */
+    /* 2. App 容器 */
     #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; }
     
     input, button { outline: none !important; }
     .mono { font-family: 'JetBrains Mono', monospace; }
-    .glass-nav { @apply bg-white/0 border-none; backdrop-filter: none; } 
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
     /* ================= 🟢 金库页面 (Scrollable) ================= */
@@ -33,7 +32,7 @@
       flex: 1; 
       overflow-y: auto; 
       overflow-x: hidden;
-      padding: 80px 20px 20px; /* 上留空给 Header，下留空给 Tab */
+      padding: 80px 20px 20px;
     }
 
     /* ================= 🔵 计算页面 (Fixed Layout) ================= */
@@ -47,7 +46,7 @@
 
     /* 上半区：显示屏 */
     .calc-display-area {
-      flex: 1; /* 自动伸缩 */
+      flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -57,16 +56,16 @@
     .font-clamp-big { font-size: clamp(3rem, 12vw, 5rem); line-height: 1; }
     .font-clamp-mid { font-size: clamp(2rem, 8vw, 3.5rem); line-height: 1.1; }
 
-    /* 下半区：键盘 (不覆盖 Tab) */
+    /* 下半区：键盘 */
     .calc-keyboard-area {
-      flex: 0 0 auto; /* 高度由内容决定 */
-      height: 55%;    /* 约占屏幕 55% */
+      flex: 0 0 auto;
+      height: 55%;
       background: rgb(241 245 249);
       border-top-left-radius: 2.5rem;
       border-top-right-radius: 2.5rem;
       position: relative;
       z-index: 20;
-      padding-top: 2.5rem; /* 留给历史胶囊 */
+      padding-top: 2.5rem;
       display: flex;
       flex-direction: column;
       box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
@@ -74,20 +73,51 @@
     }
     html.dark .calc-keyboard-area { background: rgb(15 23 42); }
 
-    /* 历史胶囊 */
+    /* 历史胶囊 (悬浮按钮) */
     .history-capsule {
       position: absolute; top: 0.8rem; left: 50%; transform: translateX(-50%);
       background: #fff; padding: .5rem 1rem; border-radius: 99px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       border: 1px solid rgb(226 232 240);
-      display: flex; align-items: center; gap: .5rem; cursor: pointer; z-index: 30;
+      display: flex; align-items: center; gap: .5rem; cursor: pointer; z-index: 50; /* 提高层级 */
+      transition: all 0.2s;
     }
     .history-capsule:active { transform: translateX(-50%) scale(0.95); }
     html.dark .history-capsule { background: rgb(30 41 59); border-color: rgb(51 65 85); }
     .capsule-text { font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: rgb(71 85 105); }
     html.dark .capsule-text { color: rgb(203 213 225); }
 
-    /* 🌟 经典计算器网格 (4列 x 5行) */
+    /* 🌟 历史记录滑动列表 (Swipe Actions) */
+    .swipe-list-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .swipe-content {
+      position: relative;
+      z-index: 10;
+      background: white;
+      transition: transform 0.2s ease-out;
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #f1f5f9;
+    }
+    html.dark .swipe-content { background: #1e293b; border-color: #334155; }
+    
+    /* 滑动操作背景层 */
+    .swipe-actions {
+      position: absolute;
+      top: 0; bottom: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      z-index: 1;
+    }
+    .action-left { background: #eab308; width: 50%; display: flex; align-items: center; padding-left: 1.5rem; color: white; font-weight: bold; }
+    .action-right { background: #ef4444; width: 50%; display: flex; align-items: center; justify-content: flex-end; padding-right: 1.5rem; color: white; font-weight: bold; }
+
+    /* 计算器网格 */
     .calc-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -101,32 +131,33 @@
       height: 100%; width: 100%;
     }
     .btn-num { @apply bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100; font-size: 1.6rem; }
-    /* 右侧操作符颜色 */
     .btn-op { @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 text-2xl font-black border-indigo-100 dark:border-indigo-900; }
     .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg font-black border-red-100 dark:border-red-900; }
-    /* 确认键 */
     .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600 border-none; }
 
     /* ================= 🌟 弹窗优化 ================= */
-    /* 1. 汇率显示卡片 */
     .rate-card {
       @apply bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex justify-between items-center mb-6;
     }
     
-    /* 2. 存入资金 - 巨型输入框 + 切换器 */
+    /* 🌟 智能变色输入框 */
     .exchange-input-box {
-      @apply bg-slate-50 dark:bg-slate-900 rounded-3xl p-2 border-2 border-transparent transition-all focus-within:bg-white dark:focus-within:bg-black focus-within:border-emerald-400 dark:focus-within:border-emerald-600 focus-within:shadow-md flex items-center;
+      @apply rounded-3xl p-2 border-2 border-transparent transition-all flex items-center shadow-sm;
     }
+    /* 蓝色模式 (MYR) */
+    .box-myr { @apply bg-blue-50 dark:bg-blue-900/20 focus-within:border-blue-300 dark:focus-within:border-blue-700; }
+    /* 橙色模式 (TWD) */
+    .box-twd { @apply bg-orange-50 dark:bg-orange-900/20 focus-within:border-orange-300 dark:focus-within:border-orange-700; }
+
     .exchange-input {
-      @apply flex-1 bg-transparent font-black text-4xl outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-700 ml-4 py-4 min-w-0;
+      @apply flex-1 bg-transparent font-black text-4xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 ml-4 py-4 min-w-0;
     }
     .currency-toggle {
-      @apply flex items-center gap-2 px-5 py-4 rounded-2xl font-black text-base transition-all cursor-pointer select-none active:scale-95 ml-2 mr-1 shadow-sm;
+      @apply flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-sm transition-all cursor-pointer select-none active:scale-95 ml-2 mr-1 shadow-sm border border-transparent;
     }
-    .toggle-twd { @apply bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400; }
-    .toggle-myr { @apply bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400; }
+    .toggle-twd { @apply bg-orange-100 text-orange-600 border-orange-200 dark:bg-orange-800 dark:text-orange-100; }
+    .toggle-myr { @apply bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-800 dark:text-blue-100; }
 
-    /* 3. 开销 - 分类 Chip */
     .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
     .cat-item {
       @apply flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-pointer transition-all active:scale-90;
@@ -136,7 +167,7 @@
     .cat-name { font-size: 10px; font-weight: bold; color: #64748b; }
     .active .cat-name { @apply text-indigo-600 dark:text-indigo-300; }
 
-    /* 底部 Tab (物理占位) */
+    /* 底部 Tab */
     .bottom-nav {
       flex: 0 0 auto;
       background: rgba(255,255,255,0.95);
@@ -255,39 +286,42 @@
       </div>
     </div>
 
-    <div class="calc-keyboard-area">
+    <div class="calc-keyboard-area pb-safe">
+      
       <div class="history-capsule" @click="toggleHistory">
         <i class="fas fa-history text-emerald-500 text-sm"></i>
         <span class="capsule-text">历史记录</span>
-        <i class="fas fa-chevron-up text-slate-300 text-xs"></i>
+        <i class="fas text-slate-300 text-xs" :class="showHistory ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
       </div>
 
       <transition name="slide">
-        <div v-if="showHistory" class="absolute inset-0 bg-slate-50 dark:bg-slate-900 rounded-t-[2.5rem] z-30 p-6 overflow-y-auto border-t border-slate-200 dark:border-slate-800 flex flex-col">
-          <div class="flex justify-between items-center mb-6 flex-none">
-            <h3 class="font-black text-slate-400 text-xs uppercase tracking-widest">History Log</h3>
-            <div class="flex gap-3">
-              <button @click="exportHistoryCSV" class="text-xs bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm">导出</button>
-              <button @click="clearHistory" class="text-xs text-red-400 font-bold px-2">清空</button>
-            </div>
-          </div>
-          <div class="space-y-3 pb-4 flex-1 overflow-y-auto">
+        <div v-if="showHistory" class="absolute inset-0 bg-slate-50 dark:bg-slate-900 rounded-t-[2.5rem] z-20 pt-14 px-6 overflow-y-auto border-t border-slate-200 dark:border-slate-800 flex flex-col">
+          
+          <div class="space-y-3 pb-safe">
               <div v-if="calcHistory.length===0" class="text-center py-10 text-slate-300 text-sm">暂无记录</div>
-              <div v-for="(rec,i) in calcHistory" :key="i" class="bg-white dark:bg-slate-800 p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-100 dark:border-slate-700/50">
-                <div>
-                  <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '未备注' }}</div>
-                  <div class="text-xs text-slate-400 mt-0.5">{{ rec.twd }} TWD</div>
+              
+              <div v-for="(rec,i) in calcHistory" :key="rec.time" 
+                   class="swipe-list-item"
+                   @touchstart="touchStart($event, i)"
+                   @touchmove="touchMove($event, i)"
+                   @touchend="touchEnd($event, i)">
+                
+                <div class="swipe-actions">
+                  <div class="action-left" @click="pinItem(i)">置顶</div>
+                  <div class="action-right" @click="delItem(i)">删除</div>
                 </div>
-                <div class="text-right">
-                  <div class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ rec.myr }}</div>
-                  <div class="text-[9px] text-slate-300 font-bold">{{ rec.time }}</div>
+
+                <div class="swipe-content" :style="{ transform: `translateX(${swipeOffsets[i] || 0}px)` }">
+                  <div class="flex-1">
+                    <div class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '未备注' }}</div>
+                    <div class="text-xs text-slate-400 mt-0.5">{{ rec.twd }} TWD (Rate: {{rec.rateUsed}})</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ rec.myr }}</div>
+                    <div class="text-[9px] text-slate-300 font-bold">{{ rec.time }}</div>
+                  </div>
                 </div>
               </div>
-          </div>
-          <div class="flex-none pt-4 pb-safe">
-            <button @click="toggleHistory" class="w-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold py-3.5 rounded-2xl active:scale-95 transition flex items-center justify-center gap-2">
-              <i class="fas fa-chevron-down"></i> 收起列表
-            </button>
           </div>
         </div>
       </transition>
@@ -354,7 +388,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-400 dark:text-slate-500">100 TWD = </span>
-                <input type="number" v-model="jagsRate" class="w-20 bg-white dark:bg-slate-800 p-2 rounded-lg text-xl font-black outline-none text-center shadow-sm dark:text-white border border-slate-100 dark:border-slate-700" placeholder="12.63">
+                <input type="number" v-model="jagsRate" class="w-24 bg-white dark:bg-slate-800 p-2 rounded-lg text-xl font-black outline-none text-center shadow-sm dark:text-white border border-slate-100 dark:border-slate-700" placeholder="12.63">
                 <span class="text-xs font-bold text-slate-400 dark:text-slate-500">MYR</span>
               </div>
           </div>
@@ -363,7 +397,7 @@
         <div v-if="modalType==='exchange'" class="space-y-4">
           <div>
             <label class="text-[10px] font-bold text-slate-400 mb-2 block ml-2 uppercase tracking-wide">输入金额</label>
-            <div class="exchange-input-box">
+            <div class="exchange-input-box" :class="exMode==='MYR'?'box-myr':'box-twd'">
               <input type="number" v-model.number="exInputAmount" class="exchange-input" placeholder="0">
               <button @click="toggleExMode" class="currency-toggle" :class="exMode==='MYR' ? 'toggle-myr' : 'toggle-twd'">
                 {{ exMode }}
@@ -383,7 +417,6 @@
         </div>
 
         <div v-if="modalType==='expense'" class="space-y-6">
-          
           <div>
             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1">选择分类</label>
             <div class="cat-grid">
@@ -399,7 +432,7 @@
 
           <div>
              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1 mb-2 block">消费金额 (TWD)</label>
-             <div class="exchange-input-box !p-1">
+             <div class="exchange-input-box box-twd !p-1">
                 <input type="number" v-model.number="newItem.amount" class="exchange-input !ml-2" placeholder="0.00">
                 <span class="text-sm font-bold text-slate-400 mr-4">TWD</span>
              </div>
@@ -419,10 +452,10 @@
 
 <script>
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  const { createApp, ref, computed, onMounted, watch } = Vue;
+  const { createApp, ref, computed, onMounted, reactive } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v17_1_final";
+      const STORAGE_KEY = "ustrip_v17_2_swipe";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -440,22 +473,41 @@
       const exchangeRecords = ref([]); const expenseRecords = ref([]);
       const calcInput = ref("0"); const calcExpr = ref(""); const calcNote = ref(""); const calcHistory = ref([]);
       
-      // 🌟 新增状态
       const jagsRate = ref(12.63);
       const exMode = ref("MYR"); 
       const exInputAmount = ref("");
-      
-      // 🌟 分类数据
-      const categories = [
-        { name: '饮食', emoji: '🍔' },
-        { name: '交通', emoji: '🚗' },
-        { name: '购物', emoji: '🛍️' },
-        { name: '娱乐', emoji: '🎮' },
-        { name: '住宿', emoji: '🏨' },
-        { name: '零食', emoji: '🍦' },
-        { name: '其他', emoji: '📦' },
-      ];
+      const categories = [ { name: '饮食', emoji: '🍔' }, { name: '交通', emoji: '🚗' }, { name: '购物', emoji: '🛍️' }, { name: '娱乐', emoji: '🎮' }, { name: '住宿', emoji: '🏨' }, { name: '零食', emoji: '🍦' }, { name: '其他', emoji: '📦' } ];
       const selectedCat = ref(categories[0]);
+
+      // 🌟 滑动逻辑
+      const swipeOffsets = reactive({});
+      let startX = 0;
+      let activeIndex = null;
+
+      const touchStart = (e, i) => { startX = e.touches[0].clientX; activeIndex = i; };
+      const touchMove = (e, i) => {
+        if(activeIndex !== i) return;
+        const diff = e.touches[0].clientX - startX;
+        // 限制滑动范围 -100 (Delete) 到 100 (Pin)
+        if(diff < -100) swipeOffsets[i] = -100;
+        else if(diff > 100) swipeOffsets[i] = 100;
+        else swipeOffsets[i] = diff;
+      };
+      const touchEnd = (e, i) => {
+        if(Math.abs(swipeOffsets[i]) > 60) {
+           swipeOffsets[i] = swipeOffsets[i] > 0 ? 100 : -100; // 吸附
+        } else {
+           swipeOffsets[i] = 0; // 回弹
+        }
+      };
+      
+      const delItem = (i) => { calcHistory.value.splice(i, 1); delete swipeOffsets[i]; save(); };
+      const pinItem = (i) => { 
+        const item = calcHistory.value.splice(i, 1)[0];
+        calcHistory.value.unshift(item);
+        delete swipeOffsets[i];
+        save();
+      };
 
       const twdPerMyrFromJags = computed(() => {
         const x = parseFloat(String(jagsRate.value));
@@ -489,16 +541,14 @@
       const calcResult = computed(() => {
         try { return (eval(calcInput.value.replace(/[^-()\d/*+.]/g,''))/parseFloat(averageRate.value)).toFixed(2); } catch { return "0.00"; }
       });
-      const totalCardSpent = computed(() => expenseRecords.value.filter(e=>e.catEmoji==='🛍️').reduce((s,e)=>s+(parseFloat(e.amount)||0),0).toFixed(2)); // Demo logic
+      const totalCardSpent = computed(() => expenseRecords.value.filter(e=>e.catEmoji==='🛍️').reduce((s,e)=>s+(parseFloat(e.amount)||0),0).toFixed(2));
       const totalCashSpent = computed(() => expenseRecords.value.reduce((s,e)=>s+(parseFloat(e.amount)||0),0));
       const allTransactions = computed(() => [...exchangeRecords.value.map(r=>({...r,type:'exchange'})), ...expenseRecords.value.map(r=>({...r,type:'expense'}))].sort((a,b)=>b.id-a.id));
       
       const key = (k) => {
         if(k==='AC'){calcInput.value="0";calcExpr.value="";return;}
         if(k==='DEL'){calcInput.value=calcInput.value.length>1?calcInput.value.slice(0,-1):"0";return;}
-        if(k==='%'){
-           try{ calcInput.value = String(eval(calcInput.value)/100); }catch{} return;
-        }
+        if(k==='%'){ try{ calcInput.value = String(eval(calcInput.value)/100); }catch{} return; }
         if(k==='='){try{calcInput.value=String(eval(calcInput.value.replace(/[^-()\d/*+.]/g,'')));calcExpr.value="";}catch{}return;}
         if(['+','-','*','/'].includes(k)){calcExpr.value=calcInput.value;calcInput.value+=k;}
         else{calcInput.value=(calcInput.value==='0'&&k!=='.')?k:calcInput.value+k;}
@@ -528,7 +578,6 @@
            else exchangeRecords.value.unshift({id, date:d, baseAmount: parseFloat(exResult.value), targetAmount: val});
         } else {
            if(!newItem.value.amount) return;
-           // 存入分类表情和名称
            expenseRecords.value.unshift({
              ...newItem.value, id, date:d, 
              name: (newItem.value.name || selectedCat.value.name) + ' ' + selectedCat.value.emoji
@@ -563,7 +612,8 @@
         getIconColor: (i)=>i.type==='exchange'?'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400',
         jagsRate, 
         exMode, toggleExMode, exInputAmount, exResult,
-        categories, selectedCat 
+        categories, selectedCat,
+        touchStart, touchMove, touchEnd, swipeOffsets, delItem, pinItem
       };
     }
   }).mount("#app");
