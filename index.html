@@ -20,9 +20,7 @@
       --accent:#15b981;
       --accent2:#2f7dff;
       --danger:#ff4d4f;
-      --bottomH: 84px;
       --tabH: 84px;
-      --kbdH: 0px;
       --safeB: env(safe-area-inset-bottom, 0px);
       --safeT: env(safe-area-inset-top, 0px);
     }
@@ -35,7 +33,7 @@
         radial-gradient(1400px 700px at 15% 10%, rgba(46,139,255,.18), transparent 60%),
         radial-gradient(1200px 700px at 80% 20%, rgba(18,200,140,.18), transparent 60%),
         linear-gradient(180deg, #f6fbff, #f3f7ff 35%, #f6fbff);
-      overflow:hidden; /* 页面整体不滚，滚动交给 .content */
+      overflow:hidden; 
     }
     body.dark{
       --bg1:#0a1222;
@@ -53,26 +51,25 @@
         linear-gradient(180deg, #070c16, #070c16 35%, #060b14);
     }
 
-    /* 弹窗打开时：锁背景滚动 + 防止 iOS 触摸滚动穿透 */
-    body.modal-open{
-      overflow:hidden;
-      touch-action:none;
-    }
-    body.modal-open .content{
-      overflow:hidden !important;
-      -webkit-overflow-scrolling: auto;
-      touch-action:none;
-    }
-
+    body.modal-open{overflow:hidden;touch-action:none;}
+    
     *{box-sizing:border-box;}
     button{font:inherit;}
-    .app{height:100%;display:flex;flex-direction:column;}
+    
+    /* 🌟 核心布局修复：Flex Column */
+    .app{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      overflow: hidden; /* 防止整体滚动 */
+    }
 
-    /* Top */
+    /* Top: 固定头部 */
     .top{
       padding: calc(14px + var(--safeT)) 18px 12px;
       display:flex;align-items:center;justify-content:space-between;gap:12px;
-      flex:0 0 auto;
+      flex:0 0 auto; /* 不收缩 */
+      z-index: 10;
     }
     .brand{display:flex;align-items:center;gap:12px;min-width:0;}
     .logo{
@@ -114,16 +111,17 @@
     }
     body.dark .moonDot{opacity:1; transform:scale(1);}
 
-    /* Middle scrollable content */
+    /* 🌟 Content: 弹性区域，自动填充剩余空间并滚动 */
     .content{
       flex:1 1 auto;
-      overflow:auto;
-      padding: 10px 16px calc(var(--bottomH) + 14px);
+      overflow-y:auto;
+      overflow-x:hidden;
+      padding: 10px 16px 20px; /* 底部留一点呼吸空间，不再需要计算 */
       -webkit-overflow-scrolling:touch;
+      position: relative;
     }
-    .content::-webkit-scrollbar{width:10px;}
+    .content::-webkit-scrollbar{width:6px;}
     .content::-webkit-scrollbar-thumb{background: rgba(100,120,160,.25); border-radius:999px;}
-    body.dark .content::-webkit-scrollbar-thumb{background: rgba(180,200,240,.18);}
 
     .panel{
       max-width: 980px;
@@ -150,7 +148,7 @@
     .pillBtn:hover{transform: translateY(-1px);}
     .pillBtn:active{transform: translateY(0px) scale(.99);}
 
-    /* Exchange card (two columns) */
+    /* Exchange card */
     .exchangeCard{
       border:1px solid var(--stroke);
       border-radius: var(--radius);
@@ -193,7 +191,6 @@
     }
     body.dark .onlyShow .lock{background: rgba(15,26,43,.55);}
 
-    /* 货币展示：左边 XXX TWD，右边 RM XXX */
     .bigLine{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
     .big{
       font-size:64px;line-height:1;font-weight:1000;letter-spacing:1px;
@@ -321,16 +318,16 @@
     .pos{color: var(--accent);}
     .neg{color: #ff5a5f;}
 
-    /* Bottom fixed area */
+    /* 🌟 Bottom: 弹性底部，不使用 fixed 定位，避免遮挡 */
     .bottom{
-      position:fixed;left:0;right:0;bottom:0;
+      flex: 0 0 auto; /* 不允许压缩 */
       padding: 10px 16px calc(10px + var(--safeB));
-      pointer-events:none;z-index:50;
+      z-index:50;
+      width: 100%;
     }
     .bottomInner{
       max-width: 980px;margin:0 auto;
       display:flex;flex-direction:column;gap:10px;
-      pointer-events:none;
     }
 
     .tabBar{
@@ -357,7 +354,7 @@
     .tabBtn svg{opacity:.9}
 
     /* Keyboard */
-    .kbdWrap{pointer-events:auto;display:none;}
+    .kbdWrap{display:none;}
     .kbdWrap.show{display:block;}
     .kbd{
       width: 100%;
@@ -434,7 +431,7 @@
     body.dark .backdrop{background: rgba(0,0,0,.55);}
     .backdrop.show{display:flex;}
 
-    /* 关键：弹窗自身固定，不跟随任何滚动（背景已经锁死） */
+    /* 弹窗自身固定 */
     .modal{
       width: min(820px, 100%);
       border-radius: 32px;
@@ -472,7 +469,6 @@
     .mClose:hover{transform: translateY(-1px);}
     .mClose:active{transform: scale(.98);}
 
-    /* 弹窗内容区：允许内部滚动（必要时），但整体不“漂移” */
     .mBody{
       padding: 10px 18px 18px;
       overflow:auto;
@@ -643,7 +639,6 @@
 
 <body>
   <div class="app" id="app">
-    <!-- TOP -->
     <div class="top">
       <div class="brand">
         <div class="logo" aria-hidden="true">
@@ -675,10 +670,8 @@
       </div>
     </div>
 
-    <!-- CONTENT -->
     <div class="content" id="content">
       <div class="panel" id="panel">
-        <!-- CALC VIEW -->
         <div id="viewCalc">
           <div class="pillRow">
             <div class="pill" id="ratePill">
@@ -708,7 +701,6 @@
                   <span style="font-weight:1000;color:var(--muted);">可编辑</span>
                 </div>
 
-                <!-- XXX TWD -->
                 <div class="bigLine" title="输入金额">
                   <div class="big blue" id="inBig">0</div>
                   <div class="unit">TWD</div>
@@ -732,7 +724,6 @@
                   </span>
                 </div>
 
-                <!-- RM XXX -->
                 <div class="bigLine" title="换算结果">
                   <div class="rmPrefix">RM</div>
                   <div class="big green" id="outBig">0.00</div>
@@ -754,7 +745,6 @@
           </div>
         </div>
 
-        <!-- VAULT VIEW -->
         <div id="viewVault" style="display:none;">
           <div class="vaultHero">
             <div class="rateBadge" id="vaultRate">1 : 7.949</div>
@@ -803,7 +793,6 @@
       </div>
     </div>
 
-    <!-- BOTTOM (fixed) -->
     <div class="bottom" id="bottom">
       <div class="bottomInner">
         <div class="kbdWrap" id="kbdWrap">
@@ -861,7 +850,6 @@
     </div>
   </div>
 
-  <!-- HISTORY MODAL -->
   <div class="backdrop" id="historyModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
@@ -899,7 +887,6 @@
     </div>
   </div>
 
-  <!-- DETAIL MODAL -->
   <div class="backdrop" id="detailModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
@@ -941,7 +928,6 @@
     </div>
   </div>
 
-  <!-- EXCHANGE IN MODAL -->
   <div class="backdrop" id="exchangeInModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
@@ -1003,7 +989,6 @@
     </div>
   </div>
 
-  <!-- EXPENSE MODAL -->
   <div class="backdrop" id="expenseModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
@@ -1180,18 +1165,9 @@
 
       $("kbdWrap").classList.toggle("show", isCalc);
 
-      requestAnimationFrame(updateBottomHeights);
+      // 移除JS计算高度逻辑，依靠 Flexbox
       renderAll();
     }
-
-    function updateBottomHeights(){
-      const tabH = $("tabBar").getBoundingClientRect().height || 84;
-      const kbdH = $("kbdWrap").classList.contains("show") ? ($("kbd").getBoundingClientRect().height + 10) : 0;
-      document.documentElement.style.setProperty("--tabH", `${tabH}px`);
-      document.documentElement.style.setProperty("--kbdH", `${kbdH}px`);
-      document.documentElement.style.setProperty("--bottomH", `calc(${tabH}px + ${kbdH}px + var(--safeB))`);
-    }
-    const ro = new ResizeObserver(()=>updateBottomHeights());
 
     // ---------------------------
     // Render
@@ -1281,36 +1257,25 @@
     }
 
     // ---------------------------
-    // Modal (Lock background, prevent slide)
+    // Modal
     // ---------------------------
-    let scrollTopBeforeModal = 0;
-
     function openModal(id){
-      scrollTopBeforeModal = $("content").scrollTop;
       document.body.classList.add("modal-open");
       $(id).classList.add("show");
       $(id).setAttribute("aria-hidden","false");
-
       if(id === "historyModal") renderHistoryModal();
-
-      // 防止 iOS 橡皮筋
       $(id).addEventListener("touchmove", stopTouchMove, {passive:false});
     }
     function closeModal(id){
       $(id).classList.remove("show");
       $(id).setAttribute("aria-hidden","true");
       $(id).removeEventListener("touchmove", stopTouchMove);
-
-      // 如果当前没有任何弹窗打开，解除锁定
       const anyOpen = Array.from(document.querySelectorAll(".backdrop")).some(b=>b.classList.contains("show"));
       if(!anyOpen){
         document.body.classList.remove("modal-open");
-        $("content").scrollTop = scrollTopBeforeModal;
       }
     }
     function stopTouchMove(e){
-      // 允许弹窗内容区滚动，但阻止背景穿透
-      // 这里让 .mBody 自己滚动，其他区域阻止
       const inBody = e.target.closest(".mBody");
       if(!inBody) e.preventDefault();
     }
@@ -1319,7 +1284,7 @@
     // Detail modal
     // ---------------------------
     let currentDetailId = null;
-    let currentDetailSource = null; // "vault" or "history"
+    let currentDetailSource = null;
 
     function openDetailFrom(source, id){
       currentDetailId = id;
@@ -1349,7 +1314,6 @@
         $("detailMeta").innerHTML = ``;
       }
 
-      // 默认记录不可删：隐藏删除按钮
       const canDelete = (id !== DEFAULT_RECORD_ID);
       $("deleteBtn").style.display = canDelete ? "" : "none";
 
@@ -1357,7 +1321,7 @@
     }
 
     function deleteRecordById(source, id){
-      if(id === DEFAULT_RECORD_ID) return; // 永远不可删
+      if(id === DEFAULT_RECORD_ID) return; 
 
       if(source === "history"){
         state.history = state.history.filter(r=>r.id !== id);
@@ -1365,14 +1329,11 @@
         state.vault.records = state.vault.records.filter(r=>r.id !== id);
       }
 
-      // 重新计算金库余额
       const sumIn = state.vault.records.filter(r=>r.type==="exchange").reduce((a,r)=>a + (Number(r.twd)||0), 0);
       const sumOut = state.vault.records.filter(r=>r.type==="expense").reduce((a,r)=>a + (Number(r.twd)||0), 0);
       state.vault.balanceTWD = Math.max(0, round2(sumIn - sumOut, 0));
 
-      // 仍然保证默认记录存在
       state = ensureDefault(state);
-
       saveState();
       renderAll();
     }
@@ -1397,7 +1358,6 @@
       };
       state.history.unshift(rec);
       saveState();
-      // 不弹任何通知，不跳转
     }
 
     function addVaultExchangeIn(twd, rm, rate){
@@ -1420,12 +1380,8 @@
       };
 
       state.vault.records.unshift(rec);
-      // 同步到历史（但默认不可删那条仍保留）
       state.history.unshift({ ...rec, emoji:"🧾", title:"换算记录" });
-
-      // 更新余额
       state.vault.balanceTWD = round2(state.vault.balanceTWD + t, 0);
-
       saveState();
     }
 
@@ -1464,7 +1420,7 @@
         if(s === "0") s = "0";
         else s += "00";
       }else if(k === "="){
-        // 仅换算，不做表达式
+        // just update state
       }else{
         if(/[0-9]/.test(k)){
           if(s === "0") s = k;
@@ -1480,9 +1436,9 @@
     }
 
     // ---------------------------
-    // Exchange-in logic (custom rate + input currency)
+    // Exchange-in logic
     // ---------------------------
-    let exMode = "TWD"; // "TWD" or "RM"
+    let exMode = "TWD"; 
     function setExMode(mode){
       exMode = mode;
       document.querySelectorAll("#exSegRow .seg").forEach(el=>{
@@ -1552,7 +1508,7 @@
         closeModal(btn.getAttribute("data-close"));
       });
 
-      // click backdrop to close
+      // click backdrop
       document.querySelectorAll(".backdrop").forEach(b=>{
         b.addEventListener("click", (e)=>{
           if(e.target === b) closeModal(b.id);
@@ -1566,13 +1522,13 @@
         applyKey(b.getAttribute("data-key"));
       });
 
-      // save calc (silent)
+      // save calc
       $("saveCalcBtn").addEventListener("click", ()=>{
         saveCalcToHistorySilently();
         renderAll();
       });
 
-      // clear history but keep default
+      // clear history
       $("clearBtn").addEventListener("click", ()=>{
         state.history = state.history.filter(r=>r.id === DEFAULT_RECORD_ID);
         saveState();
@@ -1580,21 +1536,19 @@
         renderAll();
       });
 
-      // open detail from history
+      // open detail
       $("historyList").addEventListener("click", (e)=>{
         const row = e.target.closest("[data-open-history]");
         if(!row) return;
         openDetailFrom("history", row.getAttribute("data-open-history"));
       });
-
-      // open detail from vault
       $("vaultRecords").addEventListener("click", (e)=>{
         const row = e.target.closest("[data-open-vault]");
         if(!row) return;
         openDetailFrom("vault", row.getAttribute("data-open-vault"));
       });
 
-      // delete in detail
+      // delete
       $("deleteBtn").addEventListener("click", ()=>{
         if(!currentDetailId || !currentDetailSource) return;
         deleteRecordById(currentDetailSource, currentDetailId);
@@ -1619,14 +1573,12 @@
         setTimeout(()=>$("expTwd").focus(), 50);
       });
 
-      // exchange-in mode switch
+      // exchange logic
       $("exSegRow").addEventListener("click", (e)=>{
         const seg = e.target.closest("[data-exmode]");
         if(!seg) return;
         setExMode(seg.getAttribute("data-exmode"));
       });
-
-      // exchange-in recompute
       $("exInAmount").addEventListener("input", recomputeExchangePreview);
       $("exRate").addEventListener("input", recomputeExchangePreview);
 
@@ -1665,26 +1617,13 @@
         selectedCat = CATS[idx] || CATS[0];
         updateCatUI();
       });
-
-      // observe layout
-      ro.observe($("tabBar"));
-      ro.observe($("bottom"));
-      ro.observe($("content"));
-      ro.observe($("kbd"));
-      window.addEventListener("resize", ()=>updateBottomHeights());
     }
 
-    // ---------------------------
-    // Boot
-    // ---------------------------
     (function boot(){
       initCats();
       attachEvents();
       applyTheme();
       setTab(state.ui.tab || "calc");
-      renderAll();
-      requestAnimationFrame(updateBottomHeights);
-      saveState();
     })();
   </script>
 </body>
