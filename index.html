@@ -35,7 +35,7 @@
         radial-gradient(1400px 700px at 15% 10%, rgba(46,139,255,.18), transparent 60%),
         radial-gradient(1200px 700px at 80% 20%, rgba(18,200,140,.18), transparent 60%),
         linear-gradient(180deg, #f6fbff, #f3f7ff 35%, #f6fbff);
-      overflow:hidden;
+      overflow:hidden; /* 页面整体不滚，滚动交给 .content */
     }
     body.dark{
       --bg1:#0a1222;
@@ -52,31 +52,31 @@
         radial-gradient(1200px 700px at 80% 20%, rgba(18,200,140,.12), transparent 60%),
         linear-gradient(180deg, #070c16, #070c16 35%, #060b14);
     }
+
+    /* 弹窗打开时：锁背景滚动 + 防止 iOS 触摸滚动穿透 */
+    body.modal-open{
+      overflow:hidden;
+      touch-action:none;
+    }
+    body.modal-open .content{
+      overflow:hidden !important;
+      -webkit-overflow-scrolling: auto;
+      touch-action:none;
+    }
+
     *{box-sizing:border-box;}
     button{font:inherit;}
-    .app{
-      height:100%;
-      display:flex;
-      flex-direction:column;
-    }
+    .app{height:100%;display:flex;flex-direction:column;}
 
     /* Top */
     .top{
       padding: calc(14px + var(--safeT)) 18px 12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      flex:0 0 auto;
     }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0;}
     .logo{
-      width:48px;height:48px;
-      border-radius:16px;
+      width:48px;height:48px;border-radius:16px;
       background: linear-gradient(135deg, rgba(21,185,129,.95), rgba(46,139,255,.25));
       display:grid;place-items:center;
       box-shadow: var(--shadow2);
@@ -86,33 +86,17 @@
     .logo svg{opacity:.95}
     .titleWrap{min-width:0;}
     .title{
-      font-size:34px;
-      letter-spacing:.5px;
-      font-weight:900;
-      margin:0;
-      line-height:1.05;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      font-size:34px;letter-spacing:.5px;font-weight:900;margin:0;line-height:1.05;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
     .subtitle{
-      margin:4px 0 0;
-      color:var(--muted);
-      font-size:13px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      margin:4px 0 0;color:var(--muted);font-size:13px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
 
-    .topActions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex:0 0 auto;
-    }
+    .topActions{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
     .iconBtn{
-      width:52px;height:52px;
-      border-radius:18px;
+      width:52px;height:52px;border-radius:18px;
       border:1px solid var(--stroke);
       background: var(--card2);
       box-shadow: var(--shadow2);
@@ -123,18 +107,10 @@
     }
     .iconBtn:hover{transform: translateY(-1px); box-shadow: 0 14px 34px rgba(16,24,40,.14);}
     .iconBtn:active{transform: translateY(0px) scale(.98);}
-
     .moonDot{
-      position:absolute;
-      right:10px;
-      top:10px;
-      width:10px;height:10px;
-      border-radius:999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 3px rgba(21,185,129,.18);
-      opacity:0;
-      transform:scale(.9);
-      transition:.2s;
+      position:absolute;right:10px;top:10px;width:10px;height:10px;border-radius:999px;
+      background: var(--accent);box-shadow: 0 0 0 3px rgba(21,185,129,.18);
+      opacity:0;transform:scale(.9);transition:.2s;
     }
     body.dark .moonDot{opacity:1; transform:scale(1);}
 
@@ -157,19 +133,10 @@
       gap:14px;
     }
 
-    .pillRow{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
+    .pillRow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
     .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 14px;
-      border-radius:999px;
+      display:inline-flex;align-items:center;gap:10px;
+      padding:10px 14px;border-radius:999px;
       border:1px solid var(--stroke);
       background: var(--card2);
       box-shadow: var(--shadow2);
@@ -177,20 +144,9 @@
       font-weight:700;
       letter-spacing:.2px;
     }
-    .pill small{
-      font-weight:800;
-      color:var(--muted);
-      letter-spacing:.2px;
-    }
-    .pill .dot{
-      width:10px;height:10px;border-radius:99px;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(21,185,129,.15);
-    }
-    .pillBtn{
-      cursor:pointer;
-      transition: transform .12s ease, box-shadow .12s ease;
-    }
+    .pill small{font-weight:800;color:var(--muted);letter-spacing:.2px;}
+    .pill .dot{width:10px;height:10px;border-radius:99px;background: var(--accent);box-shadow: 0 0 0 4px rgba(21,185,129,.15);}
+    .pillBtn{cursor:pointer;transition: transform .12s ease, box-shadow .12s ease;}
     .pillBtn:hover{transform: translateY(-1px);}
     .pillBtn:active{transform: translateY(0px) scale(.99);}
 
@@ -202,18 +158,11 @@
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-    body.dark .exchangeCard{
-      background: linear-gradient(180deg, rgba(15,26,43,.70), rgba(15,26,43,.45));
-    }
-    .exchangeGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-    }
+    body.dark .exchangeCard{background: linear-gradient(180deg, rgba(15,26,43,.70), rgba(15,26,43,.45));}
+    .exchangeGrid{display:grid;grid-template-columns: 1fr 1fr;gap:0;}
     .side{
-      padding:16px 18px 16px;
+      padding:16px 18px;
       min-height: 140px;
-      position:relative;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
@@ -222,109 +171,67 @@
       background: linear-gradient(180deg, rgba(47,125,255,.12), rgba(47,125,255,.04));
       border-right:1px solid var(--stroke);
     }
-    .side.right{
-      background: linear-gradient(180deg, rgba(21,185,129,.12), rgba(21,185,129,.04));
-    }
+    .side.right{background: linear-gradient(180deg, rgba(21,185,129,.12), rgba(21,185,129,.04));}
     body.dark .side.left{background: linear-gradient(180deg, rgba(47,125,255,.16), rgba(47,125,255,.05));}
     body.dark .side.right{background: linear-gradient(180deg, rgba(21,185,129,.14), rgba(21,185,129,.05));}
 
-    .sideTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      font-weight:800;
-      color:var(--muted);
-      font-size:13px;
-    }
+    .sideTop{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:var(--muted);font-size:13px;}
     .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.65);
-      color:var(--text);
-      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;border:1px solid var(--stroke);
+      background: rgba(255,255,255,.65);color:var(--text);font-weight:900;
       box-shadow: 0 10px 22px rgba(16,24,40,.06);
     }
     body.dark .tag{background: rgba(15,26,43,.55);}
     .tag .miniDot{width:10px;height:10px;border-radius:99px;}
     .miniDot.blue{background: var(--accent2); box-shadow:0 0 0 4px rgba(47,125,255,.15);}
     .miniDot.green{background: var(--accent); box-shadow:0 0 0 4px rgba(21,185,129,.15);}
-    .onlyShow{
-      font-weight:900;
-      color:var(--muted);
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
+    .onlyShow{font-weight:900;color:var(--muted);display:flex;align-items:center;gap:8px;}
     .onlyShow .lock{
-      width:28px;height:28px;border-radius:10px;
-      display:grid;place-items:center;
-      background: rgba(255,255,255,.70);
-      border:1px solid var(--stroke);
+      width:28px;height:28px;border-radius:10px;display:grid;place-items:center;
+      background: rgba(255,255,255,.70);border:1px solid var(--stroke);
     }
     body.dark .onlyShow .lock{background: rgba(15,26,43,.55);}
 
-    .bigLine{
-      display:flex;
-      align-items:baseline;
-      gap:10px;
-    }
+    /* 货币展示：左边 XXX TWD，右边 RM XXX */
+    .bigLine{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
     .big{
-      font-size:64px;
-      line-height:1;
-      font-weight:1000;
-      letter-spacing:1px;
+      font-size:64px;line-height:1;font-weight:1000;letter-spacing:1px;
       font-variant-numeric: tabular-nums;
       word-break:break-word;
-    }
-    .unit{
-      font-weight:900;
-      color:var(--muted);
-      font-size:16px;
     }
     .big.blue{color:#0e1726;}
     body.dark .big.blue{color:#eaf0ff;}
     .big.green{color: #11a66f;}
+    .unit{
+      font-weight:900;color:var(--muted);font-size:16px;
+    }
+    .rmPrefix{
+      font-weight:1000;
+      color: var(--muted);
+      font-size:18px;
+      letter-spacing:.2px;
+    }
 
     .hintRow{
-      padding: 12px 16px;
-      border-top:1px solid var(--stroke);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
+      padding: 12px 16px;border-top:1px solid var(--stroke);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
       background: linear-gradient(90deg, rgba(47,125,255,.06), rgba(21,185,129,.06));
     }
-    .hintRow .hint{
-      font-weight:900;
-      color:var(--muted);
-    }
+    .hintRow .hint{font-weight:900;color:var(--muted);}
     .saveBtn{
-      border:none;
-      cursor:pointer;
-      padding: 12px 16px;
-      border-radius: 999px;
+      border:none;cursor:pointer;padding: 12px 16px;border-radius: 999px;
       background: linear-gradient(135deg, rgba(21,185,129,.95), rgba(21,185,129,.75));
-      color:white;
-      font-weight:1000;
-      letter-spacing:.4px;
+      color:white;font-weight:1000;letter-spacing:.4px;
       box-shadow: 0 18px 40px rgba(21,185,129,.25);
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
+      display:inline-flex;align-items:center;gap:10px;
       transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
-      min-width: 170px;
-      justify-content:center;
+      min-width: 190px;justify-content:center;
     }
     .saveBtn:hover{transform: translateY(-1px); filter:saturate(1.03); box-shadow: 0 22px 50px rgba(21,185,129,.30);}
     .saveBtn:active{transform: translateY(0px) scale(.99);}
 
-    /* Vault cards */
+    /* Vault */
     .vaultHero{
       border:1px solid var(--stroke);
       border-radius: var(--radius);
@@ -335,49 +242,31 @@
       padding:18px;
       position:relative;
     }
-    body.dark .vaultHero{
-      background: linear-gradient(135deg, rgba(8,12,20,.92), rgba(10,16,28,.78));
-    }
+    body.dark .vaultHero{background: linear-gradient(135deg, rgba(8,12,20,.92), rgba(10,16,28,.78));}
     .vaultHero .rateBadge{
-      position:absolute;
-      right:16px;
-      top:16px;
-      padding:10px 12px;
-      border-radius:999px;
+      position:absolute;right:16px;top:16px;
+      padding:10px 12px;border-radius:999px;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.16);
-      font-weight:900;
-      letter-spacing:.4px;
+      font-weight:900;letter-spacing:.4px;
     }
     .vaultHero .label{color: rgba(255,255,255,.75); font-weight:900;}
     .vaultHero .balance{
-      font-size:72px;
-      font-weight:1100;
-      letter-spacing:1px;
-      margin:8px 0 10px;
+      font-size:72px;font-weight:1100;letter-spacing:1px;margin:8px 0 10px;
       font-variant-numeric: tabular-nums;
     }
     .vaultHero .subRow{
-      display:flex;
-      gap:18px;
-      flex-wrap:wrap;
-      color: rgba(255,255,255,.75);
-      font-weight:900;
+      display:flex;gap:18px;flex-wrap:wrap;color: rgba(255,255,255,.75);font-weight:900;
     }
-    .vaultActions{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
+
+    .vaultActions{display:grid;grid-template-columns: 1fr 1fr;gap:12px;}
     .actionCard{
       border:1px solid var(--stroke);
       border-radius: var(--radius);
       background: var(--card2);
       box-shadow: var(--shadow2);
       padding:14px;
-      display:flex;
-      align-items:center;
-      gap:12px;
+      display:flex;align-items:center;gap:12px;
       cursor:pointer;
       transition: transform .12s ease, box-shadow .12s ease;
       min-height: 86px;
@@ -396,14 +285,8 @@
 
     .sectionTitle{
       margin: 6px 0 0;
-      font-weight:1000;
-      letter-spacing:.4px;
-      font-size:14px;
-      color:var(--muted);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+      font-weight:1000;letter-spacing:.4px;font-size:14px;color:var(--muted);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
     .records{
       border:1px solid var(--stroke);
@@ -413,87 +296,40 @@
       overflow:hidden;
     }
     .recordItem{
-      padding:14px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      cursor:pointer;
-      transition: background .12s ease;
+      padding:14px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      cursor:pointer;transition: background .12s ease;
       border-top:1px solid rgba(120,140,180,.14);
     }
     .recordItem:first-child{border-top:none;}
     .recordItem:hover{background: rgba(47,125,255,.06);}
     body.dark .recordItem:hover{background: rgba(47,125,255,.10);}
-    .recLeft{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
+    .recLeft{display:flex;align-items:center;gap:12px;min-width:0;}
     .emoji{
-      width:44px;height:44px;border-radius:16px;
-      display:grid;place-items:center;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.6);
+      width:44px;height:44px;border-radius:16px;display:grid;place-items:center;
+      border:1px solid var(--stroke);background: rgba(255,255,255,.6);
       box-shadow: 0 10px 22px rgba(16,24,40,.06);
-      flex:0 0 auto;
-      font-size:20px;
+      flex:0 0 auto;font-size:20px;
     }
     body.dark .emoji{background: rgba(15,26,43,.55);}
-    .recMeta{
-      min-width:0;
-    }
-    .recTitle{
-      font-weight:1000;
-      margin:0;
-      font-size:16px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .recSub{
-      margin:4px 0 0;
-      font-weight:900;
-      color:var(--muted);
-      font-size:12px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .recAmt{
-      text-align:right;
-      font-variant-numeric: tabular-nums;
-      min-width:120px;
-    }
-    .recAmt .topAmt{
-      font-weight:1100;
-      font-size:18px;
-      margin:0;
-    }
-    .recAmt .botAmt{
-      margin:4px 0 0;
-      font-weight:900;
-      color:var(--muted);
-      font-size:12px;
-    }
+    .recMeta{min-width:0;}
+    .recTitle{font-weight:1000;margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .recSub{margin:4px 0 0;font-weight:900;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .recAmt{text-align:right;font-variant-numeric: tabular-nums;min-width:150px;}
+    .recAmt .topAmt{font-weight:1100;font-size:18px;margin:0;white-space:nowrap;}
+    .recAmt .botAmt{margin:4px 0 0;font-weight:900;color:var(--muted);font-size:12px;white-space:nowrap;}
     .pos{color: var(--accent);}
     .neg{color: #ff5a5f;}
 
     /* Bottom fixed area */
     .bottom{
-      position:fixed;
-      left:0; right:0; bottom:0;
+      position:fixed;left:0;right:0;bottom:0;
       padding: 10px 16px calc(10px + var(--safeB));
-      pointer-events:none;
-      z-index:50;
+      pointer-events:none;z-index:50;
     }
     .bottomInner{
-      max-width: 980px;
-      margin:0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+      max-width: 980px;margin:0 auto;
+      display:flex;flex-direction:column;gap:10px;
       pointer-events:none;
     }
 
@@ -503,23 +339,15 @@
       border-radius: 999px;
       background: var(--card2);
       box-shadow: var(--shadow);
-      display:grid;
-      grid-template-columns: 1fr 1fr;
+      display:grid;grid-template-columns: 1fr 1fr;
       overflow:hidden;
       height: var(--tabH);
       align-items:stretch;
     }
     .tabBtn{
-      border:none;
-      background: transparent;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      font-weight:1000;
-      font-size:16px;
-      color:var(--muted);
+      border:none;background: transparent;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      font-weight:1000;font-size:16px;color:var(--muted);
       transition: background .12s ease, color .12s ease;
     }
     .tabBtn.active{
@@ -528,11 +356,8 @@
     }
     .tabBtn svg{opacity:.9}
 
-    /* Keyboard (only on calculator tab) */
-    .kbdWrap{
-      pointer-events:auto;
-      display:none;
-    }
+    /* Keyboard */
+    .kbdWrap{pointer-events:auto;display:none;}
     .kbdWrap.show{display:block;}
     .kbd{
       width: 100%;
@@ -550,16 +375,9 @@
       gap:12px;
     }
     .key{
-      border:none;
-      cursor:pointer;
-      border-radius: 22px;
-      padding: 0;
-      height: 74px;
-      display:grid;
-      place-items:center;
-      font-weight:1100;
-      font-size:24px;
-      color:var(--text);
+      border:none;cursor:pointer;border-radius: 22px;padding: 0;
+      height: 74px;display:grid;place-items:center;
+      font-weight:1100;font-size:24px;color:var(--text);
       background: rgba(255,255,255,.78);
       border:1px solid rgba(160,180,220,.28);
       box-shadow: 0 16px 36px rgba(16,24,40,.08);
@@ -573,34 +391,17 @@
     }
     .key:hover{transform: translateY(-1px); filter:saturate(1.03);}
     .key:active{transform: translateY(0px) scale(.98); box-shadow: 0 10px 24px rgba(16,24,40,.10);}
-    .k-func{
-      background: rgba(255,210,210,.55);
-      border:1px solid rgba(255,120,120,.25);
-      color: #e22b2b;
-    }
+    .k-func{background: rgba(255,210,210,.55);border:1px solid rgba(255,120,120,.25);color: #e22b2b;}
     body.dark .k-func{background: rgba(255,90,90,.14); border-color: rgba(255,90,90,.25);}
-
-    .k-op{
-      background: rgba(21,185,129,.14);
-      border:1px solid rgba(21,185,129,.20);
-      color: #0f9c67;
-      font-size:26px;
-    }
+    .k-op{background: rgba(21,185,129,.14);border:1px solid rgba(21,185,129,.20);color: #0f9c67;font-size:26px;}
     body.dark .k-op{background: rgba(21,185,129,.14);}
-
-    .k-mid{
-      background: rgba(47,125,255,.12);
-      border:1px solid rgba(47,125,255,.18);
-      color: #2f67ff;
-    }
+    .k-mid{background: rgba(47,125,255,.12);border:1px solid rgba(47,125,255,.18);color: #2f67ff;}
     body.dark .k-mid{background: rgba(47,125,255,.14);}
-
     .span2{grid-column: span 2;}
     .tallEq{
       height: 74px;
       background: linear-gradient(135deg, rgba(21,185,129,.95), rgba(21,185,129,.70));
-      color:#fff;
-      border:none;
+      color:#fff;border:none;
       box-shadow: 0 22px 52px rgba(21,185,129,.26);
     }
     .tallEq:hover{box-shadow: 0 26px 60px rgba(21,185,129,.30);}
@@ -632,6 +433,8 @@
     }
     body.dark .backdrop{background: rgba(0,0,0,.55);}
     .backdrop.show{display:flex;}
+
+    /* 关键：弹窗自身固定，不跟随任何滚动（背景已经锁死） */
     .modal{
       width: min(820px, 100%);
       border-radius: 32px;
@@ -639,20 +442,16 @@
       background: var(--card2);
       box-shadow: var(--shadow);
       overflow:hidden;
+      max-height: 92vh;
+      display:flex;
+      flex-direction:column;
     }
     .mHead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      padding:18px 18px 10px;
-      gap:14px;
+      display:flex;align-items:flex-start;justify-content:space-between;
+      padding:18px 18px 10px;gap:14px;
+      flex:0 0 auto;
     }
-    .mTitle{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
+    .mTitle{display:flex;align-items:center;gap:12px;min-width:0;}
     .mIcon{
       width:52px;height:52px;border-radius:18px;
       display:grid;place-items:center;
@@ -661,51 +460,30 @@
       flex:0 0 auto;
     }
     .mText{min-width:0;}
-    .mText h2{
-      margin:0;
-      font-size:26px;
-      font-weight:1100;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .mText p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-weight:900;
-      font-size:12px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
+    .mText h2{margin:0;font-size:26px;font-weight:1100;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .mText p{margin:6px 0 0;color:var(--muted);font-weight:900;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .mClose{
-      width:48px;height:48px;
-      border-radius:18px;
-      border:1px solid var(--stroke);
+      width:48px;height:48px;border-radius:18px;border:1px solid var(--stroke);
       background: rgba(255,255,255,.65);
-      cursor:pointer;
-      display:grid;place-items:center;
-      transition: transform .12s ease;
-      flex:0 0 auto;
+      cursor:pointer;display:grid;place-items:center;
+      transition: transform .12s ease;flex:0 0 auto;
     }
     body.dark .mClose{background: rgba(15,26,43,.55);}
     .mClose:hover{transform: translateY(-1px);}
     .mClose:active{transform: scale(.98);}
 
-    .mBody{padding: 10px 18px 18px;}
-    .mActions{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      margin: 10px 0 14px;
+    /* 弹窗内容区：允许内部滚动（必要时），但整体不“漂移” */
+    .mBody{
+      padding: 10px 18px 18px;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      flex:1 1 auto;
     }
+
+    .mActions{display:grid;grid-template-columns: 1fr;gap:12px;margin: 10px 0 14px;}
     .mBtn{
-      border:none;
-      cursor:pointer;
-      border-radius: 22px;
-      padding: 14px 16px;
-      font-weight:1100;
-      font-size:18px;
+      border:none;cursor:pointer;border-radius: 22px;padding: 14px 16px;
+      font-weight:1100;font-size:18px;
       background: rgba(255,255,255,.70);
       border:1px solid var(--stroke);
       box-shadow: var(--shadow2);
@@ -714,18 +492,14 @@
     body.dark .mBtn{background: rgba(15,26,43,.55);}
     .mBtn:hover{transform: translateY(-1px);}
     .mBtn:active{transform: scale(.99);}
-
     .mBtn.danger{
       background: rgba(255,90,90,.15);
       border-color: rgba(255,90,90,.25);
       color: #e03b3b;
       font-weight:1200;
     }
-    .list{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
+
+    .list{display:flex;flex-direction:column;gap:12px;}
     .rowCard{
       border:1px solid var(--stroke);
       border-radius: 26px;
@@ -733,40 +507,17 @@
       padding: 14px;
       cursor:pointer;
       transition: transform .12s ease, background .12s ease;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
     body.dark .rowCard{background: rgba(15,26,43,.55);}
     .rowCard:hover{transform: translateY(-1px); background: rgba(47,125,255,.06);}
     body.dark .rowCard:hover{background: rgba(47,125,255,.10);}
-    .rowMain{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .rowMain .r1{font-weight:1100; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-    .rowMain .r2{font-weight:900; color:var(--muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-    .rowAmt{
-      text-align:right;
-      font-variant-numeric: tabular-nums;
-      flex:0 0 auto;
-    }
-    .rowAmt .rm{
-      font-weight:1200;
-      font-size:22px;
-      color: var(--accent);
-      white-space:nowrap;
-    }
-    .rowAmt .twd{
-      margin-top:4px;
-      font-weight:900;
-      color:var(--muted);
-      font-size:12px;
-      white-space:nowrap;
-    }
+    .rowMain{min-width:0;display:flex;flex-direction:column;gap:6px;}
+    .rowMain .r1{font-weight:1100;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rowMain .r2{font-weight:900;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rowAmt{text-align:right;font-variant-numeric: tabular-nums;flex:0 0 auto;}
+    .rowAmt .rm{font-weight:1200;font-size:22px;color: var(--accent);white-space:nowrap;}
+    .rowAmt .twd{margin-top:4px;font-weight:900;color:var(--muted);font-size:12px;white-space:nowrap;}
 
     /* Detail modal */
     .detailCard{
@@ -777,106 +528,60 @@
       box-shadow: var(--shadow2);
     }
     body.dark .detailCard{background: rgba(15,26,43,.55);}
-    .detailGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .detailGrid{display:grid;grid-template-columns: 1fr 1fr;gap: 12px;}
     .dBox{
-      border-radius: 24px;
-      border:1px solid var(--stroke);
-      padding: 14px;
-      background: rgba(255,255,255,.65);
-      min-height: 108px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
+      border-radius: 24px;border:1px solid var(--stroke);
+      padding: 14px;background: rgba(255,255,255,.65);
+      min-height: 108px;display:flex;flex-direction:column;justify-content:space-between;
     }
     body.dark .dBox{background: rgba(15,26,43,.50);}
     .dBox.left{background: linear-gradient(180deg, rgba(47,125,255,.10), rgba(255,255,255,.45));}
     .dBox.right{background: linear-gradient(180deg, rgba(21,185,129,.10), rgba(255,255,255,.45));}
     body.dark .dBox.left{background: linear-gradient(180deg, rgba(47,125,255,.12), rgba(15,26,43,.40));}
     body.dark .dBox.right{background: linear-gradient(180deg, rgba(21,185,129,.12), rgba(15,26,43,.40));}
-    .dLabel{color:var(--muted); font-weight:1000; font-size:12px;}
+    .dLabel{color:var(--muted);font-weight:1000;font-size:12px;}
     .dVal{
-      font-size:30px;
-      font-weight:1200;
+      font-size:30px;font-weight:1200;
       font-variant-numeric: tabular-nums;
       letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
     .dVal.green{color: var(--accent);}
     .dMeta{
-      margin-top: 10px;
-      color:var(--muted);
-      font-weight:900;
-      font-size:12px;
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
+      margin-top: 10px;color:var(--muted);
+      font-weight:900;font-size:12px;
+      display:flex;gap:12px;flex-wrap:wrap;
     }
-    .detailActions{
-      display:flex;
-      gap:12px;
-      margin-top: 14px;
-      flex-wrap:wrap;
-    }
+    .detailActions{display:flex;gap:12px;margin-top: 14px;flex-wrap:wrap;}
     .btnPrimary{
-      border:none;
-      cursor:pointer;
-      border-radius: 22px;
-      padding: 14px 16px;
-      font-weight:1100;
-      background: linear-gradient(135deg, rgba(21,185,129,.95), rgba(21,185,129,.70));
-      color:#fff;
-      box-shadow: 0 18px 40px rgba(21,185,129,.25);
-      transition: transform .12s ease;
-      min-width: 160px;
-      text-align:center;
+      border:none;cursor:pointer;border-radius: 22px;padding: 14px 16px;
+      font-weight:1100;background: linear-gradient(135deg, rgba(21,185,129,.95), rgba(21,185,129,.70));
+      color:#fff;box-shadow: 0 18px 40px rgba(21,185,129,.25);
+      transition: transform .12s ease;min-width: 160px;text-align:center;
     }
     .btnPrimary:hover{transform: translateY(-1px);}
     .btnPrimary:active{transform: scale(.99);}
     .btnGhost{
-      border:1px solid var(--stroke);
-      cursor:pointer;
-      border-radius: 22px;
-      padding: 14px 16px;
-      font-weight:1100;
-      background: rgba(255,255,255,.70);
-      color: var(--text);
-      box-shadow: var(--shadow2);
-      transition: transform .12s ease;
-      min-width: 160px;
-      text-align:center;
+      border:1px solid var(--stroke);cursor:pointer;border-radius: 22px;padding: 14px 16px;
+      font-weight:1100;background: rgba(255,255,255,.70);color: var(--text);
+      box-shadow: var(--shadow2);transition: transform .12s ease;
+      min-width: 160px;text-align:center;
     }
     body.dark .btnGhost{background: rgba(15,26,43,.55);}
     .btnGhost:hover{transform: translateY(-1px);}
     .btnGhost:active{transform: scale(.99);}
     .btnDanger{
       border:1px solid rgba(255,90,90,.28);
-      cursor:pointer;
-      border-radius: 22px;
-      padding: 14px 16px;
-      font-weight:1200;
-      background: rgba(255,90,90,.15);
-      color: #e03b3b;
-      box-shadow: var(--shadow2);
-      transition: transform .12s ease;
-      min-width: 160px;
-      text-align:center;
+      cursor:pointer;border-radius: 22px;padding: 14px 16px;
+      font-weight:1200;background: rgba(255,90,90,.15);color: #e03b3b;
+      box-shadow: var(--shadow2);transition: transform .12s ease;
+      min-width: 160px;text-align:center;
     }
     .btnDanger:hover{transform: translateY(-1px);}
     .btnDanger:active{transform: scale(.99);}
 
-    /* Input modal */
-    .formGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      margin-top: 8px;
-    }
+    /* Forms */
+    .formGrid{display:grid;grid-template-columns: 1fr 1fr;gap:12px;margin-top: 8px;}
     .field{
       border:1px solid var(--stroke);
       border-radius: 24px;
@@ -884,29 +589,33 @@
       padding: 12px 12px;
     }
     body.dark .field{background: rgba(15,26,43,.55);}
-    .field label{
-      display:block;
-      color:var(--muted);
-      font-weight:1000;
-      font-size:12px;
-      margin-bottom:8px;
-    }
-    .field input{
-      width:100%;
-      border:none;
-      outline:none;
-      background: transparent;
-      font-weight:1200;
-      font-size:22px;
-      color:var(--text);
+    .field label{display:block;color:var(--muted);font-weight:1000;font-size:12px;margin-bottom:8px;}
+    .field input, .field select{
+      width:100%;border:none;outline:none;background: transparent;
+      font-weight:1200;font-size:18px;color:var(--text);
       font-variant-numeric: tabular-nums;
     }
-    .catRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top: 10px;
+    .segRow{
+      display:flex;gap:10px;flex-wrap:wrap;margin-top: 10px;
     }
+    .seg{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.70);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-weight:1000;
+      cursor:pointer;
+      transition: transform .10s ease, background .10s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    body.dark .seg{background: rgba(15,26,43,.55);}
+    .seg:hover{transform: translateY(-1px);}
+    .seg.active{background: rgba(21,185,129,.18);border-color: rgba(21,185,129,.25);}
+
+    .catRow{display:flex;gap:10px;flex-wrap:wrap;margin-top: 10px;}
     .chip{
       border:1px solid var(--stroke);
       background: rgba(255,255,255,.70);
@@ -919,16 +628,12 @@
     }
     body.dark .chip{background: rgba(15,26,43,.55);}
     .chip:hover{transform: translateY(-1px);}
-    .chip.active{
-      background: rgba(21,185,129,.18);
-      border-color: rgba(21,185,129,.25);
-    }
+    .chip.active{background: rgba(21,185,129,.18);border-color: rgba(21,185,129,.25);}
 
     @media (max-width: 720px){
       .exchangeGrid{grid-template-columns:1fr;}
       .side.left{border-right:none;border-bottom:1px solid var(--stroke);}
       .vaultActions{grid-template-columns: 1fr;}
-      .mActions{grid-template-columns: 1fr 1fr;}
       .detailGrid{grid-template-columns: 1fr;}
       .formGrid{grid-template-columns: 1fr;}
       .big{font-size:58px;}
@@ -956,7 +661,7 @@
       <div class="topActions">
         <button class="iconBtn" id="themeBtn" title="夜间模式">
           <span class="moonDot"></span>
-          <svg id="themeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a7 7 0 1 0 11.5 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
@@ -1003,6 +708,7 @@
                   <span style="font-weight:1000;color:var(--muted);">可编辑</span>
                 </div>
 
+                <!-- XXX TWD -->
                 <div class="bigLine" title="输入金额">
                   <div class="big blue" id="inBig">0</div>
                   <div class="unit">TWD</div>
@@ -1026,9 +732,10 @@
                   </span>
                 </div>
 
+                <!-- RM XXX -->
                 <div class="bigLine" title="换算结果">
+                  <div class="rmPrefix">RM</div>
                   <div class="big green" id="outBig">0.00</div>
-                  <div class="unit">RM</div>
                 </div>
               </div>
             </div>
@@ -1041,7 +748,7 @@
                   <path d="M17 21v-8H7v8" stroke="white" stroke-width="2" stroke-linejoin="round"/>
                   <path d="M7 3v4h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                保存
+                保存本次换算
               </button>
             </div>
           </div>
@@ -1054,7 +761,6 @@
             <div class="label">台币余额</div>
             <div class="balance" id="vaultBalance">3200</div>
             <div class="subRow">
-              <span id="vaultSub1">默认已包含：3200 TWD</span>
               <span id="vaultSub2">可记录换汇/开销</span>
             </div>
           </div>
@@ -1068,8 +774,8 @@
                 </svg>
               </div>
               <div class="actionText">
-                <h3>去换钱</h3>
-                <p>记录一次换汇存入</p>
+                <h3>换汇存入</h3>
+                <p>可选输入 TWD 或 RM，并自定义汇率</p>
               </div>
             </div>
 
@@ -1089,7 +795,7 @@
 
           <div class="sectionTitle">
             <span>记录</span>
-            <span style="color:var(--muted);font-weight:900;font-size:12px;">点进详情才可删除</span>
+            <span style="color:var(--muted);font-weight:900;font-size:12px;">默认记录不可删</span>
           </div>
 
           <div class="records" id="vaultRecords"></div>
@@ -1103,9 +809,8 @@
         <div class="kbdWrap" id="kbdWrap">
           <div class="kbd" id="kbd">
             <div class="grid">
-              <!-- row 1 -->
               <button class="key k-func" data-key="AC">AC</button>
-              <button class="key k-mid" data-key="BK">
+              <button class="key k-mid" data-key="BK" aria-label="退格">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <path d="M10 8H18a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H10L4 12l6-4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                   <path d="M13 10l4 4m0-4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1114,25 +819,21 @@
               <button class="key k-mid" data-key=".">·</button>
               <button class="key k-op" data-key="/">÷</button>
 
-              <!-- row 2 -->
               <button class="key" data-key="7">7</button>
               <button class="key" data-key="8">8</button>
               <button class="key" data-key="9">9</button>
               <button class="key k-op" data-key="*">×</button>
 
-              <!-- row 3 -->
               <button class="key" data-key="4">4</button>
               <button class="key" data-key="5">5</button>
               <button class="key" data-key="6">6</button>
               <button class="key k-op" data-key="-">−</button>
 
-              <!-- row 4 -->
               <button class="key" data-key="1">1</button>
               <button class="key" data-key="2">2</button>
               <button class="key" data-key="3">3</button>
               <button class="key k-op" data-key="+">+</button>
 
-              <!-- row 5 -->
               <button class="key span2" data-key="0">0</button>
               <button class="key k-mid" data-key="00">00</button>
               <button class="key tallEq" data-key="=">=</button>
@@ -1161,8 +862,8 @@
   </div>
 
   <!-- HISTORY MODAL -->
-  <div class="backdrop" id="historyModal">
-    <div class="modal">
+  <div class="backdrop" id="historyModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
         <div class="mTitle">
           <div class="mIcon" aria-hidden="true">
@@ -1174,7 +875,7 @@
           </div>
           <div class="mText">
             <h2>历史记录</h2>
-            <p>点开详情才有删除</p>
+            <p>默认记录不可删</p>
           </div>
         </div>
         <button class="mClose" data-close="historyModal" aria-label="关闭">
@@ -1186,8 +887,7 @@
 
       <div class="mBody">
         <div class="mActions">
-          <button class="mBtn" id="exportBtn">导出</button>
-          <button class="mBtn danger" id="clearBtn">清空</button>
+          <button class="mBtn danger" id="clearBtn">清空（保留默认记录）</button>
         </div>
 
         <div class="list" id="historyList"></div>
@@ -1200,8 +900,8 @@
   </div>
 
   <!-- DETAIL MODAL -->
-  <div class="backdrop" id="detailModal">
-    <div class="modal">
+  <div class="backdrop" id="detailModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
         <div class="mTitle">
           <div class="mIcon" id="detailIcon" aria-hidden="true"></div>
@@ -1242,8 +942,8 @@
   </div>
 
   <!-- EXCHANGE IN MODAL -->
-  <div class="backdrop" id="exchangeInModal">
-    <div class="modal">
+  <div class="backdrop" id="exchangeInModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
         <div class="mTitle">
           <div class="mIcon" aria-hidden="true" style="background: rgba(21,185,129,.16);">
@@ -1254,7 +954,7 @@
           </div>
           <div class="mText">
             <h2>换汇存入</h2>
-            <p>输入 TWD 金额即可</p>
+            <p>可选输入币种 + 自定义汇率</p>
           </div>
         </div>
         <button class="mClose" data-close="exchangeInModal" aria-label="关闭">
@@ -1265,14 +965,33 @@
       </div>
 
       <div class="mBody">
+        <div class="field">
+          <label>输入币种</label>
+          <div class="segRow" id="exSegRow">
+            <div class="seg active" data-exmode="TWD">输入 TWD</div>
+            <div class="seg" data-exmode="RM">输入 RM</div>
+          </div>
+        </div>
+
         <div class="formGrid">
           <div class="field">
-            <label>输入金额</label>
-            <input id="exInTwd" inputmode="decimal" placeholder="0" />
+            <label id="exInLabel">输入金额（TWD）</label>
+            <input id="exInAmount" inputmode="decimal" placeholder="0" />
           </div>
           <div class="field">
-            <label>按当前汇率换算</label>
-            <input id="exInRm" disabled />
+            <label>自定义汇率（1 MYR = ? TWD）</label>
+            <input id="exRate" inputmode="decimal" placeholder="7.949" />
+          </div>
+        </div>
+
+        <div class="formGrid">
+          <div class="field">
+            <label>将存入金库（TWD）</label>
+            <input id="exOutTwd" disabled />
+          </div>
+          <div class="field">
+            <label>支付金额（RM）</label>
+            <input id="exOutRm" disabled />
           </div>
         </div>
 
@@ -1285,8 +1004,8 @@
   </div>
 
   <!-- EXPENSE MODAL -->
-  <div class="backdrop" id="expenseModal">
-    <div class="modal">
+  <div class="backdrop" id="expenseModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
       <div class="mHead">
         <div class="mTitle">
           <div class="mIcon" aria-hidden="true" style="background: rgba(47,125,255,.14);">
@@ -1297,7 +1016,7 @@
           </div>
           <div class="mText">
             <h2>记录开销</h2>
-            <p>选一个分类表情 + 输入 TWD</p>
+            <p>选分类表情 + 输入 TWD</p>
           </div>
         </div>
         <button class="mClose" data-close="expenseModal" aria-label="关闭">
@@ -1309,7 +1028,7 @@
 
       <div class="mBody">
         <div class="field">
-          <label>金额</label>
+          <label>金额（TWD）</label>
           <input id="expTwd" inputmode="decimal" placeholder="0" />
         </div>
 
@@ -1328,17 +1047,18 @@
     // ---------------------------
     // Storage + State
     // ---------------------------
-    const LS_KEY = "vault_calc_v1";
+    const LS_KEY = "vault_calc_v2";
 
     const DEFAULT_RATE = 7.949; // 1 MYR = 7.949 TWD
+    const DEFAULT_RECORD_ID = "default-3200";
     const DEFAULT_RECORD = {
-      id: "default-3200",
+      id: DEFAULT_RECORD_ID,
       type: "exchange",
       emoji: "💱",
       title: "换台币",
       rate: DEFAULT_RATE,
       twd: 3200,
-      rm: 402.55, // 用户指定
+      rm: 402.55,
       at: new Date("2026-02-04T12:00:00").toISOString(),
       note: ""
     };
@@ -1361,42 +1081,36 @@
         const raw = localStorage.getItem(LS_KEY);
         if(!raw) return null;
         return JSON.parse(raw);
-      }catch(e){
-        return null;
-      }
+      }catch(e){ return null; }
     }
-    function saveState(){
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-    }
+    function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
-    function ensureDefault(state){
-      // 保证默认记录存在
-      if(!state.history || !Array.isArray(state.history)) state.history = [];
-      const hasDefault = state.history.some(r => r.id === DEFAULT_RECORD.id);
-      if(!hasDefault) state.history.unshift(DEFAULT_RECORD);
+    function ensureDefault(s){
+      if(!s.history || !Array.isArray(s.history)) s.history = [];
+      if(!s.vault || typeof s.vault !== "object") s.vault = { balanceTWD: 0, records: [] };
 
-      if(!state.vault || typeof state.vault !== "object"){
-        state.vault = { balanceTWD: 0, spentTWD: 0, records: [] };
-      }
-      // 金库也保留默认换汇存入记录（让余额默认是 3200）
-      const vaultHasDefault = state.vault.records.some(r => r.id === DEFAULT_RECORD.id);
-      if(!vaultHasDefault) state.vault.records.unshift({...DEFAULT_RECORD});
+      const hasDefHist = s.history.some(r => r.id === DEFAULT_RECORD_ID);
+      if(!hasDefHist) s.history.unshift(DEFAULT_RECORD);
 
-      // 余额：至少等于记录汇总（简单：balance = sum(exchange.twd) - sum(expense.twd))
-      const sumIn = state.vault.records.filter(r=>r.type==="exchange").reduce((a,r)=>a + (Number(r.twd)||0), 0);
-      const sumOut = state.vault.records.filter(r=>r.type==="expense").reduce((a,r)=>a + (Number(r.twd)||0), 0);
-      state.vault.balanceTWD = Math.max(0, round2(sumIn - sumOut, 0));
+      const hasDefVault = s.vault.records.some(r => r.id === DEFAULT_RECORD_ID);
+      if(!hasDefVault) s.vault.records.unshift({...DEFAULT_RECORD});
 
-      if(!state.rate || typeof state.rate !== "number") state.rate = DEFAULT_RATE;
-      if(!state.ui) state.ui = { tab: "calc", dark: false };
-      if(!state.calc) state.calc = { input: "0" };
-      return state;
+      if(!s.rate || typeof s.rate !== "number") s.rate = DEFAULT_RATE;
+      if(!s.ui) s.ui = { tab: "calc", dark: false };
+      if(!s.calc) s.calc = { input: "0" };
+
+      // 余额 = sum(exchange.twd) - sum(expense.twd)
+      const sumIn = s.vault.records.filter(r=>r.type==="exchange").reduce((a,r)=>a + (Number(r.twd)||0), 0);
+      const sumOut = s.vault.records.filter(r=>r.type==="expense").reduce((a,r)=>a + (Number(r.twd)||0), 0);
+      s.vault.balanceTWD = Math.max(0, round2(sumIn - sumOut, 0));
+
+      return s;
     }
 
     let state = ensureDefault(loadState() || {
       rate: DEFAULT_RATE,
       history: [],
-      vault: { balanceTWD: 0, spentTWD: 0, records: [] },
+      vault: { balanceTWD: 0, records: [] },
       ui: { tab: "calc", dark: false },
       calc: { input: "0" }
     });
@@ -1412,20 +1126,19 @@
     }
     function fmtTWD(n){
       const v = (Number(n)||0);
-      // 不强制千分位，保持干净（你喜欢大数字视觉）
       return String(v % 1 === 0 ? v.toFixed(0) : v.toFixed(2)).replace(/\.00$/,"");
     }
-    function fmtRM(n){
-      const v = round2(n, 2);
-      return v.toFixed(2);
-    }
+    function fmtRM(n){ return round2(n, 2).toFixed(2); }
     function nowISO(){ return new Date().toISOString(); }
 
-    function calcRMFromTWD(twd){
-      // rm = twd / rate
-      return round2((Number(twd)||0) / (Number(state.rate)||DEFAULT_RATE), 2);
+    function calcRMFromTWD(twd, rate){
+      const r = Number(rate || state.rate || DEFAULT_RATE);
+      return round2((Number(twd)||0) / r, 2);
     }
-
+    function calcTWDFromRM(rm, rate){
+      const r = Number(rate || state.rate || DEFAULT_RATE);
+      return round2((Number(rm)||0) * r, 2);
+    }
     function humanTime(iso){
       const d = new Date(iso);
       const mm = String(d.getMonth()+1).padStart(2,"0");
@@ -1434,13 +1147,17 @@
       const mi = String(d.getMinutes()).padStart(2,"0");
       return `${mm}-${dd} ${hh}:${mi}`;
     }
-
     function uid(prefix="r"){
       return `${prefix}-${Math.random().toString(16).slice(2)}-${Date.now().toString(16)}`;
     }
+    function escapeHTML(s){
+      return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
 
     // ---------------------------
-    // UI: Tabs + Layout heights
+    // UI: Theme + Tabs + Bottom heights
     // ---------------------------
     function applyTheme(){
       document.body.classList.toggle("dark", !!state.ui.dark);
@@ -1459,25 +1176,21 @@
       $("tabVault").classList.toggle("active", !isCalc);
 
       $("pageTitle").textContent = isCalc ? "换算" : "金库";
-      $("pageSub").textContent = isCalc ? "换算模式" : "记录换汇与开销，点进详情才可删除";
+      $("pageSub").textContent = isCalc ? "换算模式" : "记录换汇与开销，点进详情可删除（默认记录不可删）";
 
       $("kbdWrap").classList.toggle("show", isCalc);
 
-      // 更新底部高度（tab + keyboard）
       requestAnimationFrame(updateBottomHeights);
       renderAll();
     }
 
     function updateBottomHeights(){
       const tabH = $("tabBar").getBoundingClientRect().height || 84;
-      const kbdEl = $("kbdWrap");
-      const kbdH = kbdEl.classList.contains("show") ? ($("kbd").getBoundingClientRect().height + 10) : 0; // +gap
+      const kbdH = $("kbdWrap").classList.contains("show") ? ($("kbd").getBoundingClientRect().height + 10) : 0;
       document.documentElement.style.setProperty("--tabH", `${tabH}px`);
       document.documentElement.style.setProperty("--kbdH", `${kbdH}px`);
       document.documentElement.style.setProperty("--bottomH", `calc(${tabH}px + ${kbdH}px + var(--safeB))`);
     }
-
-    // Resize observers (when screen changes)
     const ro = new ResizeObserver(()=>updateBottomHeights());
 
     // ---------------------------
@@ -1489,16 +1202,15 @@
     }
 
     function renderCalc(){
-      const input = state.calc.input || "0";
-      $("inBig").textContent = input.replace(/^0+(?=\d)/, "0"); // keep single 0
-      const rm = calcRMFromTWD(Number(input));
+      const input = String(state.calc.input || "0").replace(/^0+(?=\d)/, "0");
+      $("inBig").textContent = input;
+      const rm = calcRMFromTWD(Number(input), state.rate);
       $("outBig").textContent = fmtRM(rm);
       $("hintLine").textContent = `按当前汇率换算（${state.rate.toFixed(3)}）`;
     }
 
     function renderVault(){
       $("vaultBalance").textContent = fmtTWD(state.vault.balanceTWD);
-      $("vaultSub1").textContent = `默认已包含：${fmtTWD(3200)} TWD`;
       $("vaultSub2").textContent = `当前共有 ${state.vault.records.length} 条记录`;
 
       const box = $("vaultRecords");
@@ -1542,16 +1254,14 @@
         return;
       }
       list.innerHTML = items.map(r=>{
-        const rm = (r.type==="exchange") ? fmtRM(r.rm) : fmtRM(calcRMFromTWD(r.twd));
-        const t = (r.type==="exchange")
-          ? `${humanTime(r.at)} · Rate ${Number(r.rate||state.rate).toFixed(3)}`
-          : `${humanTime(r.at)}`;
+        const rm = fmtRM(r.rm ?? calcRMFromTWD(r.twd, r.rate || state.rate));
+        const t = `${humanTime(r.at)} · Rate ${Number(r.rate||state.rate).toFixed(3)}`;
         const left = `${fmtTWD(r.twd)} TWD`;
         const right = `RM ${rm}`;
         return `
           <div class="rowCard" data-open-history="${r.id}">
             <div class="rowMain">
-              <div class="r1">${escapeHTML((r.emoji||"🕘") + " " + (r.title||"换算"))}</div>
+              <div class="r1">${escapeHTML((r.emoji||"🕘") + " " + (r.title||"换算记录"))}</div>
               <div class="r2">${escapeHTML(t)}</div>
             </div>
             <div class="rowAmt">
@@ -1570,21 +1280,39 @@
       if($("historyModal").classList.contains("show")) renderHistoryModal();
     }
 
-    function escapeHTML(s){
-      return String(s ?? "").replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
-    }
+    // ---------------------------
+    // Modal (Lock background, prevent slide)
+    // ---------------------------
+    let scrollTopBeforeModal = 0;
 
-    // ---------------------------
-    // Modal helpers
-    // ---------------------------
     function openModal(id){
+      scrollTopBeforeModal = $("content").scrollTop;
+      document.body.classList.add("modal-open");
       $(id).classList.add("show");
+      $(id).setAttribute("aria-hidden","false");
+
       if(id === "historyModal") renderHistoryModal();
+
+      // 防止 iOS 橡皮筋
+      $(id).addEventListener("touchmove", stopTouchMove, {passive:false});
     }
     function closeModal(id){
       $(id).classList.remove("show");
+      $(id).setAttribute("aria-hidden","true");
+      $(id).removeEventListener("touchmove", stopTouchMove);
+
+      // 如果当前没有任何弹窗打开，解除锁定
+      const anyOpen = Array.from(document.querySelectorAll(".backdrop")).some(b=>b.classList.contains("show"));
+      if(!anyOpen){
+        document.body.classList.remove("modal-open");
+        $("content").scrollTop = scrollTopBeforeModal;
+      }
+    }
+    function stopTouchMove(e){
+      // 允许弹窗内容区滚动，但阻止背景穿透
+      // 这里让 .mBody 自己滚动，其他区域阻止
+      const inBody = e.target.closest(".mBody");
+      if(!inBody) e.preventDefault();
     }
 
     // ---------------------------
@@ -1605,7 +1333,6 @@
       $("detailTitle").textContent = isExchange ? "换汇详情" : "开销详情";
       $("detailSub").textContent = humanTime(r.at) + (isExchange ? ` · Rate ${Number(r.rate||state.rate).toFixed(3)}` : "");
 
-      // icon
       $("detailIcon").innerHTML = `<div style="font-size:20px;">${r.emoji || (isExchange?"💱":"🧾")}</div>`;
 
       if(isExchange){
@@ -1613,9 +1340,7 @@
         $("dv1").textContent = `${fmtTWD(r.twd)} TWD`;
         $("dl2").textContent = "支付金额";
         $("dv2").textContent = `RM ${fmtRM(r.rm)}`;
-        $("detailMeta").innerHTML = `
-          <span>汇率：1 MYR = ${Number(r.rate||state.rate).toFixed(3)} TWD</span>
-        `;
+        $("detailMeta").innerHTML = `<span>汇率：1 MYR = ${Number(r.rate||state.rate).toFixed(3)} TWD</span>`;
       }else{
         $("dl1").textContent = "开销金额";
         $("dv1").textContent = `${fmtTWD(r.twd)} TWD`;
@@ -1624,11 +1349,16 @@
         $("detailMeta").innerHTML = ``;
       }
 
+      // 默认记录不可删：隐藏删除按钮
+      const canDelete = (id !== DEFAULT_RECORD_ID);
+      $("deleteBtn").style.display = canDelete ? "" : "none";
+
       openModal("detailModal");
     }
 
     function deleteRecordById(source, id){
-      // 允许删除默认记录，但你如果想“永远不可删除”，我也能改
+      if(id === DEFAULT_RECORD_ID) return; // 永远不可删
+
       if(source === "history"){
         state.history = state.history.filter(r=>r.id !== id);
       }else{
@@ -1640,7 +1370,7 @@
       const sumOut = state.vault.records.filter(r=>r.type==="expense").reduce((a,r)=>a + (Number(r.twd)||0), 0);
       state.vault.balanceTWD = Math.max(0, round2(sumIn - sumOut, 0));
 
-      // 仍然保证默认记录存在（如果你删除了，它会被立刻补回来）
+      // 仍然保证默认记录存在
       state = ensureDefault(state);
 
       saveState();
@@ -1650,7 +1380,7 @@
     // ---------------------------
     // Actions
     // ---------------------------
-    function saveCalcToHistory(){
+    function saveCalcToHistorySilently(){
       const twd = Number(state.calc.input || 0);
       if(!twd || twd <= 0) return;
 
@@ -1661,33 +1391,41 @@
         title: "换算记录",
         rate: state.rate,
         twd: round2(twd, 2),
-        rm: calcRMFromTWD(twd),
+        rm: calcRMFromTWD(twd, state.rate),
         at: nowISO(),
         note: ""
       };
       state.history.unshift(rec);
       saveState();
+      // 不弹任何通知，不跳转
     }
 
-    function addVaultExchangeIn(twd){
-      const n = Number(twd || 0);
-      if(!n || n <= 0) return;
+    function addVaultExchangeIn(twd, rm, rate){
+      const t = Number(twd||0);
+      const m = Number(rm||0);
+      const r = Number(rate||state.rate||DEFAULT_RATE);
+
+      if(!t || t <= 0 || !m || m <= 0) return;
+
       const rec = {
         id: uid("vx"),
         type: "exchange",
         emoji: "💱",
         title: "换台币",
-        rate: state.rate,
-        twd: round2(n, 2),
-        rm: calcRMFromTWD(n),
+        rate: r,
+        twd: round2(t, 2),
+        rm: round2(m, 2),
         at: nowISO(),
         note: ""
       };
+
       state.vault.records.unshift(rec);
-      // 同步到历史
-      state.history.unshift({...rec, emoji:"🧾", title:"换算记录"});
+      // 同步到历史（但默认不可删那条仍保留）
+      state.history.unshift({ ...rec, emoji:"🧾", title:"换算记录" });
+
       // 更新余额
-      state.vault.balanceTWD = round2(state.vault.balanceTWD + n, 0);
+      state.vault.balanceTWD = round2(state.vault.balanceTWD + t, 0);
+
       saveState();
     }
 
@@ -1710,7 +1448,7 @@
     }
 
     // ---------------------------
-    // Keypad input logic (for calculator input only)
+    // Keypad input logic (calc only)
     // ---------------------------
     function applyKey(k){
       let s = String(state.calc.input ?? "0");
@@ -1726,17 +1464,14 @@
         if(s === "0") s = "0";
         else s += "00";
       }else if(k === "="){
-        // 这里 "=" 不做表达式计算，只保留换算
-        // 你如果需要做完整计算器（+-*/表达式），我也能加回去
+        // 仅换算，不做表达式
       }else{
-        // digits
         if(/[0-9]/.test(k)){
           if(s === "0") s = k;
           else s += k;
         }
       }
 
-      // 限制长度，避免爆版
       if(s.length > 14) s = s.slice(0,14);
 
       state.calc.input = s;
@@ -1745,32 +1480,69 @@
     }
 
     // ---------------------------
+    // Exchange-in logic (custom rate + input currency)
+    // ---------------------------
+    let exMode = "TWD"; // "TWD" or "RM"
+    function setExMode(mode){
+      exMode = mode;
+      document.querySelectorAll("#exSegRow .seg").forEach(el=>{
+        el.classList.toggle("active", el.getAttribute("data-exmode") === mode);
+      });
+      $("exInLabel").textContent = mode === "TWD" ? "输入金额（TWD）" : "输入金额（RM）";
+      $("exInAmount").value = "";
+      recomputeExchangePreview();
+      setTimeout(()=>$("exInAmount").focus(), 30);
+    }
+
+    function recomputeExchangePreview(){
+      const rate = Number(($("exRate").value||"").trim()) || state.rate || DEFAULT_RATE;
+      const v = Number(($("exInAmount").value||"").replace(/,/g,"")) || 0;
+
+      if(exMode === "TWD"){
+        const twd = v;
+        const rm = calcRMFromTWD(twd, rate);
+        $("exOutTwd").value = `${fmtTWD(twd)} TWD`;
+        $("exOutRm").value = `RM ${fmtRM(rm)}`;
+      }else{
+        const rm = v;
+        const twd = calcTWDFromRM(rm, rate);
+        $("exOutTwd").value = `${fmtTWD(twd)} TWD`;
+        $("exOutRm").value = `RM ${fmtRM(rm)}`;
+      }
+    }
+
+    // ---------------------------
     // Init + Events
     // ---------------------------
+    let selectedCat = CATS[0];
+
     function initCats(){
       const row = $("catRow");
       row.innerHTML = CATS.map((c,idx)=>`<div class="chip" data-cat="${idx}">${c.e} ${c.t}</div>`).join("");
+      updateCatUI();
+    }
+    function updateCatUI(){
+      document.querySelectorAll("#catRow .chip").forEach((c)=>{
+        const idx = Number(c.getAttribute("data-cat"));
+        c.classList.toggle("active", CATS[idx] === selectedCat);
+      });
     }
 
     function attachEvents(){
-      // theme
       $("themeBtn").addEventListener("click", ()=>{
         state.ui.dark = !state.ui.dark;
         applyTheme();
       });
 
-      // reset input
       $("resetBtn").addEventListener("click", ()=>{
         state.calc.input = "0";
         saveState();
         renderCalc();
       });
 
-      // tabs
       $("tabCalc").addEventListener("click", ()=>setTab("calc"));
       $("tabVault").addEventListener("click", ()=>setTab("vault"));
 
-      // history
       $("historyBtn").addEventListener("click", ()=>openModal("historyModal"));
 
       // close modals
@@ -1779,10 +1551,11 @@
         if(!btn) return;
         closeModal(btn.getAttribute("data-close"));
       });
+
       // click backdrop to close
       document.querySelectorAll(".backdrop").forEach(b=>{
         b.addEventListener("click", (e)=>{
-          if(e.target === b) b.classList.remove("show");
+          if(e.target === b) closeModal(b.id);
         });
       });
 
@@ -1793,44 +1566,28 @@
         applyKey(b.getAttribute("data-key"));
       });
 
-      // save calc
+      // save calc (silent)
       $("saveCalcBtn").addEventListener("click", ()=>{
-        const twd = Number(state.calc.input||0);
-        if(!twd || twd<=0) return;
-        saveCalcToHistory();
-        // 同时也写入金库？（你之前有“金库/换算分开”，这里不自动写入金库）
-        // 只保存换算历史
+        saveCalcToHistorySilently();
         renderAll();
-        openModal("historyModal");
       });
 
-      // history export/clear
-      $("exportBtn").addEventListener("click", ()=>{
-        const data = JSON.stringify(state, null, 2);
-        const blob = new Blob([data], {type:"application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "vault_calc_export.json";
-        a.click();
-        URL.revokeObjectURL(url);
-      });
+      // clear history but keep default
       $("clearBtn").addEventListener("click", ()=>{
-        // 清空除默认记录
-        state.history = state.history.filter(r=>r.id === DEFAULT_RECORD.id);
+        state.history = state.history.filter(r=>r.id === DEFAULT_RECORD_ID);
         saveState();
         renderHistoryModal();
         renderAll();
       });
 
-      // open detail from history list
+      // open detail from history
       $("historyList").addEventListener("click", (e)=>{
         const row = e.target.closest("[data-open-history]");
         if(!row) return;
         openDetailFrom("history", row.getAttribute("data-open-history"));
       });
 
-      // open detail from vault list
+      // open detail from vault
       $("vaultRecords").addEventListener("click", (e)=>{
         const row = e.target.closest("[data-open-vault]");
         if(!row) return;
@@ -1846,11 +1603,14 @@
 
       // vault actions
       $("btnExchangeIn").addEventListener("click", ()=>{
-        $("exInTwd").value = "";
-        $("exInRm").value = "RM 0.00";
+        $("exRate").value = state.rate.toFixed(3);
+        setExMode("TWD");
+        $("exOutTwd").value = `0 TWD`;
+        $("exOutRm").value = `RM 0.00`;
         openModal("exchangeInModal");
-        setTimeout(()=>$("exInTwd").focus(), 50);
+        setTimeout(()=>$("exInAmount").focus(), 50);
       });
+
       $("btnExpenseOut").addEventListener("click", ()=>{
         selectedCat = CATS[0];
         $("expTwd").value = "";
@@ -1859,20 +1619,37 @@
         setTimeout(()=>$("expTwd").focus(), 50);
       });
 
-      // exchange input live calc
-      $("exInTwd").addEventListener("input", ()=>{
-        const v = Number(($("exInTwd").value||"").replace(/,/g,"")) || 0;
-        $("exInRm").value = `RM ${fmtRM(calcRMFromTWD(v))}`;
+      // exchange-in mode switch
+      $("exSegRow").addEventListener("click", (e)=>{
+        const seg = e.target.closest("[data-exmode]");
+        if(!seg) return;
+        setExMode(seg.getAttribute("data-exmode"));
       });
 
+      // exchange-in recompute
+      $("exInAmount").addEventListener("input", recomputeExchangePreview);
+      $("exRate").addEventListener("input", recomputeExchangePreview);
+
       $("confirmExchangeIn").addEventListener("click", ()=>{
-        const v = Number(($("exInTwd").value||"").replace(/,/g,"")) || 0;
+        const rate = Number(($("exRate").value||"").trim()) || state.rate || DEFAULT_RATE;
+        const v = Number(($("exInAmount").value||"").replace(/,/g,"")) || 0;
         if(!v || v<=0) return;
-        addVaultExchangeIn(v);
+
+        if(exMode === "TWD"){
+          const twd = v;
+          const rm = calcRMFromTWD(twd, rate);
+          addVaultExchangeIn(twd, rm, rate);
+        }else{
+          const rm = v;
+          const twd = calcTWDFromRM(rm, rate);
+          addVaultExchangeIn(twd, rm, rate);
+        }
+
         closeModal("exchangeInModal");
         renderAll();
       });
 
+      // expense
       $("confirmExpense").addEventListener("click", ()=>{
         const v = Number(($("expTwd").value||"").replace(/,/g,"")) || 0;
         if(!v || v<=0) return;
@@ -1881,7 +1658,6 @@
         renderAll();
       });
 
-      // categories
       $("catRow").addEventListener("click", (e)=>{
         const chip = e.target.closest("[data-cat]");
         if(!chip) return;
@@ -1898,15 +1674,6 @@
       window.addEventListener("resize", ()=>updateBottomHeights());
     }
 
-    let selectedCat = CATS[0];
-
-    function updateCatUI(){
-      document.querySelectorAll("#catRow .chip").forEach((c)=>{
-        const idx = Number(c.getAttribute("data-cat"));
-        c.classList.toggle("active", CATS[idx] === selectedCat);
-      });
-    }
-
     // ---------------------------
     // Boot
     // ---------------------------
@@ -1917,8 +1684,6 @@
       setTab(state.ui.tab || "calc");
       renderAll();
       requestAnimationFrame(updateBottomHeights);
-      updateCatUI();
-      // 额外：确保默认记录永远存在
       saveState();
     })();
   </script>
