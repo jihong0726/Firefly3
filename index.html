@@ -2,7 +2,7 @@
 <html lang="zh-CN" class="light">
 <head>
   <meta charset="UTF-8" />
-  <title>UsTrip Finance v18.4 (Fix)</title>
+  <title>UsTrip Finance v18.5 (Final Fix)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" id="theme-color">
   
@@ -19,68 +19,39 @@
     /* 1. 全局锁定 */
     html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
     body { font-family: "Noto Sans SC", sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-    
-    /* 2. App 容器 */
     #app { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px; margin: 0 auto; background: #fff; position: relative; }
     
     input, button { outline: none !important; }
     .mono { font-family: 'JetBrains Mono', monospace; }
     .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-    /* ================= 🟢 金库页面 ================= */
+    /* ================= 页面布局 ================= */
     .page-scrollable {
-      flex: 1; 
-      overflow-y: auto; 
-      overflow-x: hidden;
-      padding: 80px 20px 20px;
-      height: 100%; /* 确保填满 */
+      flex: 1; overflow-y: auto; overflow-x: hidden; padding: 80px 20px 20px;
     }
-
-    /* ================= 🔵 计算页面 (修复塌陷) ================= */
     .page-fixed {
-      position: absolute; /* 强制覆盖 */
-      top: 0; left: 0; right: 0; bottom: 80px; /* 留出底部 Tab 空间 */
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 10;
+      flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;
     }
 
-    /* 上半区：显示屏 */
     .calc-display-area {
-      flex: 1; /* 自动占据剩余空间 */
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 80px 24px 10px;
-      min-height: 0;
+      flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 80px 24px 10px; min-height: 0;
     }
     .font-clamp-big { font-size: clamp(3rem, 12vw, 5rem); line-height: 1; }
     .font-clamp-mid { font-size: clamp(2rem, 8vw, 3.5rem); line-height: 1.1; }
 
-    /* 下半区：键盘 (修复高度塌陷：使用 vh 单位) */
     .calc-keyboard-area {
-      flex: 0 0 55vh; /* 🌟 强制占据视口高度的 55% */
-      max-height: 60%; /* 双重保险 */
-      background: rgb(241 245 249);
-      border-top-left-radius: 2.5rem;
-      border-top-right-radius: 2.5rem;
-      position: relative;
-      z-index: 20;
-      padding-top: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+      flex: 0 0 auto; height: 55%; background: rgb(241 245 249);
+      border-top-left-radius: 2.5rem; border-top-right-radius: 2.5rem;
+      position: relative; z-index: 20; padding-top: 2.5rem;
+      display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
       transition: background-color .3s;
     }
     html.dark .calc-keyboard-area { background: rgb(15 23 42); }
 
-    /* 历史胶囊 */
     .history-capsule {
       position: absolute; top: 0.8rem; left: 50%; transform: translateX(-50%);
       background: #fff; padding: .5rem 1rem; border-radius: 99px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      border: 1px solid rgb(226 232 240);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid rgb(226 232 240);
       display: flex; align-items: center; gap: .5rem; cursor: pointer; z-index: 30;
     }
     .history-capsule:active { transform: translateX(-50%) scale(0.95); }
@@ -88,44 +59,37 @@
     .capsule-text { font-size: .65rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: rgb(71 85 105); }
     html.dark .capsule-text { color: rgb(203 213 225); }
 
-    /* 滑动列表 */
+    /* 🌟 列表项布局 (修复PC遮挡) */
     .swipe-list-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: 1rem;
-      margin-bottom: 0.75rem;
-      transform: translate3d(0,0,0);
+      position: relative; overflow: hidden; border-radius: 1rem; margin-bottom: 0.75rem; transform: translate3d(0,0,0);
     }
+    /* 核心修复：内容层不再是 absolute，而是 relative，右侧给 PC 按钮留位 */
     .swipe-content {
-      position: relative;
-      z-index: 10;
-      background: white;
+      position: relative; z-index: 10; background: white;
       transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      border: 1px solid #f1f5f9;
-      will-change: transform;
+      display: flex; align-items: center; padding: 1rem;
+      border: 1px solid #f1f5f9; will-change: transform;
     }
     html.dark .swipe-content { background: #1e293b; border-color: #334155; }
     
-    @media (hover: hover) {
-      .swipe-list-item:hover .pc-actions { opacity: 1; pointer-events: auto; }
-      .swipe-content { padding-right: 90px; }
+    /* PC端按钮组：不悬浮，而是挤占空间 */
+    .pc-actions-wrap {
+      display: none; /* 移动端默认隐藏 */
+      gap: 8px; margin-left: 12px; flex-shrink: 0;
     }
-    .pc-actions {
-      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-      z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.2s;
-      display: flex; gap: 8px;
+    @media (hover: hover) {
+      .pc-actions-wrap { display: flex; } /* PC端显示 */
     }
     .pc-btn {
       width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 14px; cursor: pointer; color: white; shadow-sm;
+      font-size: 14px; cursor: pointer; color: white; transition: transform 0.1s;
     }
+    .pc-btn:hover { transform: scale(1.1); }
     .pc-btn-pin { background: #eab308; }
     .pc-btn-pin.active { background: #ca8a04; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
     .pc-btn-del { background: #ef4444; }
 
+    /* 移动端滑动背景 */
     .swipe-actions {
       position: absolute; top: 0; bottom: 0; left: 0; right: 0;
       display: flex; justify-content: space-between; z-index: 1;
@@ -134,45 +98,35 @@
     .action-left { background: #eab308; justify-content: flex-start; }
     .action-right { background: #ef4444; justify-content: flex-end; }
 
-    /* 键盘网格 */
-    .calc-grid { 
-      display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); 
-      gap: 10px; padding: 0 16px 16px; flex: 1; 
-    }
-    .calc-btn { 
-      @apply rounded-[1.2rem] flex items-center justify-center text-2xl font-bold transition-all duration-75 active:scale-95 shadow-sm border-b-2 border-slate-200 dark:border-slate-800; 
-      height: 100%; width: 100%;
-    }
+    /* 键盘 */
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; padding: 0 16px 16px; flex: 1; }
+    .calc-btn { @apply rounded-[1.2rem] flex items-center justify-center text-2xl font-bold transition-all duration-75 active:scale-95 shadow-sm border-b-2 border-slate-200 dark:border-slate-800; height: 100%; width: 100%; }
     .btn-num { @apply bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-100; font-size: 1.6rem; }
     .btn-op { @apply bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 text-2xl font-black border-indigo-100 dark:border-indigo-900; }
     .btn-ac { @apply bg-red-50 text-red-500 dark:bg-red-900/20 dark:text-red-400 text-lg font-black border-red-100 dark:border-red-900; }
     .btn-eq { @apply bg-emerald-500 text-white shadow-lg shadow-emerald-200/50 dark:shadow-none text-2xl active:bg-emerald-600 border-none; }
 
-    /* 弹窗组件 */
-    .rate-card {
-      @apply bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex justify-between items-center mb-6;
+    /* 🌟 弹窗输入组修复 (紧凑型) */
+    .compact-input-group {
+      @apply flex items-center justify-between bg-slate-50 dark:bg-slate-900 border-2 border-transparent rounded-2xl p-2 transition-all shadow-sm;
     }
-    
-    .merged-input-box {
-      @apply flex items-center bg-slate-50 dark:bg-slate-900 border-2 border-transparent rounded-2xl p-2 transition-all shadow-sm;
-    }
-    .box-focus-myr { @apply focus-within:border-blue-400 focus-within:bg-blue-50/30 dark:focus-within:bg-blue-900/10; }
-    .box-focus-twd { @apply focus-within:border-orange-400 focus-within:bg-orange-50/30 dark:focus-within:bg-orange-900/10; }
+    .group-focus-myr { @apply focus-within:border-blue-400 focus-within:bg-blue-50/30 dark:focus-within:bg-blue-900/10; }
+    .group-focus-twd { @apply focus-within:border-orange-400 focus-within:bg-orange-50/30 dark:focus-within:bg-orange-900/10; }
 
-    .merged-input {
-      @apply flex-1 bg-transparent font-black text-3xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 px-2 min-w-0;
+    .compact-input {
+      @apply flex-1 bg-transparent font-black text-3xl outline-none text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 px-2 min-w-0 h-12;
     }
 
-    .currency-pill-btn {
-      @apply flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all cursor-pointer select-none active:scale-95 ml-2 text-white shadow-sm;
+    /* 币种切换按钮 (右侧胶囊) */
+    .currency-switch-btn {
+      @apply flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all cursor-pointer select-none active:scale-95 ml-2 text-white shadow-sm flex-shrink-0;
     }
-    .pill-myr { @apply bg-blue-500 shadow-blue-200 dark:shadow-none; }
-    .pill-twd { @apply bg-orange-500 shadow-orange-200 dark:shadow-none; }
+    .btn-myr { @apply bg-blue-500 shadow-blue-200 dark:shadow-none; }
+    .btn-twd { @apply bg-orange-500 shadow-orange-200 dark:shadow-none; }
 
+    /* 分类 Chip */
     .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
-    .cat-item {
-      @apply flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-pointer transition-all active:scale-90;
-    }
+    .cat-item { @apply flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-pointer transition-all active:scale-90; }
     .cat-item.active { @apply bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-700 ring-1 ring-indigo-500/20; }
     .cat-emoji { font-size: 24px; margin-bottom: 4px; }
     .cat-name { font-size: 10px; font-weight: bold; color: #64748b; }
@@ -185,7 +139,6 @@
       padding-top: 10px;
       padding-bottom: calc(10px + env(safe-area-inset-bottom));
       z-index: 40;
-      /* 确保底部导航栏始终在最上层，防止被遮挡 */
       position: relative; 
     }
     html.dark .bottom-nav { background: rgba(15,23,42,0.95); border-color: #1e293b; }
@@ -317,7 +270,7 @@
                    @touchmove="touchMove($event, rec.id)"
                    @touchend="touchEnd($event, rec.id)">
                 
-                <div class="pc-actions">
+                <div class="pc-actions-wrap">
                   <div class="pc-btn pc-btn-pin" :class="rec.pinned?'active':''" @click.stop="togglePin(rec.id)" title="置顶"><i class="fas fa-thumbtack"></i></div>
                   <div class="pc-btn pc-btn-del" @click.stop="delItem(rec.id)" title="删除"><i class="fas fa-trash-alt"></i></div>
                 </div>
@@ -332,16 +285,19 @@
                 </div>
 
                 <div class="swipe-content" :style="{ transform: `translateX(${swipeOffsets[rec.id] || 0}px)` }">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-2">
+                  <div class="flex-1 min-w-0 pr-2"> <div class="flex items-center gap-2">
                       <i v-if="rec.pinned" class="fas fa-thumbtack text-yellow-500 text-xs"></i>
-                      <span class="font-bold text-sm text-slate-700 dark:text-slate-200">{{ rec.note || '未备注' }}</span>
+                      <span class="font-bold text-sm text-slate-700 dark:text-slate-200 truncate block">{{ rec.note || '未备注' }}</span>
                     </div>
-                    <div class="text-xs text-slate-400 mt-0.5">{{ rec.twd }} TWD (Rate: {{rec.rateUsed}})</div>
+                    <div class="text-xs text-slate-400 mt-0.5 truncate">{{ rec.twd }} TWD (Rate: {{rec.rateUsed}})</div>
                   </div>
-                  <div class="text-right">
+                  <div class="text-right flex-shrink-0">
                     <div class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ rec.myr }}</div>
                     <div class="text-[9px] text-slate-300 font-bold">{{ rec.time }}</div>
+                  </div>
+                  <div class="pc-actions-wrap">
+                    <div class="pc-btn pc-btn-pin" :class="rec.pinned?'active':''" @click.stop="togglePin(rec.id)"><i class="fas fa-thumbtack"></i></div>
+                    <div class="pc-btn pc-btn-del" @click.stop="delItem(rec.id)"><i class="fas fa-trash-alt"></i></div>
                   </div>
                 </div>
               </div>
@@ -416,9 +372,9 @@
         <div v-if="modalType==='exchange'" class="space-y-4">
           <div>
             <label class="text-[10px] font-bold text-slate-400 mb-2 block ml-2 uppercase tracking-wide">输入金额</label>
-            <div class="merged-input-box" :class="exMode==='MYR'?'box-focus-myr':'box-focus-twd'">
-              <input type="number" v-model.number="exInputAmount" class="merged-input" placeholder="0">
-              <button @click="toggleExMode" class="currency-pill-btn" :class="exMode==='MYR'?'pill-myr':'pill-twd'">
+            <div class="compact-input-group" :class="exMode==='MYR'?'group-focus-myr':'group-focus-twd'">
+              <input type="number" v-model.number="exInputAmount" class="compact-input" placeholder="0">
+              <button @click="toggleExMode" class="currency-switch-btn" :class="exMode==='MYR'?'btn-myr':'btn-twd'">
                 {{ exMode }} <i class="fas fa-exchange-alt text-xs opacity-70"></i>
               </button>
             </div>
@@ -450,8 +406,8 @@
 
           <div>
              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide ml-1 mb-2 block">消费金额 (TWD)</label>
-             <div class="merged-input-box box-focus-twd">
-                <input type="number" v-model.number="newItem.amount" class="merged-input" placeholder="0.00">
+             <div class="compact-input-group group-focus-twd">
+                <input type="number" v-model.number="newItem.amount" class="compact-input" placeholder="0.00">
                 <span class="text-sm font-bold text-orange-500 mr-4">TWD</span>
              </div>
           </div>
@@ -473,7 +429,7 @@
   const { createApp, ref, computed, onMounted, reactive } = Vue;
   createApp({
     setup() {
-      const STORAGE_KEY = "ustrip_v18_4_fix";
+      const STORAGE_KEY = "ustrip_v18_5_final";
       const currentTab = ref("assets");
       const isDark = ref(false);
       const showHistory = ref(false);
@@ -497,6 +453,7 @@
       const categories = [ { name: '饮食', emoji: '🍔' }, { name: '交通', emoji: '🚗' }, { name: '购物', emoji: '🛍️' }, { name: '娱乐', emoji: '🎮' }, { name: '住宿', emoji: '🏨' }, { name: '零食', emoji: '🍦' }, { name: '其他', emoji: '📦' } ];
       const selectedCat = ref(categories[0]);
 
+      // 滑动逻辑
       const swipeOffsets = reactive({});
       let startX = 0;
       let activeId = null;
@@ -529,17 +486,21 @@
       const togglePin = (id) => { 
         const item = calcHistory.value.find(i => i.id === id);
         if(item) {
+          // 记录置顶时间戳，用于排序
           item.pinned = !item.pinned;
+          item.pinTime = item.pinned ? Date.now() : 0;
           swipeOffsets[id] = 0; 
           save();
         }
       };
 
+      // 🌟 修复排序逻辑：置顶(按置顶时间倒序) > 未置顶(按ID/时间倒序)
       const sortedHistory = computed(() => {
         return [...calcHistory.value].sort((a, b) => {
-          if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
-          if (a.pinned && b.pinned) return parseFloat(b.myr) - parseFloat(a.myr);
-          return b.id - a.id;
+          if (a.pinned && b.pinned) return b.pinTime - a.pinTime; // 都是置顶，看谁后置顶
+          if (a.pinned) return -1; // a置顶，排前
+          if (b.pinned) return 1;  // b置顶，排前
+          return b.id - a.id;      // 都没置顶，按时间
         });
       });
 
@@ -591,7 +552,7 @@
         const v = parseFloat(calcInput.value); if(!v)return;
         const d = new Date();
         const id = Date.now() + Math.random();
-        calcHistory.value.unshift({id, twd:v, myr:calcResult.value, note:calcNote.value, time:`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`, pinned: false});
+        calcHistory.value.unshift({id, twd:v, myr:calcResult.value, note:calcNote.value, time:`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`, pinned: false, pinTime: 0});
         calcNote.value=""; calcInput.value="0"; calcExpr.value=""; save(); 
       };
       const clearHistory = () => { if(confirm("清空?")){calcHistory.value=[];save();} };
@@ -631,12 +592,19 @@
       onMounted(() => {
         const d = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
         exchangeRecords.value=d.ex||[]; expenseRecords.value=d.ep||[]; 
-        calcHistory.value = (d.ch||[]).map(r => ({...r, id: r.id || Date.now() + Math.random()}));
+        // 🌟 初始化修复：为空值补全默认属性
+        calcHistory.value = (d.ch||[]).map(r => ({
+          ...r, 
+          id: r.id || Date.now() + Math.random(),
+          pinned: r.pinned || false,
+          pinTime: r.pinTime || 0
+        }));
         
         if(d.jrate) jagsRate.value = d.jrate;
         const meta = document.getElementById('theme-color');
         if(isDark.value) { document.documentElement.classList.add('dark'); if(meta) meta.setAttribute('content', '#0f172a'); }
         else { if(meta) meta.setAttribute('content', '#ffffff'); }
+        // Demo data if empty
         if(exchangeRecords.value.length===0) { exchangeRecords.value.push({id:1,date:'02-04',baseAmount:402.55,targetAmount:3200}); save(); }
       });
 
