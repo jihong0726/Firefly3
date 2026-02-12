@@ -3,759 +3,647 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>UsTrip Finance v19.1</title>
+  <title>UsTrip Finance v19.2</title>
   <style>
-    :root{
-      --bg1:#eef6ff;
-      --bg2:#e9fbf1;
-      --card:#ffffffcc;
-      --card2:#ffffffea;
-      --stroke:#dfe8f3;
-      --text:#0e1726;
-      --muted:#6b7a90;
-      --shadow: 0 20px 60px rgba(16,24,40,.10);
-      --shadow2: 0 10px 30px rgba(16,24,40,.10);
-      --radius: 28px;
-      --radius2: 22px;
-      --accent:#15b981;
-      --accent2:#2f7dff;
-      --danger:#ff4d4f;
-      --bottomH: 84px;
-      --tabH: 84px;
-      --kbdH: 0px;
-      --safeB: env(safe-area-inset-bottom, 0px);
-      --safeT: env(safe-area-inset-top, 0px);
+    /* 基础变量与重置 */
+    :root {
+      --bg: #f8fafc; --text: #0f172a; --card-bg: #fff; --border: #e2e8f0;
+      --primary: #10b981; --accent-blue: #3b82f6; --accent-orange: #f97316; --danger: #ef4444;
+      --safe-b: env(safe-area-inset-bottom);
     }
-    html,body{height:100%;}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC","Microsoft YaHei", Segoe UI, Roboto, Arial;
-      color:var(--text);
-      background:
-        radial-gradient(1400px 700px at 15% 10%, rgba(46,139,255,.18), transparent 60%),
-        radial-gradient(1200px 700px at 80% 20%, rgba(18,200,140,.18), transparent 60%),
-        linear-gradient(180deg, #f6fbff, #f3f7ff 35%, #f6fbff);
-      overflow:hidden; 
+    body.dark {
+      --bg: #0f172a; --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
     }
-    body.dark{
-      --bg1:#0a1222;
-      --bg2:#071a16;
-      --card:#0f1a2b99;
-      --card2:#0f1a2bea;
-      --stroke:#1f2b44;
-      --text:#eaf0ff;
-      --muted:#a9b6cf;
-      --shadow: 0 30px 90px rgba(0,0,0,.45);
-      --shadow2: 0 16px 48px rgba(0,0,0,.35);
-      background:
-        radial-gradient(1400px 700px at 15% 10%, rgba(46,139,255,.16), transparent 60%),
-        radial-gradient(1200px 700px at 80% 20%, rgba(18,200,140,.12), transparent 60%),
-        linear-gradient(180deg, #070c16, #070c16 35%, #060b14);
-    }
-
-    body.modal-open{overflow:hidden;touch-action:none;}
-    body.modal-open .content{overflow:hidden !important;touch-action:none;}
-
-    *{box-sizing:border-box;}
-    button{font:inherit;}
-    .app{height:100%;display:flex;flex-direction:column;}
-
-    /* Top */
-    .top{
-      padding: calc(14px + var(--safeT)) 18px 12px;
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      flex:0 0 auto;
-    }
-    .brand{display:flex;align-items:center;gap:12px;min-width:0;}
-    .logo{
-      width:48px;height:48px;border-radius:16px;
-      background: linear-gradient(135deg, rgba(21,185,129,.95), rgba(46,139,255,.25));
-      display:grid;place-items:center;
-      box-shadow: var(--shadow2);
-      border:1px solid rgba(255,255,255,.35);
-      flex:0 0 auto;
-    }
-    .logo svg{opacity:.95; width:26px; height:26px;}
-    .titleWrap{min-width:0;}
-    .title{
-      font-size:34px;letter-spacing:.5px;font-weight:900;margin:0;line-height:1.05;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-    .subtitle{
-      margin:4px 0 0;color:var(--muted);font-size:13px;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-
-    .topActions{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
-    .iconBtn{
-      width:52px;height:52px;border-radius:18px;
-      border:1px solid var(--stroke);
-      background: var(--card2);
-      box-shadow: var(--shadow2);
-      display:grid;place-items:center;
-      cursor:pointer;
-      transition: transform .12s ease;
-      position:relative;
-    }
-    .iconBtn:active{transform: scale(.95);}
-    .moonDot{
-      position:absolute;right:10px;top:10px;width:10px;height:10px;border-radius:999px;
-      background: var(--accent);box-shadow: 0 0 0 3px rgba(21,185,129,.18);
-      opacity:0;transform:scale(.9);transition:.2s;
-    }
-    body.dark .moonDot{opacity:1; transform:scale(1);}
-
-    /* Content */
-    .content{
-      flex:1 1 auto;
-      overflow:auto;
-      padding: 10px 16px calc(var(--bottomH) + 14px);
-      -webkit-overflow-scrolling:touch;
-    }
-    .content::-webkit-scrollbar{width:0px;}
-
-    .panel{max-width: 980px;margin: 0 auto;display:flex;flex-direction:column;gap:14px;}
-
-    .pillRow{display:flex;justify-content:space-between;align-items:center;gap:10px;}
-    .pill{
-      display:inline-flex;align-items:center;gap:10px;
-      padding:10px 14px;border-radius:999px;
-      border:1px solid var(--stroke);
-      background: var(--card2);
-      box-shadow: var(--shadow2);
-      color:var(--text);font-weight:700;letter-spacing:.2px;
-    }
-    .pill small{font-weight:800;color:var(--muted);}
-    .pill .dot{width:10px;height:10px;border-radius:99px;background: var(--accent);box-shadow: 0 0 0 4px rgba(21,185,129,.15);}
-    .pillBtn{
-        cursor:pointer; padding:10px 14px; border-radius:999px; border:1px solid var(--stroke); 
-        background:var(--card2); font-weight:800; display:flex; gap:6px; align-items:center;
-        box-shadow: var(--shadow2); transition: transform .1s;
-    }
-    .pillBtn:active{transform:scale(0.95);}
-
-    /* Exchange Cards */
-    .exchangeCard{
-      border:1px solid var(--stroke);border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.55));
-      box-shadow: var(--shadow);overflow:hidden;
-    }
-    body.dark .exchangeCard{background: linear-gradient(180deg, rgba(15,26,43,.70), rgba(15,26,43,.45));}
-    .exchangeGrid{display:grid;grid-template-columns: 1fr 1fr;gap:0;}
-    .side{padding:16px 18px;min-height: 140px;display:flex;flex-direction:column;justify-content:space-between;}
-    .side.left{background: linear-gradient(180deg, rgba(47,125,255,.12), rgba(47,125,255,.04));border-right:1px solid var(--stroke);}
-    .side.right{background: linear-gradient(180deg, rgba(21,185,129,.12), rgba(21,185,129,.04));}
-    body.dark .side.left{background: linear-gradient(180deg, rgba(47,125,255,.16), rgba(47,125,255,.05));}
-    body.dark .side.right{background: linear-gradient(180deg, rgba(21,185,129,.14), rgba(21,185,129,.05));}
-
-    .sideTop{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:var(--muted);font-size:13px;}
-    .tag{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border-radius:999px;border:1px solid var(--stroke);
-      background: rgba(255,255,255,.65);color:var(--text);font-weight:900;
-    }
-    body.dark .tag{background: rgba(15,26,43,.55);}
-    .tag .miniDot{width:10px;height:10px;border-radius:99px;}
-    .miniDot.blue{background: var(--accent2);}
-    .miniDot.green{background: var(--accent);}
-
-    .bigLine{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
-    .big{font-size:52px;line-height:1;font-weight:1000;letter-spacing:1px;font-variant-numeric: tabular-nums;word-break:break-all;}
-    .unit{font-weight:900;color:var(--muted);font-size:16px;}
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
     
-    .hintRow{
-      padding: 12px 16px;border-top:1px solid var(--stroke);
-      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-      background: linear-gradient(90deg, rgba(47,125,255,.06), rgba(21,185,129,.06));
-    }
-    .saveBtn{
-      border:none;cursor:pointer;padding: 12px 20px;border-radius: 999px;
-      background: linear-gradient(135deg, rgba(21,185,129,.95), rgba(21,185,129,.75));
-      color:white;font-weight:1000;box-shadow: 0 10px 30px rgba(21,185,129,.25);
-      display:inline-flex;align-items:center;gap:8px;
-      transition: transform .1s;
-    }
-    .saveBtn:active{transform:scale(0.98);}
+    /* 核心布局：绝对定位防塌陷 */
+    html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+    #app { display: flex; flex-direction: column; height: 100%; position: relative; }
 
-    /* Vault */
-    .vaultHero{
-      border:1px solid var(--stroke);border-radius: var(--radius);
-      background: linear-gradient(135deg, rgba(14,23,38,.92), rgba(14,23,38,.75));
-      color:#f4f7ff;box-shadow: var(--shadow);overflow:hidden;
-      padding:18px;position:relative;
+    /* 顶部导航 */
+    .header {
+      flex: 0 0 auto; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10;
     }
-    body.dark .vaultHero{background: linear-gradient(135deg, rgba(8,12,20,.92), rgba(10,16,28,.78));}
-    .vaultHero .rateBadge{
-      position:absolute;right:16px;top:16px;padding:10px 12px;border-radius:999px;
-      background: rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);font-weight:900;
-    }
-    .vaultHero .balance{font-size:64px;font-weight:1100;letter-spacing:1px;margin:8px 0 10px;}
-
-    .vaultActions{display:grid;grid-template-columns: 1fr 1fr;gap:12px;}
-    .actionCard{
-      border:1px solid var(--stroke);border-radius: var(--radius);background: var(--card2);
-      box-shadow: var(--shadow2);padding:14px;display:flex;align-items:center;gap:12px;
-      cursor:pointer;transition: transform .1s;
-    }
-    .actionCard:active{transform:scale(0.98);}
-    .actionIcon{
-      width:54px;height:54px;border-radius:18px;display:grid;place-items:center;
-      border:1px solid var(--stroke);background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.55));
-    }
-    body.dark .actionIcon{background: rgba(15,26,43,.55);}
-
-    .records{border:1px solid var(--stroke);border-radius: var(--radius);background: var(--card2);overflow:hidden;}
-    .recordItem{
-      padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-      cursor:pointer;border-top:1px solid rgba(120,140,180,.14);
-    }
-    .recordItem:first-child{border-top:none;}
-    .recLeft{display:flex;align-items:center;gap:12px;}
-    .emoji{
-        width:44px;height:44px;border-radius:16px;display:grid;place-items:center;
-        border:1px solid var(--stroke);background: rgba(255,255,255,.6);font-size:22px;
-    }
-    body.dark .emoji{background: rgba(15,26,43,.55);}
-    .recAmt{text-align:right;}
-    .pos{color: var(--accent);} .neg{color: #ff5a5f;}
-
-    /* Bottom Fixed */
-    .bottom{
-      position:fixed;left:0;right:0;bottom:0;
-      padding: 10px 16px calc(10px + var(--safeB));
-      pointer-events:none;z-index:50;
-    }
-    .bottomInner{max-width: 980px;margin:0 auto;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
-
-    .tabBar{
-      pointer-events:auto;border:1px solid var(--stroke);border-radius: 999px;
-      background: var(--card2);box-shadow: var(--shadow);display:grid;grid-template-columns: 1fr 1fr;
-      height: var(--tabH);align-items:stretch;overflow:hidden;
-    }
-    .tabBtn{
-      border:none;background: transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
-      gap:10px;font-weight:1000;font-size:16px;color:var(--muted);transition: 0.2s;
-    }
-    .tabBtn.active{background: linear-gradient(135deg, rgba(21,185,129,.20), rgba(47,125,255,.12));color: var(--text);}
-
-    /* Keyboard */
-    .kbdWrap{pointer-events:auto;display:none;}
-    .kbdWrap.show{display:block;}
-    .kbd{
-      width: 100%;max-width: 600px;margin: 0 auto;border:1px solid var(--stroke);
-      border-radius: var(--radius);background: var(--card2);box-shadow: var(--shadow);padding:14px;
-    }
-    .grid{display:grid;grid-template-columns: repeat(4, 1fr);gap:10px;}
-    .key{
-      border:none;cursor:pointer;border-radius: 20px;height: 68px;display:grid;place-items:center;
-      font-weight:1100;font-size:24px;color:var(--text);background: rgba(255,255,255,.78);
-      border:1px solid rgba(160,180,220,.28);box-shadow: 0 4px 0 rgba(16,24,40,.08);transition:0.1s;
-    }
-    body.dark .key{background: rgba(15,26,43,.62);box-shadow: 0 4px 0 rgba(0,0,0,.25);}
-    .key:active{transform:translateY(4px);box-shadow:none;}
-    .k-func{background: rgba(255,210,210,.55);color: #e22b2b;}
-    .k-op{background: rgba(21,185,129,.14);color: #0f9c67;}
-    .tallEq{height:100%;background:var(--accent);color:#fff;grid-row:span 2;}
-
-    @media (max-width: 400px){
-        .big{font-size:42px;}
-        .key{height:60px;}
+    .header h1 { font-size: 20px; margin: 0; font-weight: 900; }
+    .btn-icon {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg);
+      display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text); font-size: 16px;
     }
 
-    /* Modals */
-    .backdrop{
-      position:fixed;inset:0;background: rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:18px;backdrop-filter:blur(4px);
+    /* 内容区域 */
+    .main { flex: 1; position: relative; overflow: hidden; }
+    .page {
+      position: absolute; inset: 0; display: none; flex-direction: column;
+      padding: 10px 20px 20px; overflow-y: auto; overflow-x: hidden;
     }
-    .backdrop.show{display:flex;}
-    .modal{
-      width: min(100%, 420px); border-radius: 32px; border:1px solid var(--stroke);
-      background: var(--card2); box-shadow: var(--shadow); overflow:hidden; display:flex;flex-direction:column;
-    }
-    .mHead{padding:18px;display:flex;justify-content:space-between;align-items:center;}
-    .mTitle{font-size:20px;font-weight:1100;}
-    .mClose{width:40px;height:40px;border-radius:12px;background:rgba(0,0,0,0.05);display:grid;place-items:center;cursor:pointer;}
-    .mBody{padding:0 18px 18px; overflow-y:auto; max-height:70vh;}
+    .page.active { display: flex; }
 
-    .field{background:rgba(255,255,255,0.5); border:1px solid var(--stroke); border-radius:18px; padding:12px;}
-    body.dark .field{background:rgba(255,255,255,0.05);}
+    /* 金库页面组件 */
+    .card {
+      background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-radius: 24px; padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; flex-shrink: 0;
+    }
+    .card-val { font-size: 42px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
+    .card-sub { font-size: 12px; opacity: 0.7; display: flex; gap: 16px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; flex-shrink: 0; }
+    .btn-lg {
+      background: var(--card-bg); border: 1px solid var(--border); padding: 16px; border-radius: 20px;
+      display: flex; align-items: center; gap: 12px; font-weight: bold; cursor: pointer;
+    }
+    .btn-lg:active { transform: scale(0.98); }
+    .icon-box { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; }
+
+    /* 记录列表 */
+    .list-wrapper { padding-bottom: 100px; }
+    .list-item {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 14px;
+      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .list-item .left { display: flex; align-items: center; gap: 12px; }
+    .list-item .emoji { font-size: 20px; width: 32px; text-align: center; }
     
-    /* 🌟 New Input Group */
-    .input-group{
-        display:flex; align-items:center; justify-content:space-between;
-        background:var(--card); border:2px solid transparent; border-radius:20px; padding:12px;
-        transition:0.2s; margin-top:8px;
+    /* 换算页面布局 */
+    .calc-page { padding: 0; }
+    .display { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; }
+    .calc-expr { font-size: 16px; color: #64748b; margin-bottom: 4px; height: 20px; }
+    .calc-val { font-size: 56px; font-weight: 800; line-height: 1; width: 100%; text-align: right; word-break: break-all; }
+    
+    /* 结果条 */
+    .calc-res {
+      background: var(--primary); color: white; padding: 12px 20px; border-radius: 16px; margin-top: 10px;
+      width: 100%; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+      box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.5);
     }
-    .input-group:focus-within{border-color:var(--accent); box-shadow:0 0 0 4px rgba(21,185,129,0.15);}
-    .input-group input{
-        border:none; background:transparent; font-size:28px; font-weight:900; width:100%; outline:none; color:var(--text);
-    }
-    .suffix-btn{
-        background:var(--bg2); color:var(--accent2); padding:8px 16px; border-radius:12px; font-weight:800; font-size:14px;
-        cursor:pointer; user-select:none; white-space:nowrap; border:1px solid rgba(0,0,0,0.05);
-    }
-    .suffix-btn:active{transform:scale(0.95);}
+    .calc-res:active { transform: scale(0.98); }
 
-    .catGrid{display:grid;grid-template-columns: repeat(5, 1fr); gap:8px; margin-top:12px;}
-    .catItem{
-        display:flex; flex-direction:column; align-items:center; padding:10px 4px; border-radius:16px; border:1px solid transparent; cursor:pointer;
+    /* 键盘区域 */
+    .keyboard {
+      background: #f1f5f9; border-top-left-radius: 32px; border-top-right-radius: 32px;
+      padding: 30px 16px 16px; position: relative; z-index: 20; height: 55%; flex-shrink: 0;
     }
-    .catItem.active{background:rgba(21,185,129,0.1); border-color:var(--accent);}
-    .catEmoji{font-size:24px;}
-    .catName{font-size:10px; font-weight:bold; margin-top:4px; color:var(--muted);}
+    .dark .keyboard { background: #0f172a; border-top: 1px solid var(--border); }
 
-    .mainBtn{
-        width:100%; padding:16px; border-radius:18px; border:none; background:var(--ink); color:var(--card);
-        font-size:18px; font-weight:900; margin-top:20px; cursor:pointer; box-shadow:0 10px 20px rgba(0,0,0,0.1);
+    /* 历史胶囊按钮 */
+    .hist-pill {
+      position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+      background: var(--card-bg); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px;
+      font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; gap: 6px;
     }
-    .mainBtn:active{transform:scale(0.98);}
+
+    /* 键盘按键 */
+    .keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; height: 100%; }
+    .key {
+      border: none; border-radius: 16px; background: var(--card-bg); color: var(--text); font-size: 22px; font-weight: 600;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.05); cursor: pointer;
+    }
+    .key:active { transform: translateY(2px); box-shadow: none; }
+    .key.op { color: var(--accent-blue); background: #eff6ff; }
+    .key.ac { color: var(--danger); background: #fef2f2; }
+    .key.eq { background: var(--primary); color: white; grid-row: span 2; }
+    .dark .key { background: #334155; }
+    .dark .key.op { background: #1e293b; }
+    .dark .key.ac { background: #331515; }
+
+    /* 底部 Tab */
+    .bottom { flex: 0 0 auto; background: var(--card-bg); border-top: 1px solid var(--border); padding-bottom: var(--safe-b); z-index: 30; }
+    .tab-bar { display: flex; justify-content: space-around; padding: 10px 0; }
+    .tab-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #94a3b8; cursor: pointer; }
+    .tab-btn.active { color: var(--primary); font-weight: bold; }
+
+    /* 弹窗系统 */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      z-index: 100; display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card-bg); width: 85%; max-width: 360px; border-radius: 24px; padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: pop 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      display: flex; flex-direction: column; max-height: 80vh;
+    }
+    @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+    .modal-title { font-size: 18px; font-weight: 900; }
+    .modal-body { overflow-y: auto; }
+
+    /* 🌟 核心优化：输入框组 */
+    .input-group {
+      border: 2px solid transparent; background: var(--bg); border-radius: 16px; padding: 8px;
+      display: flex; align-items: center; margin-bottom: 16px; transition: 0.2s;
+    }
+    .input-group:focus-within { background: var(--card-bg); }
+    /* 颜色状态 */
+    .input-group.focus-blue { background: #eff6ff; }
+    .input-group.focus-blue:focus-within { border-color: var(--accent-blue); background: #fff; }
+    .input-group.focus-orange { background: #fff7ed; }
+    .input-group.focus-orange:focus-within { border-color: var(--accent-orange); background: #fff; }
+
+    .real-input {
+      flex: 1; border: none; background: transparent; font-size: 28px; font-weight: 800; outline: none; color: var(--text); min-width: 0;
+    }
+    
+    /* 🌟 核心优化：切换按钮 */
+    .switch-btn {
+      padding: 8px 16px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.1s;
+    }
+    .switch-btn:active { transform: scale(0.95); }
+    .btn-blue { background: var(--accent-blue); }
+    .btn-orange { background: var(--accent-orange); }
+
+    .full-btn {
+      width: 100%; border: none; padding: 16px; border-radius: 16px; background: #0f172a; color: white; font-weight: bold; font-size: 16px; cursor: pointer;
+    }
+    .dark .full-btn { background: #fff; color: #0f172a; }
+
+    /* 汇率卡片 */
+    .rate-card { background: var(--bg); padding: 12px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .rate-input { width: 80px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-weight: bold; text-align: center; }
+
+    /* 开销分类 */
+    .cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
+    .cat {
+      aspect-ratio: 1; border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; cursor: pointer; background: var(--card-bg);
+    }
+    .cat.active { background: #eff6ff; border-color: var(--accent-blue); color: var(--accent-blue); box-shadow: inset 0 0 0 1px var(--accent-blue); }
+    .dark .cat.active { background: rgba(59, 130, 246, 0.2); }
+
+    /* 历史记录列表 */
+    .hist-item {
+      padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+    }
+    .hist-actions { display: none; gap: 8px; }
+    .hist-item:hover .hist-actions { display: flex; } /* PC Hover */
+    .btn-mini { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; color: white; cursor: pointer; }
+    .bg-yellow { background: #eab308; }
+    .bg-red { background: #ef4444; }
   </style>
 </head>
-
 <body>
-  <div class="app">
-    <div class="top">
-      <div class="brand">
-        <div class="logo">
-           <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/></svg>
-        </div>
-        <div class="titleWrap">
-          <h1 class="title" id="pageTitle">换算</h1>
-          <p class="subtitle" id="pageSub">TWD ⇄ MYR</p>
+
+<div id="app">
+  <div class="header">
+    <h1 id="headerTitle">我的金库</h1>
+    <div style="display:flex; gap:10px;">
+      <div class="btn-icon" onclick="tripApp.toggleTheme()">🌓</div>
+      <div class="btn-icon" onclick="tripApp.resetUI()">↺</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="page-assets" class="page active">
+      <div class="card">
+        <div style="font-size:12px; opacity:0.7">台币剩余 (TWD)</div>
+        <div class="card-val" id="assetBalance">0.00</div>
+        <div class="card-sub">
+          <span id="assetIn">总存: 0</span>
+          <span id="assetOut">总花: 0</span>
         </div>
       </div>
-      <div class="topActions">
-        <div class="iconBtn" onclick="window.app.toggleTheme()"><span style="font-size:20px">🌓</span></div>
+
+      <div class="grid-2">
+        <div class="btn-lg" onclick="tripApp.openExchange()">
+          <div class="icon-box" style="background:#dbeafe; color:#2563eb">💱</div>
+          存入资金
+        </div>
+        <div class="btn-lg" onclick="tripApp.openExpense()">
+          <div class="icon-box" style="background:#ffedd5; color:#ea580c">💸</div>
+          记录开销
+        </div>
       </div>
+
+      <div class="list-wrapper" id="recordsList"></div>
     </div>
 
-    <div class="content">
-      <div class="panel">
-        
-        <div id="viewCalc">
-          <div class="pillRow">
-            <div class="pill"><span class="dot"></span><small>当前汇率</small><span id="rateText">1 : 7.949</span></div>
-            <div class="pillBtn" onclick="window.app.openHistory()">
-                <span>📜 历史记录</span>
-            </div>
+    <div id="page-calc" class="page calc-page">
+      <div class="display">
+        <div class="calc-expr" id="calcExpr"></div>
+        <div class="calc-val" id="calcInput">0</div>
+        <div class="calc-res" onclick="tripApp.saveCalc()">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <span style="font-size:12px; opacity:0.8">折合马币 (Rate: <span id="calcRate"></span>)</span>
+            <span style="font-size:24px; font-weight:800;" id="calcResult">0.00 MYR</span>
           </div>
-
-          <div class="exchangeCard">
-            <div class="exchangeGrid">
-              <div class="side left">
-                <div class="sideTop"><span class="tag">输入</span></div>
-                <div class="bigLine"><div class="big blue" id="inBig">0</div><div class="unit">TWD</div></div>
-              </div>
-              <div class="side right">
-                <div class="sideTop"><span class="tag">换算</span></div>
-                <div class="bigLine"><div class="unit">RM</div><div class="big green" id="outBig">0.00</div></div>
-              </div>
-            </div>
-            <div class="hintRow">
-              <div class="hint" style="font-size:12px; font-weight:bold; color:#aaa">按当前汇率自动计算</div>
-              <button class="saveBtn" onclick="window.app.saveCalc()">保存记录</button>
-            </div>
-          </div>
+          <span style="font-size:20px">💾</span>
         </div>
-
-        <div id="viewVault" style="display:none;">
-          <div class="vaultHero">
-            <div class="rateBadge" id="vaultRate">Rate: 7.949</div>
-            <div class="label">台币余额</div>
-            <div class="balance" id="vaultBalance">0</div>
-            <div class="subRow">
-                <span>总入: <span id="vIn">0</span></span>
-                <span style="margin-left:12px">总出: <span id="vOut">0</span></span>
-            </div>
-          </div>
-
-          <div class="vaultActions">
-            <div class="actionCard" onclick="window.app.openModal('exchange')">
-              <div class="actionIcon">🔄</div>
-              <div class="actionText"><h3>换汇存入</h3><p>输入 TWD 或 RM</p></div>
-            </div>
-            <div class="actionCard" onclick="window.app.openModal('expense')">
-              <div class="actionIcon">💸</div>
-              <div class="actionText"><h3>记开销</h3><p>选择分类记录</p></div>
-            </div>
-          </div>
-
-          <div class="sectionTitle">
-            <span>最近记录</span>
-          </div>
-          <div class="records" id="vaultList"></div>
-        </div>
-
       </div>
-    </div>
-
-    <div class="bottom">
-      <div class="bottomInner">
-        <div class="kbdWrap" id="kbdWrap">
-          <div class="kbd">
-            <div class="grid">
-              <button class="key k-func" onclick="window.app.key('AC')">AC</button>
-              <button class="key k-func" onclick="window.app.key('DEL')">⌫</button>
-              <button class="key k-op" onclick="window.app.key('%')">%</button>
-              <button class="key k-op" onclick="window.app.key('/')">÷</button>
-              <button class="key" onclick="window.app.key('7')">7</button>
-              <button class="key" onclick="window.app.key('8')">8</button>
-              <button class="key" onclick="window.app.key('9')">9</button>
-              <button class="key k-op" onclick="window.app.key('*')">×</button>
-              <button class="key" onclick="window.app.key('4')">4</button>
-              <button class="key" onclick="window.app.key('5')">5</button>
-              <button class="key" onclick="window.app.key('6')">6</button>
-              <button class="key k-op" onclick="window.app.key('-')">-</button>
-              <button class="key" onclick="window.app.key('1')">1</button>
-              <button class="key" onclick="window.app.key('2')">2</button>
-              <button class="key" onclick="window.app.key('3')">3</button>
-              <button class="key k-op" onclick="window.app.key('+')">+</button>
-              <button class="key span2" onclick="window.app.key('0')">0</button>
-              <button class="key" onclick="window.app.key('.')">.</button>
-              <button class="key tallEq" onclick="window.app.key('=')">=</button>
-            </div>
-          </div>
+      <div class="keyboard">
+        <div class="hist-pill" onclick="tripApp.openHistory()">
+          <span>📜 历史记录</span>
         </div>
-
-        <div class="tabBar">
-          <button class="tabBtn" id="tabVault" onclick="window.app.setTab('vault')">
-            <span style="font-size:20px">👛</span> 金库
-          </button>
-          <button class="tabBtn active" id="tabCalc" onclick="window.app.setTab('calc')">
-            <span style="font-size:20px">🧮</span> 换算
-          </button>
+        <div class="keys-grid">
+          <button class="key ac" onclick="tripApp.onKey('AC')">AC</button>
+          <button class="key ac" onclick="tripApp.onKey('DEL')">⌫</button>
+          <button class="key op" onclick="tripApp.onKey('%')">%</button>
+          <button class="key op" onclick="tripApp.onKey('/')">÷</button>
+          <button class="key" onclick="tripApp.onKey('7')">7</button>
+          <button class="key" onclick="tripApp.onKey('8')">8</button>
+          <button class="key" onclick="tripApp.onKey('9')">9</button>
+          <button class="key op" onclick="tripApp.onKey('*')">×</button>
+          <button class="key" onclick="tripApp.onKey('4')">4</button>
+          <button class="key" onclick="tripApp.onKey('5')">5</button>
+          <button class="key" onclick="tripApp.onKey('6')">6</button>
+          <button class="key op" onclick="tripApp.onKey('-')">-</button>
+          <button class="key" onclick="tripApp.onKey('1')">1</button>
+          <button class="key" onclick="tripApp.onKey('2')">2</button>
+          <button class="key" onclick="tripApp.onKey('3')">3</button>
+          <button class="key op" onclick="tripApp.onKey('+')">+</button>
+          <button class="key" onclick="tripApp.onKey('0')">0</button>
+          <button class="key" onclick="tripApp.onKey('00')">00</button>
+          <button class="key" onclick="tripApp.onKey('.')">.</button>
+          <button class="key eq" onclick="tripApp.onKey('=')">=</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="backdrop" id="modalExchange">
-    <div class="modal">
-      <div class="mHead">
-        <div class="mTitle">换汇存入</div>
-        <div class="mClose" onclick="window.app.closeModal('modalExchange')">✕</div>
+  <div class="bottom">
+    <div class="tab-bar">
+      <div class="tab-btn active" id="tab-assets" onclick="tripApp.setTab('assets')">
+        <span style="font-size:20px">👛</span> <span>金库</span>
       </div>
-      <div class="mBody">
-        <div class="field" style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:12px; color:var(--muted); font-weight:800;">当前汇率 (100 TWD)</div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <input type="number" id="exRateInput" value="12.63" style="width:60px; font-weight:bold; text-align:center; border:1px solid #ddd; padding:4px; border-radius:8px;">
-                <span style="font-size:12px; font-weight:900;">MYR</span>
-            </div>
-        </div>
-
-        <div style="margin-top:16px;">
-            <div style="font-size:12px; margin-bottom:4px; font-weight:800; color:var(--muted);">输入金额</div>
-            <div class="input-group">
-                <input type="number" id="exAmount" placeholder="0" oninput="window.app.calcExPreview()">
-                <div class="suffix-btn" id="exCcyBtn" onclick="window.app.toggleExCcy()">TWD ⇄</div>
-            </div>
-        </div>
-
-        <div style="margin-top:16px; background:rgba(0,0,0,0.03); padding:12px; border-radius:16px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:12px; font-weight:800; color:var(--muted)">自动换算为</span>
-            <span style="font-size:20px; font-weight:900; color:var(--accent)" id="exPreview">0.00 MYR</span>
-        </div>
-
-        <button class="mainBtn" onclick="window.app.confirmExchange()">确认存入</button>
+      <div class="tab-btn" id="tab-calc" onclick="tripApp.setTab('calc')">
+        <span style="font-size:20px">🧮</span> <span>换算</span>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="backdrop" id="modalExpense">
-    <div class="modal">
-      <div class="mHead">
-        <div class="mTitle">记录开销</div>
-        <div class="mClose" onclick="window.app.closeModal('modalExpense')">✕</div>
-      </div>
-      <div class="mBody">
-        <div class="catGrid" id="catGrid"></div>
-        
-        <div style="margin-top:20px;">
-            <div style="font-size:12px; margin-bottom:4px; font-weight:800; color:var(--muted);">金额 (TWD)</div>
-            <div class="input-group">
-                <input type="number" id="expAmount" placeholder="0">
-                <span style="font-weight:900; color:var(--accent); margin-right:8px;">TWD</span>
-            </div>
-        </div>
-
-        <button class="mainBtn" onclick="window.app.confirmExpense()">确认记账</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="backdrop" id="modalHistory">
-    <div class="modal">
-        <div class="mHead">
-            <div class="mTitle">历史记录</div>
-            <div style="display:flex; gap:12px;">
-                <span style="font-size:12px; font-weight:bold; color:var(--danger); cursor:pointer;" onclick="window.app.clearHistory()">清空</span>
-                <div class="mClose" onclick="window.app.closeModal('modalHistory')">✕</div>
-            </div>
-        </div>
-        <div class="mBody" id="histList"></div>
-    </div>
-  </div>
+<div id="modalOverlay" class="modal-overlay" onclick="if(event.target===this) tripApp.closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
 
 <script>
-// --------------------------------------------------------
-// CORE LOGIC (No Framework)
-// --------------------------------------------------------
-window.app = {
-    data: {
-        records: [],
-        history: [],
-        rate: 12.63, // 100 TWD = 12.63 MYR
-        calcIn: '0',
-        exCcy: 'TWD',
-        expCatIdx: 0,
-        theme: 'light'
-    },
-    cats: [
-        {e:'🍔',n:'饮食'}, {e:'🚗',n:'交通'}, {e:'🛍️',n:'购物'}, {e:'🎮',n:'娱乐'},
-        {e:'🏨',n:'住宿'}, {e:'🍦',n:'零食'}, {e:'🎁',n:'礼物'}, {e:'📦',n:'其他'}
-    ],
+'use strict';
 
-    init() {
-        // Load data
-        const raw = localStorage.getItem('ustrip_v19_1');
-        if(raw) {
-            try { this.data = {...this.data, ...JSON.parse(raw)}; } catch(e){}
-        }
-        if(!this.data.records) this.data.records = [];
-        if(!this.data.history) this.data.history = [];
+// 全局应用对象
+window.tripApp = {
+  data: {
+    tab: 'assets',
+    theme: 'light',
+    history: [],
+    records: [],
+    rate: 12.63,
+    calcIn: '0',
+    calcExpr: '',
+    exMode: 'MYR',
+    exVal: '',
+    expCat: 0,
+    expVal: ''
+  },
+  cats: [
+    {n:'饮食',i:'🍔'},{n:'交通',i:'🚗'},{n:'购物',i:'🛍️'},{n:'娱乐',i:'🎮'},{n:'住宿',i:'🏨'},
+    {n:'零食',i:'🍦'},{n:'礼物',i:'🎁'},{n:'医疗',i:'💊'},{n:'生活',i:'💡'},{n:'其他',i:'📦'}
+  ],
 
-        this.renderTheme();
-        this.renderAll();
-        this.renderCats();
-        
-        // Listeners for rate input changes
-        document.getElementById('exRateInput').addEventListener('input', (e) => {
-            this.data.rate = parseFloat(e.target.value) || 1;
-            this.save();
-            this.renderAll();
-            this.calcExPreview();
-        });
-    },
-
-    save() {
-        localStorage.setItem('ustrip_v19_1', JSON.stringify(this.data));
-    },
-
-    toggleTheme() {
-        this.data.theme = this.data.theme === 'light' ? 'dark' : 'light';
-        this.renderTheme();
-        this.save();
-    },
-    renderTheme() {
-        document.body.className = this.data.theme === 'dark' ? 'dark' : '';
-    },
-
-    setTab(t) {
-        document.getElementById('viewCalc').style.display = t === 'calc' ? 'block' : 'none';
-        document.getElementById('viewVault').style.display = t === 'vault' ? 'block' : 'none';
-        document.getElementById('tabCalc').className = t === 'calc' ? 'tabBtn active' : 'tabBtn';
-        document.getElementById('tabVault').className = t === 'vault' ? 'tabBtn active' : 'tabBtn';
-        document.getElementById('kbdWrap').style.display = t === 'calc' ? 'block' : 'none';
-        document.getElementById('pageTitle').innerText = t === 'calc' ? '换算' : '我的金库';
-        
-        // Adjust style for bottom safe area
-        const kbdHeight = t === 'calc' ? '300px' : '0px'; // Approx
-        // Actually CSS handles display none/block
-    },
-
-    // --- Calculator ---
-    key(k) {
-        let s = this.data.calcIn;
-        if(k === 'AC') s = '0';
-        else if(k === 'DEL') s = s.length > 1 ? s.slice(0, -1) : '0';
-        else if(k === '=') {
-            try { s = eval(s.replace(/×/g,'*').replace(/÷/g,'/')).toFixed(2); } catch { s = 'Error'; }
-        }
-        else {
-            if(s === '0' && !['.','+','-','*','/'].includes(k)) s = k;
-            else s += k;
-        }
-        this.data.calcIn = s;
-        this.renderCalc();
-    },
-    saveCalc() {
-        try {
-            const twd = parseFloat(eval(this.data.calcIn.replace(/×/g,'*').replace(/÷/g,'/')));
-            if(!twd) return;
-            const rate = 100 / this.data.rate; // TWD per MYR
-            const rm = twd / rate;
-            
-            this.data.history.unshift({
-                id: Date.now(), twd: twd.toFixed(2), rm: rm.toFixed(2), date: new Date().toLocaleDateString()
-            });
-            this.save();
-            alert('已保存到历史');
-            this.data.calcIn = '0';
-            this.renderCalc();
-        } catch {}
-    },
-    renderCalc() {
-        document.getElementById('inBig').innerText = this.data.calcIn;
-        try {
-            const val = eval(this.data.calcIn.replace(/×/g,'*').replace(/÷/g,'/'));
-            const rate = 100 / this.data.rate;
-            const res = val / rate;
-            document.getElementById('outBig').innerText = isNaN(res) ? '0.00' : res.toFixed(2);
-        } catch {
-            document.getElementById('outBig').innerText = '---';
-        }
-        document.getElementById('rateText').innerText = `100 : ${this.data.rate}`;
-    },
-
-    // --- History ---
-    openHistory() {
-        const list = document.getElementById('histList');
-        list.innerHTML = this.data.history.map((h, i) => `
-            <div class="recordItem">
-                <div class="recLeft">
-                    <div style="font-weight:bold; font-size:16px">${h.twd} TWD</div>
-                    <div style="font-size:12px; color:var(--muted)">${h.date}</div>
-                </div>
-                <div style="text-align:right">
-                    <div style="font-weight:bold; color:var(--accent)">${h.rm} MYR</div>
-                    <button style="border:none; background:rgba(255,0,0,0.1); color:red; padding:4px 8px; border-radius:8px; margin-top:4px; font-size:12px" onclick="window.app.delHist(${i})">删除</button>
-                </div>
-            </div>
-        `).join('') || '<div style="padding:20px; text-align:center; color:#999">暂无记录</div>';
-        this.openModal('modalHistory');
-    },
-    delHist(i) {
-        if(confirm('删除?')) {
-            this.data.history.splice(i, 1);
-            this.save();
-            this.openHistory(); // refresh
-        }
-    },
-    clearHistory() {
-        if(confirm('清空所有?')) {
-            this.data.history = [];
-            this.save();
-            this.openHistory();
-        }
-    },
-
-    // --- Exchange Modal ---
-    toggleExCcy() {
-        this.data.exCcy = this.data.exCcy === 'TWD' ? 'RM' : 'TWD';
-        document.getElementById('exCcyBtn').innerText = this.data.exCcy + ' ⇄';
-        this.calcExPreview();
-    },
-    calcExPreview() {
-        const amt = parseFloat(document.getElementById('exAmount').value) || 0;
-        const rate = 100 / this.data.rate; // TWD per 1 MYR
-        
-        if (this.data.exCcy === 'TWD') {
-            // TWD -> MYR
-            const myr = amt / rate;
-            document.getElementById('exPreview').innerText = myr.toFixed(2) + ' MYR';
-        } else {
-            // MYR -> TWD
-            const twd = amt * rate;
-            document.getElementById('exPreview').innerText = twd.toFixed(0) + ' TWD';
-        }
-    },
-    confirmExchange() {
-        const amt = parseFloat(document.getElementById('exAmount').value);
-        if(!amt) return;
-        
-        let twd = 0, rm = 0;
-        const rate = 100 / this.data.rate;
-
-        if (this.data.exCcy === 'TWD') {
-            twd = amt; rm = amt / rate;
-        } else {
-            rm = amt; twd = amt * rate;
-        }
-
-        this.data.records.unshift({
-            id: Date.now(), type: 'in', title: '换汇存入', twd: twd, rm: rm.toFixed(2), date: new Date().toLocaleDateString()
-        });
-        this.save();
-        this.closeModal('modalExchange');
-        this.renderAll();
-    },
-
-    // --- Expense Modal ---
-    renderCats() {
-        const grid = document.getElementById('catGrid');
-        grid.innerHTML = this.cats.map((c, i) => `
-            <div class="catItem ${this.data.expCatIdx === i ? 'active' : ''}" onclick="window.app.selectCat(${i})">
-                <div class="catEmoji">${c.e}</div>
-                <div class="catName">${c.n}</div>
-            </div>
-        `).join('');
-    },
-    selectCat(i) {
-        this.data.expCatIdx = i;
-        this.renderCats();
-    },
-    confirmExpense() {
-        const amt = parseFloat(document.getElementById('expAmount').value);
-        if(!amt) return;
-        const cat = this.cats[this.data.expCatIdx];
-        
-        this.data.records.unshift({
-            id: Date.now(), type: 'out', title: cat.e + ' ' + cat.n, twd: amt, date: new Date().toLocaleDateString()
-        });
-        this.save();
-        this.closeModal('modalExpense');
-        this.renderAll();
-    },
-
-    // --- Global Render ---
-    renderAll() {
-        // Vault
-        let totalIn = 0, totalOut = 0;
-        this.data.records.forEach(r => {
-            if(r.type === 'in') totalIn += parseFloat(r.twd);
-            else totalOut += parseFloat(r.twd);
-        });
-        document.getElementById('vaultBalance').innerText = (totalIn - totalOut).toFixed(0);
-        document.getElementById('vIn').innerText = totalIn.toFixed(0);
-        document.getElementById('vOut').innerText = totalOut.toFixed(0);
-
-        document.getElementById('vaultList').innerHTML = this.data.records.map((r, i) => `
-            <div class="recordItem">
-                <div class="recLeft">
-                    <div class="emoji">${r.type==='in' ? '🔄' : r.title.split(' ')[0]}</div>
-                    <div>
-                        <div style="font-weight:bold">${r.title}</div>
-                        <div style="font-size:12px; color:var(--muted)">${r.date}</div>
-                    </div>
-                </div>
-                <div class="recAmt ${r.type==='in'?'pos':'neg'}">
-                    ${r.type==='in'?'+':'-'}${parseFloat(r.twd).toFixed(0)}
-                </div>
-            </div>
-        `).join('');
-        
-        // Settings inputs
-        if(document.getElementById('exRateInput'))
-            document.getElementById('exRateInput').value = this.data.rate;
-    },
-
-    // --- Utils ---
-    openModal(id) {
-        document.getElementById(id).classList.add('show');
-        if(id === 'modalExchange') {
-            document.getElementById('exAmount').value = '';
-            this.calcExPreview();
-        }
-        if(id === 'modalExpense') {
-            document.getElementById('expAmount').value = '';
-        }
-    },
-    closeModal(id) {
-        document.getElementById(id).classList.remove('show');
+  init() {
+    // 强制使用新 KEY 避免旧数据污染
+    const saved = localStorage.getItem('ustrip_v19_2_clean');
+    if (saved) {
+      try {
+        const p = JSON.parse(saved);
+        this.data = { ...this.data, ...p };
+      } catch (e) { console.error('Data load error', e); }
     }
+    
+    // 数据清洗，防止空指针
+    if (!Array.isArray(this.data.history)) this.data.history = [];
+    if (!Array.isArray(this.data.records)) this.data.records = [];
+
+    this.renderTheme();
+    this.setTab(this.data.tab);
+  },
+
+  save() {
+    localStorage.setItem('ustrip_v19_2_clean', JSON.stringify(this.data));
+    // 每次保存后尝试刷新当前视图
+    if(this.data.tab === 'assets') this.renderAssets();
+  },
+
+  renderTheme() {
+    document.body.className = this.data.theme;
+  },
+
+  toggleTheme() {
+    this.data.theme = this.data.theme === 'light' ? 'dark' : 'light';
+    this.renderTheme();
+    this.save();
+  },
+
+  resetUI() {
+    this.data.calcIn = '0';
+    this.data.calcExpr = '';
+    this.save();
+    this.renderCalc();
+  },
+
+  setTab(t) {
+    this.data.tab = t;
+    document.getElementById('page-assets').className = `page ${t==='assets'?'active':''}`;
+    document.getElementById('page-calc').className = `page calc-page ${t==='calc'?'active':''}`;
+    document.getElementById('tab-assets').className = `tab-btn ${t==='assets'?'active':''}`;
+    document.getElementById('tab-calc').className = `tab-btn ${t==='calc'?'active':''}`;
+    document.getElementById('headerTitle').innerText = t==='assets'?'我的金库':'汇率计算';
+    if(t==='assets') this.renderAssets();
+    else this.renderCalc();
+    this.save();
+  },
+
+  // -----------------------
+  // Assets Page
+  // -----------------------
+  renderAssets() {
+    const totalIn = this.data.records.filter(r=>r.type==='in').reduce((a,b)=>a+(Number(b.twd)||0),0);
+    const totalOut = this.data.records.filter(r=>r.type==='out').reduce((a,b)=>a+(Number(b.twd)||0),0);
+    document.getElementById('assetBalance').innerText = (totalIn - totalOut).toFixed(2);
+    document.getElementById('assetIn').innerText = '总存: '+totalIn.toFixed(0);
+    document.getElementById('assetOut').innerText = '总花: '+totalOut.toFixed(0);
+
+    const listEl = document.getElementById('recordsList');
+    if(this.data.records.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">暂无记录</div>';
+      return;
+    }
+
+    listEl.innerHTML = this.data.records.sort((a,b)=>b.id-a.id).map(r => `
+      <div class="list-item">
+        <div class="left">
+          <div class="emoji">${r.icon || (r.type==='in'?'🔄':'💸')}</div>
+          <div>
+            <div style="font-weight:bold">${r.title}</div>
+            <div style="font-size:12px;opacity:0.6">${new Date(r.id).toLocaleDateString()}</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:bold; color:${r.type==='in'?'var(--primary)':'var(--text)'}">
+            ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(2)}
+          </div>
+          <div style="font-size:10px;opacity:0.6">${r.rm?'RM '+r.rm:''}</div>
+        </div>
+        <div class="btn-mini bg-red" style="margin-left:10px" onclick="tripApp.delRec(${r.id})">✕</div>
+      </div>
+    `).join('');
+  },
+
+  delRec(id) {
+    if(confirm('删除此条记录?')) {
+      this.data.records = this.data.records.filter(r=>r.id!==id);
+      this.save();
+    }
+  },
+
+  // -----------------------
+  // Calc Page
+  // -----------------------
+  getRate() { return 100/this.data.rate; },
+
+  renderCalc() {
+    document.getElementById('calcInput').innerText = this.data.calcIn;
+    document.getElementById('calcExpr').innerText = this.data.calcExpr;
+    const rate = this.getRate();
+    document.getElementById('calcRate').innerText = rate.toFixed(3);
+    
+    let res = 0;
+    try { res = eval(this.data.calcIn) || 0; } catch {}
+    document.getElementById('calcResult').innerText = (res/rate).toFixed(2) + ' MYR';
+  },
+
+  onKey(k) {
+    if(k==='AC') { this.data.calcIn = '0'; this.data.calcExpr = ''; }
+    else if(k==='DEL') { 
+      this.data.calcIn = this.data.calcIn.length>1 ? this.data.calcIn.slice(0,-1) : '0';
+    }
+    else if(k==='=') {
+      try { 
+        this.data.calcIn = String(parseFloat(eval(this.data.calcIn).toFixed(4))); 
+        this.data.calcExpr = '';
+      } catch {}
+    }
+    else {
+      if(['+','-','*','/','%'].includes(k)) {
+        this.data.calcExpr = this.data.calcIn;
+        this.data.calcIn += k;
+      } else {
+        this.data.calcIn = (this.data.calcIn==='0'&&k!=='.') ? k : this.data.calcIn+k;
+      }
+    }
+    this.save();
+    this.renderCalc();
+  },
+
+  saveCalc() {
+    try {
+      const twd = parseFloat(eval(this.data.calcIn));
+      const rate = this.getRate();
+      if(!twd) return;
+      this.data.history.unshift({
+        id: Date.now(),
+        twd: twd.toFixed(2),
+        rm: (twd/rate).toFixed(2),
+        rate: rate.toFixed(3),
+        pinned: false,
+        note: ''
+      });
+      this.data.calcIn='0';
+      this.save();
+      alert('已保存到历史');
+      this.renderCalc();
+    } catch {}
+  },
+
+  // -----------------------
+  // Modals (System)
+  // -----------------------
+  openModal(html) {
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').className = 'modal-overlay open';
+  },
+  closeModal() {
+    document.getElementById('modalOverlay').className = 'modal-overlay';
+  },
+
+  // -----------------------
+  // Exchange Modal (存入)
+  // -----------------------
+  openExchange() {
+    this.data.exMode = 'MYR'; this.data.exVal = '';
+    this.renderExchange();
+  },
+  renderExchange() {
+    const mode = this.data.exMode;
+    const rate = this.getRate();
+    const val = parseFloat(this.data.exVal)||0;
+    let res = mode==='MYR' ? (val*rate).toFixed(0) : (val/rate).toFixed(2);
+    
+    this.openModal(`
+      <div class="modal-header">
+        <div class="modal-title">存入资金</div>
+        <div class="btn-icon" onclick="tripApp.closeModal()">✕</div>
+      </div>
+      
+      <div class="rate-card">
+        <div style="font-size:10px; font-weight:bold; color:#64748b">JAGS RATE (100 TWD)</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <input class="rate-input" type="number" value="${this.data.rate}" oninput="tripApp.data.rate=parseFloat(this.value)||1; tripApp.renderExchange()">
+          <span style="font-size:14px;font-weight:bold">MYR</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:8px; font-size:12px; font-weight:bold; color:var(--text-sub);">输入金额</div>
+      
+      <div class="input-wrap ${mode==='MYR'?'focus-blue':'focus-orange'}">
+        <input type="number" class="real-input" placeholder="0" value="${this.data.exVal}" oninput="tripApp.data.exVal=this.value; tripApp.renderExchange()" autofocus>
+        <div class="switch-btn ${mode==='MYR'?'btn-blue':'btn-orange'}" onclick="tripApp.data.exMode='${mode==='MYR'?'TWD':'MYR'}'; tripApp.data.exVal=''; tripApp.renderExchange()">
+          ${mode} ⇄
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0 8px">
+        <span style="font-size:12px;font-weight:bold;color:#64748b">自动换算为</span>
+        <span style="font-size:24px;font-weight:900;color:${mode==='MYR'?'var(--accent-orange)':'var(--accent-blue)'}">
+          ${res} <span style="font-size:14px">${mode==='MYR'?'TWD':'MYR'}</span>
+        </span>
+      </div>
+
+      <button class="full-btn" onclick="tripApp.submitEx()">确认存入</button>
+    `);
+    setTimeout(()=>document.querySelector('.real-input').focus(), 50);
+  },
+  submitEx() {
+    const val = parseFloat(this.data.exVal);
+    if(!val) return;
+    const rate = this.getRate();
+    let twd = 0, rm = 0;
+    if(this.data.exMode==='MYR') { rm=val; twd=val*rate; }
+    else { twd=val; rm=val/rate; }
+    
+    this.data.records.unshift({id:Date.now(), type:'in', title:'存入资金', twd:twd, rm:rm.toFixed(2), icon:'🔄'});
+    this.save();
+    this.closeModal();
+  },
+
+  // -----------------------
+  // Expense Modal (开销)
+  // -----------------------
+  openExpense() {
+    this.data.expCat = 0; this.data.expVal = '';
+    this.renderExpense();
+  },
+  renderExpense() {
+    // 🌟 修复分类点击逻辑
+    const catsHtml = this.cats.map((c,i) => `
+      <div class="cat ${this.data.expCat===i?'active':''}" onclick="tripApp.data.expCat=${i}; tripApp.renderExpense()">
+        <div class="cat-icon">${c.i}</div>
+        <div class="cat-name">${c.n}</div>
+      </div>
+    `).join('');
+    
+    // 保持输入框的值
+    const currentVal = document.querySelector('#expInput') ? document.querySelector('#expInput').value : this.data.expVal;
+    
+    this.openModal(`
+      <div class="modal-header">
+        <div class="modal-title">记录开销</div>
+        <div class="btn-icon" onclick="tripApp.closeModal()">✕</div>
+      </div>
+      <div class="cats">${catsHtml}</div>
+      <div class="input-wrap focus-orange">
+        <input type="number" id="expInput" class="real-input" placeholder="0" value="${currentVal}" oninput="tripApp.data.expVal=this.value" autofocus>
+        <span style="font-weight:bold;color:var(--accent-orange);margin-right:8px">TWD</span>
+      </div>
+      <button class="full-btn" onclick="tripApp.submitExp()">确认记账</button>
+    `);
+    // 焦点 hack
+    setTimeout(()=>{
+        const el = document.getElementById('expInput');
+        if(el) { el.focus(); el.value = el.value; }
+    }, 0);
+  },
+  submitExp() {
+    const val = parseFloat(this.data.expVal);
+    if(!val) return;
+    const c = this.cats[this.data.expCat];
+    this.data.records.unshift({id:Date.now(), type:'out', title: c.n, twd:val, icon:c.i});
+    this.save();
+    this.closeModal();
+  },
+
+  // -----------------------
+  // History Modal
+  // -----------------------
+  openHistory() {
+    // 排序：置顶优先，然后时间倒序
+    const list = this.data.history.sort((a,b) => {
+      if(a.pinned && !b.pinned) return -1;
+      if(!a.pinned && b.pinned) return 1;
+      return b.id - a.id;
+    });
+
+    const html = list.map(r => `
+      <div class="hist-item">
+        <div>
+          <div style="font-weight:bold;font-size:14px;display:flex;align-items:center;gap:6px">
+            ${r.pinned?'📌':''} ${r.note||'未备注'}
+          </div>
+          <div style="font-size:10px;opacity:0.6">${r.twd} TWD @ ${r.rate}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="text-align:right">
+            <div style="font-weight:bold;font-size:16px;color:var(--primary)">${r.rm}</div>
+            <div style="font-size:10px;opacity:0.6">MYR</div>
+          </div>
+          <div class="hist-actions">
+            <div class="btn-mini bg-yellow" onclick="tripApp.pinHist(${r.id})">⬆</div>
+            <div class="btn-mini bg-red" onclick="tripApp.delHist(${r.id})">✕</div>
+          </div>
+        </div>
+      </div>
+    `).join('') || '<div style="text-align:center;padding:20px;opacity:0.5">暂无历史</div>';
+
+    this.openModal(`
+      <div class="modal-header">
+        <div class="modal-title">历史记录</div>
+        <div style="display:flex;gap:10px">
+          <button onclick="tripApp.clearHist()" style="border:none;background:none;color:var(--danger);font-weight:bold;cursor:pointer">清空</button>
+          <div class="btn-icon" onclick="tripApp.closeModal()">✕</div>
+        </div>
+      </div>
+      <div class="hist-list">${html}</div>
+    `);
+  },
+  pinHist(id) {
+    const item = this.data.history.find(r=>r.id===id);
+    if(item) { item.pinned = !item.pinned; }
+    this.save(); this.openHistory();
+  },
+  delHist(id) {
+    this.data.history = this.data.history.filter(r=>r.id!==id);
+    this.save(); this.openHistory();
+  },
+  clearHist() {
+    if(confirm('清空所有?')) { this.data.history=[]; this.save(); this.openHistory(); }
+  },
+
+  // IO
+  exportData() {
+    const b = new Blob([JSON.stringify(this.data)],{type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download='backup.json'; a.click();
+  },
+  importData(el) {
+    const f = el.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = e => {
+      try { this.data = JSON.parse(e.target.result); this.save(); alert('导入成功'); location.reload(); }
+      catch { alert('文件错误'); }
+    };
+    r.readAsText(f);
+  }
 };
 
-window.app.init();
+window.tripApp.init();
 </script>
 </body>
 </html>
