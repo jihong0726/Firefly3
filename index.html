@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v20.9</title>
+<title>UsTrip Finance v20.10</title>
 <style>
 /* --- 基础设置 --- */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
@@ -18,7 +18,7 @@ input[type=number] { -moz-appearance: textfield !important; }
 body.dark {
   --bg: #020617; --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
 
@@ -73,16 +73,14 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .btn-lg:active { transform: scale(0.98); }
 .icon-box { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; }
 
-/* 🌟 列表优化：左侧空间最大化，右侧紧凑 */
+/* 列表样式 */
 .list-item {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 16px;
   margin-bottom: 12px; display: grid; 
-  /* 48px图标 | 自动填充文字 | 紧凑金额 | 删除按钮 */
   grid-template-columns: 48px 1fr auto auto; 
   align-items: center; gap: 14px;
 }
 .list-item .icon { font-size: 24px; width: 48px; height: 48px; background: var(--bg); border-radius: 14px; display: grid; place-items: center; }
-/* 文字部分：允许换行或截断，视情况而定，这里给足空间 */
 .list-item .info { min-width: 0; } 
 .list-item .info h4 { margin: 0; font-size: 16px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .list-item .info p { margin: 4px 0 0; font-size: 13px; color: #64748b; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -90,16 +88,16 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .pos { color: var(--primary); } .neg { color: var(--text); }
 .btn-del { width: 32px; height: 32px; border-radius: 10px; background: #fee2e2; color: #ef4444; display: grid; place-items: center; font-size: 14px; cursor: pointer; }
 
-/* --- Calc Page (Final Layout) --- */
+/* --- Calc Page --- */
 .calc-layout { display: flex; flex-direction: column; height: 100%; }
 
-/* 上半部：显示屏 (Space-between 分布) */
+/* 上半部：显示屏 */
 .calc-screen {
   flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between;
   padding: 16px 24px 0 24px; position: relative;
 }
 
-/* 🌟 Top Widget (History Card) - 稍微加大 */
+/* History Card Widget */
 .history-card-widget {
   background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);
   border: 1px solid var(--border);
@@ -113,7 +111,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .hc-label { font-size: 13px; font-weight: 800; color: #64748b; display: flex; align-items: center; gap: 8px; }
 .hc-val { font-size: 16px; font-weight: 900; color: var(--text); }
 
-/* 数字区域 (沉底) */
+/* 计算显示 */
 .calc-display-area {
   display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px;
 }
@@ -122,23 +120,22 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .calc-val { font-size: 72px; font-weight: 800; line-height: 1; word-break: break-all; letter-spacing: -2px; }
 .calc-unit { font-size: 24px; font-weight: 800; color: #94a3b8; }
 
-/* 🌟 结果条 (贴合键盘) */
+/* 结果条 */
 .calc-res-bar {
   background: var(--primary); color: white; padding: 24px 30px; 
   border-top-left-radius: 32px; border-top-right-radius: 32px; 
   border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-  margin-top: auto; /* Push to bottom of screen area */
+  margin-top: auto; 
   display: flex; justify-content: space-between; align-items: center; cursor: pointer;
   box-shadow: 0 -4px 20px rgba(16, 185, 129, 0.3); transition: background 0.1s;
-  position: relative; z-index: 25; /* Above keyboard bg */
+  position: relative; z-index: 25; 
 }
 .calc-res-bar:active { background: #059669; }
 
-/* 下半部：键盘 (无缝衔接) */
+/* 下半部：键盘 */
 .calc-keyboard {
   height: 54%; flex-shrink: 0;
   background: #f1f5f9; 
-  /* 顶部直角，因为上面接了绿条 */
   border-top-left-radius: 0; border-top-right-radius: 0; 
   padding: 24px 20px 20px 20px; position: relative; z-index: 20;
 }
@@ -153,7 +150,9 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .key:active { transform: translateY(3px); box-shadow: none; }
 .key.op { color: var(--accent-blue); background: #eff6ff; font-weight: 700; }
 .key.ac { color: var(--danger); background: #fef2f2; font-weight: 700; }
-.key.eq { background: var(--primary); color: white; grid-row: span 2; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
+/* 🌟 修复：=号现在是普通大小 */
+.key.eq { background: var(--primary); color: white; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
+/* 🌟 0号占两格 */
 .key.zero { grid-column: span 2; width: 100%; } 
 
 .dark .key { background: #334155; }
@@ -432,7 +431,7 @@ window.tripApp = {
   ],
 
   init() {
-    const saved = localStorage.getItem('ustrip_v20_9_final');
+    const saved = localStorage.getItem('ustrip_v20_10_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -557,7 +556,7 @@ window.tripApp = {
     document.getElementById('modalOverlay').classList.remove('open');
   },
 
-  save() { localStorage.setItem('ustrip_v20_9_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v20_10_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
@@ -616,12 +615,11 @@ window.tripApp = {
              if(['+','-','*','/','%'].includes(last)) s = s.slice(0, -1) + k;
              else s += k;
         } else {
-             // 🌟 Smart 0 Logic
              const parts = s.split(/[\+\-\*\/]/);
              const cur = parts[parts.length-1];
              if (cur === '0' && k !== '.') {
-                 // Replace leading 0 unless typing '.'
-                 s = s.slice(0, -1) + k; 
+                 if (k === '0' || k === '00') { /* ignore */ }
+                 else { s = s.slice(0, -1) + k; }
              } else {
                  s += k;
              }
@@ -689,7 +687,8 @@ window.tripApp = {
   },
 
   renderAll() {
-    document.getElementById('calcRateDisplay').innerText = this.data.rate;
+    if(document.getElementById('calcRateDisplay')) document.getElementById('calcRateDisplay').innerText = this.data.rate;
+    
     const totalIn = this.data.records.filter(r=>r.type==='in').reduce((a,b)=>a+(Number(b.twd)||0),0);
     const totalOut = this.data.records.filter(r=>r.type==='out').reduce((a,b)=>a+(Number(b.twd)||0),0);
     
