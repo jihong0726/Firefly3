@@ -3,19 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v20.5</title>
+<title>UsTrip Finance v20.6</title>
 <style>
-/* --- 🌟 核心修复：彻底隐藏数字输入框箭头 🌟 --- */
-/* 针对 Chrome, Safari, Edge, Opera 等 WebKit 内核浏览器 */
+/* --- 隐藏数字输入框箭头 --- */
 input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none !important;
-  margin: 0 !important;
-}
-/* 针对 Firefox 浏览器 */
-input[type=number] {
-  -moz-appearance: textfield !important;
-}
+input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
+input[type=number] { -moz-appearance: textfield !important; }
 
 /* --- 基础变量 --- */
 :root {
@@ -29,7 +22,6 @@ body.dark {
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
-/* --- 核心布局 --- */
 html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
 
 #app {
@@ -38,7 +30,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
   position: relative; overflow: hidden;
 }
 
-/* 顶部栏 */
+/* Header */
 .header {
   flex: 0 0 auto; height: 60px; padding: 0 20px;
   display: flex; justify-content: space-between; align-items: center;
@@ -50,7 +42,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
   display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text);
 }
 
-/* 主容器 */
 .main { flex: 1; position: relative; overflow: hidden; }
 .page {
   position: absolute; inset: 0; display: none; flex-direction: column;
@@ -58,11 +49,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 }
 .page.active { display: flex; }
 
-/* --- 🟢 金库页面 --- */
+/* --- Assets --- */
 .page-assets-inner {
   flex: 1; overflow-y: auto; padding: 10px 20px 120px 20px;
 }
-
 .card {
   background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-radius: 24px; padding: 24px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 24px;
@@ -90,15 +80,13 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 .list-item .amt { font-size: 18px; font-weight: 800; }
 .pos { color: var(--primary); } .neg { color: var(--text); }
 
-/* --- 🔵 计算页面 --- */
+/* --- Calc --- */
 .calc-layout { display: flex; flex-direction: column; height: 100%; }
-
 .calc-screen {
-  flex: 1; min-height: 0;
-  display: flex; flex-direction: column; justify-content: flex-end;
+  flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end;
   padding: 10px 24px 20px 24px;
 }
-.calc-expr { font-size: 16px; color: #64748b; margin-bottom: 4px; height: 20px; text-align: right; }
+.calc-expr { font-size: 16px; color: #64748b; margin-bottom: 4px; height: 20px; text-align: right; font-family: monospace; }
 .calc-main-row { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; width: 100%; }
 .calc-val { font-size: 64px; font-weight: 800; line-height: 1; word-break: break-all; }
 .calc-unit { font-size: 20px; font-weight: 800; color: #94a3b8; }
@@ -145,13 +133,12 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 .tab-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #94a3b8; cursor: pointer; flex: 1; }
 .tab-btn.active { color: var(--primary); font-weight: bold; }
 
-/* --- 历史记录抽屉 --- */
+/* --- Sheet --- */
 .sheet-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
   opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
 .sheet-overlay.show { opacity: 1; pointer-events: auto; }
-
 .sheet {
   position: fixed; left: 0; right: 0; bottom: 0;
   background: var(--card-bg); border-top-left-radius: 32px; border-top-right-radius: 32px;
@@ -160,7 +147,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
   max-height: 80vh; display: flex; flex-direction: column;
 }
 .sheet.show { transform: translateY(0); }
-
 .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
 .sheet-title { font-size: 18px; font-weight: 900; }
 .sheet-body { overflow-y: auto; flex: 1; }
@@ -168,7 +154,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 .hist-item { padding: 16px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .btn-del { width: 32px; height: 32px; border-radius: 8px; background: #fee2e2; color: #ef4444; display: grid; place-items: center; font-size: 14px; cursor: pointer; }
 
-/* --- 弹窗 (Modal) --- */
+/* --- Modal --- */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
   z-index: 100; display: none; align-items: center; justify-content: center;
@@ -181,17 +167,13 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 }
 @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-/* 弹窗头部 */
-.modal-head { 
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; 
-}
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .modal-title { font-size: 20px; font-weight: 900; }
 .close-btn { 
   width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; color: #64748b;
   display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold;
 }
 
-/* 输入框 */
 .smart-input {
   display: flex; align-items: center; justify-content: space-between;
   background: var(--bg); border: 2px solid transparent; border-radius: 20px; padding: 6px 6px 6px 16px;
@@ -214,13 +196,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 }
 .dark .full-btn { background: #fff; color: #0f172a; }
 
-/* 汇率卡片 */
 .rate-box {
   background: var(--bg); padding: 16px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
 }
 .rate-input { width: 90px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-weight: bold; text-align: center; font-size: 18px; }
 
-/* 开销分类 */
 .cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
 .cat {
   aspect-ratio: 1; border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column;
@@ -228,7 +208,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 }
 .cat.active { background: #eff6ff; border-color: var(--accent-blue); color: var(--accent-blue); box-shadow: inset 0 0 0 2px var(--accent-blue); }
 
-/* Toast */
 .toast {
   position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100%);
   background: rgba(15, 23, 42, 0.95); color: white; padding: 12px 24px; border-radius: 99px;
@@ -349,7 +328,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 </div>
 
 <div id="modalOverlay" class="modal-overlay" onclick="if(event.target===this) tripApp.closeModal()">
-  
   <div class="modal" id="modalExchange" style="display:none">
     <div class="modal-head">
       <div class="modal-title">存入资金</div>
@@ -391,7 +369,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
     </div>
     <button class="full-btn" onclick="tripApp.submitExp()">确认记账</button>
   </div>
-
 </div>
 
 <script>
@@ -414,7 +391,7 @@ window.tripApp = {
   ],
 
   init() {
-    const saved = localStorage.getItem('ustrip_v20_5_final');
+    const saved = localStorage.getItem('ustrip_v20_6_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -424,13 +401,10 @@ window.tripApp = {
     this.renderTheme();
     this.setTab(this.data.tab);
     this.renderAll();
-    
-    // 🌟 Bind Events Once
     this.bindEvents();
   },
 
   bindEvents() {
-    // Rate Input
     document.getElementById('exRateInput').addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
         if(val > 0) {
@@ -440,11 +414,7 @@ window.tripApp = {
             this.updateExPreview();
         }
     });
-
-    // Amount Input (Only updates text, not HTML)
     document.getElementById('exAmount').addEventListener('input', () => this.updateExPreview());
-
-    // Toggle Button
     document.getElementById('exToggleBtn').addEventListener('click', () => {
         this.data.exMode = this.data.exMode === 'MYR' ? 'TWD' : 'MYR';
         const btn = document.getElementById('exToggleBtn');
@@ -459,10 +429,8 @@ window.tripApp = {
     const val = parseFloat(document.getElementById('exAmount').value) || 0;
     const mode = this.data.exMode;
     const prevEl = document.getElementById('exPreviewVal');
-    
     let res = 0;
     let unit = '';
-
     if (mode === 'MYR') {
         const twd = val * (100 / this.data.rate);
         res = Math.round(twd);
@@ -479,8 +447,6 @@ window.tripApp = {
     document.getElementById('modalOverlay').classList.add('open');
     document.getElementById('modalExchange').style.display = 'flex';
     document.getElementById('modalExpense').style.display = 'none';
-    
-    // UI Reset
     this.data.exMode = 'MYR';
     const btn = document.getElementById('exToggleBtn');
     btn.className = 'toggle-btn blue';
@@ -494,7 +460,6 @@ window.tripApp = {
   submitEx() {
     const val = parseFloat(document.getElementById('exAmount').value);
     if (!val) return;
-
     let twd = 0, rm = 0;
     if (this.data.exMode === 'MYR') {
         rm = val;
@@ -503,9 +468,7 @@ window.tripApp = {
         twd = val;
         rm = val * (this.data.rate / 100);
     }
-
     const detailStr = `${rm.toFixed(2)} MYR → ${Math.round(twd)} TWD`;
-
     this.data.records.unshift({
         id: Date.now(), type: 'in', title: '换汇存入', twd: twd, 
         detail: detailStr, date: new Date().toLocaleDateString()
@@ -553,8 +516,7 @@ window.tripApp = {
     document.getElementById('modalOverlay').classList.remove('open');
   },
 
-  // --- Other Logic ---
-  save() { localStorage.setItem('ustrip_v20_5_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v20_6_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
@@ -593,19 +555,40 @@ window.tripApp = {
     document.getElementById('calcResult').innerText = res.toFixed(2) + ' MYR';
   },
 
+  // 🌟 Core Fix: Logic for calculator input to handle "0" and "00" correctly
   onKey(k) {
     let s = this.data.calcIn;
-    if(k === 'AC') s = '0';
-    else if(k === 'DEL') s = s.length > 1 ? s.slice(0, -1) : '0';
-    else if(k === '=') {
+    if (k === 'AC') { s = '0'; this.data.calcExpr = ''; }
+    else if (k === 'DEL') { s = s.length > 1 ? s.slice(0, -1) : '0'; }
+    else if (k === '=') {
         try { 
           const val = eval(s.replace(/×/g,'*').replace(/÷/g,'/'));
           s = String(parseFloat(val.toFixed(2))); 
+          this.data.calcExpr = '';
         } catch { s = 'Error'; }
     }
     else {
-        if(s === '0' && !['.','+','-','*','/'].includes(k)) s = k;
-        else s += k;
+        // Logic for operators and numbers
+        if (['+','-','*','/','%'].includes(k)) {
+             const last = s.slice(-1);
+             if(['+','-','*','/','%'].includes(last)) s = s.slice(0, -1) + k;
+             else s += k;
+        } else {
+             // Split by operators to check the current number segment
+             const parts = s.split(/[\+\-\*\/]/);
+             const cur = parts[parts.length-1];
+             
+             if (cur === '0' && k !== '.') {
+                 // If current number is exactly '0', replace it (unless input is '0' or '00')
+                 if (k === '0' || k === '00') { /* ignore */ }
+                 else { s = s.slice(0, -1) + k; }
+             } else if (cur === '' && k === '00') {
+                 s += '0';
+             } else {
+                 s += k;
+             }
+        }
+        if (k !== 'AC' && k !== 'DEL' && k !== '=') this.data.calcExpr = s;
     }
     this.data.calcIn = s;
     this.renderCalc();
@@ -620,6 +603,7 @@ window.tripApp = {
             id: Date.now(), twd: twd.toFixed(2), rm: rm.toFixed(2), date: new Date().toLocaleDateString()
         });
         this.data.calcIn = '0';
+        this.data.calcExpr = '';
         this.save();
         this.renderCalc();
         this.showToast('✅ 已保存');
@@ -656,26 +640,14 @@ window.tripApp = {
     `).join('') || '<div style="padding:20px; text-align:center; color:#999">暂无记录</div>';
   },
   delHist(i) {
-    if(confirm('删除?')) {
-        this.data.history.splice(i, 1);
-        this.save();
-        this.renderHistoryList();
-    }
+    if(confirm('删除?')) { this.data.history.splice(i, 1); this.save(); this.renderHistoryList(); }
   },
   clearHistory() {
-    if(confirm('清空所有?')) {
-        this.data.history = [];
-        this.save();
-        this.renderHistoryList();
-    }
+    if(confirm('清空所有?')) { this.data.history = []; this.save(); this.renderHistoryList(); }
   },
 
   delRec(id) {
-    if(confirm('删除?')) {
-        this.data.records = this.data.records.filter(r=>r.id!==id);
-        this.save();
-        this.renderAll();
-    }
+    if(confirm('删除?')) { this.data.records = this.data.records.filter(r=>r.id!==id); this.save(); this.renderAll(); }
   },
 
   renderAll() {
