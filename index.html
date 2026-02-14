@@ -3,8 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v20.4</title>
+<title>UsTrip Finance v20.5</title>
 <style>
+/* --- 🌟 核心修复：彻底隐藏数字输入框箭头 🌟 --- */
+/* 针对 Chrome, Safari, Edge, Opera 等 WebKit 内核浏览器 */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+/* 针对 Firefox 浏览器 */
+input[type=number] {
+  -moz-appearance: textfield !important;
+}
+
 /* --- 基础变量 --- */
 :root {
   --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; --border: #e2e8f0;
@@ -16,11 +28,6 @@ body.dark {
   --bg: #020617; --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-
-/* 隐藏数字输入框的箭头 */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
 
 /* --- 核心布局 --- */
 html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
@@ -174,7 +181,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 }
 @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-/* 🌟 优化后的弹窗头部 */
+/* 弹窗头部 */
 .modal-head { 
   display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; 
 }
@@ -407,7 +414,7 @@ window.tripApp = {
   ],
 
   init() {
-    const saved = localStorage.getItem('ustrip_v20_4_final');
+    const saved = localStorage.getItem('ustrip_v20_5_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -547,7 +554,7 @@ window.tripApp = {
   },
 
   // --- Other Logic ---
-  save() { localStorage.setItem('ustrip_v20_4_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v20_5_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
