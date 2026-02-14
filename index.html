@@ -3,14 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v20.7</title>
+<title>UsTrip Finance v20.8</title>
 <style>
-/* --- 隐藏数字输入框箭头 --- */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
+/* --- 基础设置 --- */
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
 input[type=number] { -moz-appearance: textfield !important; }
 
-/* --- 基础变量 --- */
 :root {
   --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; --border: #e2e8f0;
   --primary: #10b981; --accent-blue: #3b82f6; --accent-orange: #f97316; --danger: #ef4444;
@@ -22,29 +20,30 @@ body.dark {
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
-html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
 
 #app {
   display: flex; flex-direction: column; height: 100%; width: 100%;
   max-width: 480px; margin: 0 auto; background: var(--bg);
   position: relative; overflow: hidden;
+  box-shadow: 0 0 60px rgba(0,0,0,0.05);
 }
 
 /* Header */
 .header {
-  flex: 0 0 auto; height: 64px; padding: 0 20px;
+  flex: 0 0 auto; height: 64px; padding: 0 24px;
   display: flex; justify-content: space-between; align-items: center;
   z-index: 10; padding-top: var(--safe-t);
 }
-.header h1 { font-size: 20px; font-weight: 900; margin: 0; }
-.header-actions { display: flex; gap: 12px; }
+.header h1 { font-size: 22px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
 .btn-icon {
-  width: 38px; height: 38px; border-radius: 14px; border: 1px solid var(--border); background: var(--card-bg);
+  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg);
   display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03); transition: 0.1s;
+  transition: 0.2s;
 }
-.btn-icon:active { transform: scale(0.95); }
+.btn-icon:active { transform: scale(0.92); }
 
+/* Pages */
 .main { flex: 1; position: relative; overflow: hidden; }
 .page {
   position: absolute; inset: 0; display: none; flex-direction: column;
@@ -52,70 +51,97 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 }
 .page.active { display: flex; }
 
-/* --- Assets --- */
-.page-assets-inner {
-  flex: 1; overflow-y: auto; padding: 10px 20px 120px 20px;
-}
+/* --- Assets Page --- */
+.page-assets-inner { flex: 1; overflow-y: auto; padding: 10px 20px 120px 20px; }
 .card {
-  background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-radius: 28px; padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 24px;
+  background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border-radius: 28px; padding: 28px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2); margin-bottom: 24px; position: relative; overflow: hidden;
 }
-.card-val { font-size: 48px; font-weight: 800; margin: 8px 0; letter-spacing: -1px; }
-.card-sub { font-size: 13px; opacity: 0.7; display: flex; gap: 16px; font-weight: 500; }
+.card::after {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%); pointer-events: none;
+}
+.card-val { font-size: 52px; font-weight: 800; margin: 10px 0; letter-spacing: -2px; position: relative; z-index: 2; }
+.card-sub { font-size: 13px; opacity: 0.7; display: flex; gap: 16px; font-weight: 600; position: relative; z-index: 2; }
 
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
 .btn-lg {
-  background: var(--card-bg); border: 1px solid var(--border); padding: 16px; border-radius: 20px;
-  display: flex; align-items: center; gap: 12px; font-weight: bold; cursor: pointer; transition: 0.1s;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+  background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 22px;
+  display: flex; align-items: center; gap: 12px; font-weight: 800; cursor: pointer; transition: 0.1s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
-.btn-lg:active { transform: scale(0.98); background: var(--bg); }
-.icon-box { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; }
+.btn-lg:active { transform: scale(0.98); }
+.icon-box { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; }
 
-/* 🌟 列表优化：Grid 布局对齐 */
 .list-item {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 16px;
   margin-bottom: 12px; display: grid; grid-template-columns: 48px 1fr auto auto; align-items: center; gap: 12px;
 }
 .list-item .icon { font-size: 24px; width: 48px; height: 48px; background: var(--bg); border-radius: 14px; display: grid; place-items: center; }
-.list-item .info { min-width: 0; } /* 防止文字溢出撑开 */
-.list-item .info h4 { margin: 0; font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.list-item .info p { margin: 4px 0 0; font-size: 12px; color: #64748b; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* 强制数字右对齐且等宽 */
+.list-item .info h4 { margin: 0; font-size: 15px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-item .info p { margin: 4px 0 0; font-size: 12px; color: #64748b; font-weight: 600; }
 .list-item .amt { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
 .pos { color: var(--primary); } .neg { color: var(--text); }
-.btn-del { 
-  width: 32px; height: 32px; border-radius: 10px; background: #fee2e2; color: #ef4444; 
-  display: grid; place-items: center; font-size: 14px; cursor: pointer; 
+.btn-del { width: 32px; height: 32px; border-radius: 10px; background: #fee2e2; color: #ef4444; display: grid; place-items: center; font-size: 14px; cursor: pointer; }
+
+/* --- Calc Page (Refined Layout) --- */
+.calc-layout { display: flex; flex-direction: column; height: 100%; }
+
+/* 上半部 */
+.calc-screen {
+  flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 10px 24px 20px 24px; position: relative;
 }
 
-/* --- Calc --- */
-.calc-layout { display: flex; flex-direction: column; height: 100%; }
-.calc-screen {
-  flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; /* 🌟 垂直居中 */
-  padding: 10px 24px 30px 24px;
+/* 🌟 PS5 Style History Card (Floating in empty space) */
+.history-card-widget {
+  background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 20px; padding: 12px 16px;
+  margin-bottom: auto; /* Push to top */
+  margin-top: 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  transition: 0.2s;
 }
+.dark .history-card-widget { background: rgba(30, 41, 59, 0.6); border-color: rgba(255,255,255,0.1); }
+.history-card-widget:active { transform: scale(0.98); }
+.hc-label { font-size: 12px; font-weight: 800; color: #64748b; display: flex; align-items: center; gap: 6px; }
+.hc-val { font-size: 14px; font-weight: 900; color: var(--text); }
+
+/* 计算显示 */
 .calc-expr { font-size: 20px; color: #64748b; margin-bottom: 8px; height: 28px; text-align: right; font-family: monospace; opacity: 0.6; }
 .calc-main-row { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; width: 100%; }
 .calc-val { font-size: 72px; font-weight: 800; line-height: 1; word-break: break-all; letter-spacing: -2px; }
 .calc-unit { font-size: 24px; font-weight: 800; color: #94a3b8; }
 
-/* 🌟 结果条优化：更饱满 */
+/* 结果绿条 */
 .calc-res-bar {
-  background: var(--primary); color: white; padding: 20px 28px; border-radius: 24px; margin-top: 30px;
+  background: var(--primary); color: white; padding: 22px 28px; border-radius: 26px; margin-top: 20px;
   display: flex; justify-content: space-between; align-items: center; cursor: pointer;
   box-shadow: 0 15px 35px -8px rgba(16, 185, 129, 0.5); transition: transform 0.1s;
 }
 .calc-res-bar:active { transform: scale(0.98); }
 
+/* 下半部：键盘 */
 .calc-keyboard {
-  height: 58%; flex-shrink: 0;
+  height: 56%; flex-shrink: 0;
   background: #f1f5f9; border-top-left-radius: 40px; border-top-right-radius: 40px;
-  padding: 30px 16px 16px 16px; position: relative; z-index: 20;
+  padding: 32px 20px 20px 20px; position: relative; z-index: 20;
 }
 .dark .calc-keyboard { background: #1e293b; border-top: 1px solid var(--border); }
 
-.keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; height: 100%; }
+/* Rate Pill (Floating on Keyboard) */
+.rate-pill {
+  position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+  background: var(--card-bg); border: 1px solid var(--border); padding: 8px 24px; border-radius: 99px;
+  font-size: 13px; font-weight: 800; color: var(--text);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 8px; z-index: 30;
+}
+.rate-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+
+/* 🌟 Grid Layout Optimization */
+.keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; height: 100%; }
 .key {
   border: none; border-radius: 24px; background: var(--card-bg); color: var(--text); font-size: 28px; font-weight: 600;
   box-shadow: 0 4px 0 rgba(0,0,0,0.05); cursor: pointer; transition: 0.1s;
@@ -124,19 +150,24 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 .key.op { color: var(--accent-blue); background: #eff6ff; font-weight: 700; }
 .key.ac { color: var(--danger); background: #fef2f2; font-weight: 700; }
 .key.eq { background: var(--primary); color: white; grid-row: span 2; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
+/* 🌟 大 0 键 */
+.key.zero { grid-column: span 2; width: 100%; } 
+
 .dark .key { background: #334155; }
 .dark .key.op { background: #0f172a; }
 .dark .key.ac { background: #331515; }
 
+/* Tab */
 .bottom-nav {
   flex: 0 0 auto; background: var(--card-bg); border-top: 1px solid var(--border);
-  padding-bottom: var(--safe-b); height: calc(70px + var(--safe-b)); display: flex; align-items: center; z-index: 50;
+  padding-bottom: var(--safe-b); height: calc(76px + var(--safe-b)); display: flex; align-items: center; z-index: 50;
 }
 .tab-inner { display: flex; width: 100%; justify-content: space-around; }
-.tab-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: #94a3b8; cursor: pointer; flex: 1; font-weight: 600; }
-.tab-btn.active { color: var(--primary); font-weight: 800; }
+.tab-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: #94a3b8; cursor: pointer; flex: 1; font-weight: 600; transition: 0.2s; }
+.tab-btn.active { color: var(--primary); transform: translateY(-2px); }
+.tab-btn span { font-size: 24px; }
 
-/* --- Sheet --- */
+/* History Sheet */
 .sheet-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
   opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -145,18 +176,17 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 .sheet {
   position: fixed; left: 0; right: 0; bottom: 0;
   background: var(--card-bg); border-top-left-radius: 32px; border-top-right-radius: 32px;
-  padding: 20px; z-index: 100;
+  padding: 24px; z-index: 100;
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   max-height: 80vh; display: flex; flex-direction: column;
 }
 .sheet.show { transform: translateY(0); }
-.sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
-.sheet-title { font-size: 18px; font-weight: 900; }
+.sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; }
+.sheet-title { font-size: 20px; font-weight: 900; }
 .sheet-body { overflow-y: auto; flex: 1; }
-
 .hist-item { padding: 16px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 
-/* --- Modal --- */
+/* Modal */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
   z-index: 100; display: none; align-items: center; justify-content: center;
@@ -168,7 +198,6 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
   display: flex; flex-direction: column;
 }
 @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
 .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .modal-title { font-size: 20px; font-weight: 900; }
 .close-btn { 
@@ -226,13 +255,8 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 <div id="app">
   <div class="header">
     <h1 id="headerTitle">我的金库</h1>
-    <div class="header-actions">
-      <div class="btn-icon" onclick="tripApp.toggleHistory()" id="histBtn" style="display:none">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/></svg>
-      </div>
-      <div class="btn-icon" onclick="tripApp.toggleTheme()">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </div>
+    <div style="display:flex; gap:10px;">
+      <div class="btn-icon" onclick="tripApp.toggleTheme()">🌓</div>
     </div>
   </div>
 
@@ -267,6 +291,14 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
     <div id="page-calc" class="page calc-page">
       <div class="calc-layout">
         <div class="calc-screen">
+          <div class="history-card-widget" onclick="tripApp.toggleHistory()">
+            <div class="hc-label">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="8" cy="8" r="7"/><path d="M8 4v4l3 2"/></svg>
+              最近记录
+            </div>
+            <div class="hc-val" id="lastHistoryVal">暂无记录</div>
+          </div>
+
           <div class="calc-expr" id="calcExpr"></div>
           <div class="calc-main-row">
             <div class="calc-val" id="calcInput">0</div>
@@ -283,6 +315,11 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
         </div>
 
         <div class="calc-keyboard">
+          <div class="rate-pill">
+            <span class="dot"></span>
+            <span>100 TWD = <span id="ratePillVal">12.63</span> MYR</span>
+          </div>
+
           <div class="keys-grid">
             <button class="key ac" onclick="tripApp.onKey('AC')">AC</button>
             <button class="key ac" onclick="tripApp.onKey('DEL')">⌫</button>
@@ -300,8 +337,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
             <button class="key" onclick="tripApp.onKey('2')">2</button>
             <button class="key" onclick="tripApp.onKey('3')">3</button>
             <button class="key op" onclick="tripApp.onKey('+')">+</button>
-            <button class="key" onclick="tripApp.onKey('0')">0</button>
-            <button class="key" onclick="tripApp.onKey('00')">00</button>
+            <button class="key zero" onclick="tripApp.onKey('0')">0</button>
             <button class="key" onclick="tripApp.onKey('.')">.</button>
             <button class="key eq" onclick="tripApp.onKey('=')">=</button>
           </div>
@@ -313,10 +349,10 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
   <div class="bottom-nav">
     <div class="tab-inner">
       <div class="tab-btn active" id="tab-assets" onclick="tripApp.setTab('assets')">
-        <span style="font-size:24px">👛</span> 金库
+        <span style="font-size:22px">👛</span> 金库
       </div>
       <div class="tab-btn" id="tab-calc" onclick="tripApp.setTab('calc')">
-        <span style="font-size:24px">🧮</span> 换算
+        <span style="font-size:22px">🧮</span> 换算
       </div>
     </div>
   </div>
@@ -332,6 +368,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-syst
 </div>
 
 <div id="modalOverlay" class="modal-overlay" onclick="if(event.target===this) tripApp.closeModal()">
+  
   <div class="modal" id="modalExchange" style="display:none">
     <div class="modal-head">
       <div class="modal-title">存入资金</div>
@@ -395,7 +432,7 @@ window.tripApp = {
   ],
 
   init() {
-    const saved = localStorage.getItem('ustrip_v20_7_final');
+    const saved = localStorage.getItem('ustrip_v20_8_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -520,7 +557,7 @@ window.tripApp = {
     document.getElementById('modalOverlay').classList.remove('open');
   },
 
-  save() { localStorage.setItem('ustrip_v20_7_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v20_8_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
@@ -543,7 +580,6 @@ window.tripApp = {
     document.getElementById('tab-assets').className = t==='assets' ? 'tab-btn active' : 'tab-btn';
     document.getElementById('tab-calc').className = t==='calc' ? 'tab-btn active' : 'tab-btn';
     document.getElementById('headerTitle').innerText = t==='assets'?'我的金库':'汇率计算';
-    document.getElementById('histBtn').style.display = t==='calc' ? 'flex' : 'none';
     if(t==='assets') this.renderAll();
     else this.renderCalc();
     this.save();
@@ -551,6 +587,7 @@ window.tripApp = {
 
   renderCalc() {
     document.getElementById('calcRateDisplay').innerText = this.data.rate;
+    document.getElementById('ratePillVal').innerText = this.data.rate;
     document.getElementById('calcInput').innerText = this.data.calcIn;
     let res = 0;
     try { 
@@ -558,6 +595,10 @@ window.tripApp = {
       if(!isNaN(twd)) res = twd * (this.data.rate / 100);
     } catch {}
     document.getElementById('calcResult').innerText = res.toFixed(2) + ' MYR';
+    
+    // Update Widget
+    const last = this.data.history[0];
+    document.getElementById('lastHistoryVal').innerText = last ? `${last.twd} TWD` : '暂无记录';
   },
 
   onKey(k) {
@@ -568,7 +609,6 @@ window.tripApp = {
         try { 
           const val = eval(s.replace(/×/g,'*').replace(/÷/g,'/'));
           s = String(parseFloat(val.toFixed(2))); 
-          this.data.calcExpr = '';
         } catch { s = 'Error'; }
     }
     else {
@@ -577,13 +617,12 @@ window.tripApp = {
              if(['+','-','*','/','%'].includes(last)) s = s.slice(0, -1) + k;
              else s += k;
         } else {
+             // 🌟 Smart 0 Logic
              const parts = s.split(/[\+\-\*\/]/);
              const cur = parts[parts.length-1];
              if (cur === '0' && k !== '.') {
-                 if (k === '0' || k === '00') { /* ignore */ }
-                 else { s = s.slice(0, -1) + k; }
-             } else if (cur === '' && k === '00') {
-                 s += '0';
+                 // Replace leading 0 unless typing '.'
+                 s = s.slice(0, -1) + k; 
              } else {
                  s += k;
              }
@@ -640,10 +679,10 @@ window.tripApp = {
     `).join('') || '<div style="padding:20px; text-align:center; color:#999">暂无记录</div>';
   },
   delHist(i) {
-    if(confirm('删除?')) { this.data.history.splice(i, 1); this.save(); this.renderHistoryList(); }
+    if(confirm('删除?')) { this.data.history.splice(i, 1); this.save(); this.renderHistoryList(); this.renderCalc(); }
   },
   clearHistory() {
-    if(confirm('清空所有?')) { this.data.history = []; this.save(); this.renderHistoryList(); }
+    if(confirm('清空所有?')) { this.data.history = []; this.save(); this.renderHistoryList(); this.renderCalc(); }
   },
 
   delRec(id) {
@@ -651,7 +690,9 @@ window.tripApp = {
   },
 
   renderAll() {
-    document.getElementById('calcRateDisplay').innerText = this.data.rate;
+    if(document.getElementById('calcRateDisplay')) document.getElementById('calcRateDisplay').innerText = this.data.rate;
+    if(document.getElementById('ratePillVal')) document.getElementById('ratePillVal').innerText = this.data.rate;
+    
     const totalIn = this.data.records.filter(r=>r.type==='in').reduce((a,b)=>a+(Number(b.twd)||0),0);
     const totalOut = this.data.records.filter(r=>r.type==='out').reduce((a,b)=>a+(Number(b.twd)||0),0);
     
@@ -663,15 +704,19 @@ window.tripApp = {
         const list = document.getElementById('recordsList');
         list.innerHTML = this.data.records.map((r) => `
             <div class="list-item">
-                <div class="icon">${r.icon || '💸'}</div>
-                <div class="info">
-                    <h4>${r.title}</h4>
-                    <p>${r.detail || r.date}</p> 
+                <div class="left">
+                    <div class="icon">${r.icon || '💸'}</div>
+                    <div class="info">
+                        <h4>${r.title}</h4>
+                        <p>${r.detail || r.date}</p> 
+                    </div>
                 </div>
-                <div class="amt ${r.type==='in'?'pos':'neg'}">
-                    ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(0)}
+                <div class="right">
+                    <div class="amt ${r.type==='in'?'pos':'neg'}">
+                        ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(0)}
+                    </div>
                 </div>
-                <div class="btn-del" onclick="tripApp.delRec(${r.id})">✕</div>
+                <div class="btn-del" style="margin-left:10px" onclick="tripApp.delRec(${r.id})">✕</div>
             </div>
         `).join('');
     }
