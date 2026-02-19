@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v20.10</title>
+<title>UsTrip Finance v21.0</title>
 <style>
-/* --- 基础设置 --- */
+/* --- 隐藏数字输入框箭头 --- */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
 input[type=number] { -moz-appearance: textfield !important; }
 
+/* --- 基础变量 --- */
 :root {
   --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; --border: #e2e8f0;
   --primary: #10b981; --accent-blue: #3b82f6; --accent-orange: #f97316; --danger: #ef4444;
@@ -18,7 +19,7 @@ input[type=number] { -moz-appearance: textfield !important; }
 body.dark {
   --bg: #020617; --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
 
@@ -150,9 +151,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .key:active { transform: translateY(3px); box-shadow: none; }
 .key.op { color: var(--accent-blue); background: #eff6ff; font-weight: 700; }
 .key.ac { color: var(--danger); background: #fef2f2; font-weight: 700; }
-/* 🌟 修复：=号现在是普通大小 */
-.key.eq { background: var(--primary); color: white; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
-/* 🌟 0号占两格 */
+.key.eq { background: var(--primary); color: white; grid-row: span 2; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
 .key.zero { grid-column: span 2; width: 100%; } 
 
 .dark .key { background: #334155; }
@@ -311,7 +310,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 
           <div class="calc-res-bar" onclick="tripApp.saveCalc()">
             <div>
-              <div style="font-size:12px; opacity:0.8">折合马币 (100 TWD = <span id="calcRateDisplay">12.63</span>)</div>
+              <div style="font-size:12px; opacity:0.8">折合马币 (资产均价 100 TWD = <span id="calcRateDisplay">12.63</span>)</div>
               <div style="font-size:24px; font-weight:800;" id="calcResult">0.00 MYR</div>
             </div>
             <div style="font-size:24px">💾</div>
@@ -337,6 +336,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
             <button class="key" onclick="tripApp.onKey('3')">3</button>
             <button class="key op" onclick="tripApp.onKey('+')">+</button>
             <button class="key zero" onclick="tripApp.onKey('0')">0</button>
+            <button class="key" onclick="tripApp.onKey('00')">00</button>
             <button class="key" onclick="tripApp.onKey('.')">.</button>
             <button class="key eq" onclick="tripApp.onKey('=')">=</button>
           </div>
@@ -431,7 +431,7 @@ window.tripApp = {
   ],
 
   init() {
-    const saved = localStorage.getItem('ustrip_v20_10_final');
+    const saved = localStorage.getItem('ustrip_v21_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -463,6 +463,25 @@ window.tripApp = {
         document.getElementById('exAmount').value = '';
         this.updateExPreview();
     });
+  },
+
+  // 🌟 动态计算持仓的平均汇率
+  getAssetRate() {
+      let inTwd = 0, inRm = 0;
+      this.data.records.forEach(r => {
+          if (r.type === 'in') {
+              const t = parseFloat(r.twd) || 0;
+              inTwd += t;
+              // 兼容老数据：如果没有 rm，则用当时的全局汇率推算
+              if (r.rm !== undefined) {
+                  inRm += parseFloat(r.rm) || 0;
+              } else {
+                  inRm += t * (this.data.rate / 100);
+              }
+          }
+      });
+      if (inTwd > 0) return (inRm / inTwd) * 100;
+      return this.data.rate;
   },
 
   updateExPreview() {
@@ -509,8 +528,10 @@ window.tripApp = {
         rm = val * (this.data.rate / 100);
     }
     const detailStr = `${rm.toFixed(2)} MYR → ${Math.round(twd)} TWD`;
+    
+    // 🌟 保存 RM，以便未来算平均汇率
     this.data.records.unshift({
-        id: Date.now(), type: 'in', title: '换汇存入', twd: twd, 
+        id: Date.now(), type: 'in', title: '换汇存入', twd: twd, rm: rm,
         detail: detailStr, date: new Date().toLocaleDateString()
     });
     this.save();
@@ -556,7 +577,7 @@ window.tripApp = {
     document.getElementById('modalOverlay').classList.remove('open');
   },
 
-  save() { localStorage.setItem('ustrip_v20_10_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v21_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
@@ -584,13 +605,19 @@ window.tripApp = {
     this.save();
   },
 
+  // --- Calc Logic ---
   renderCalc() {
-    document.getElementById('calcRateDisplay').innerText = this.data.rate;
+    // 🌟 计算器页面使用资产均价
+    const assetRate = this.getAssetRate();
+    if(document.getElementById('calcRateDisplay')) {
+        document.getElementById('calcRateDisplay').innerText = assetRate.toFixed(2);
+    }
+    
     document.getElementById('calcInput').innerText = this.data.calcIn;
     let res = 0;
     try { 
       const twd = parseFloat(eval(this.data.calcIn.replace(/×/g,'*').replace(/÷/g,'/')));
-      if(!isNaN(twd)) res = twd * (this.data.rate / 100);
+      if(!isNaN(twd)) res = twd * (assetRate / 100);
     } catch {}
     document.getElementById('calcResult').innerText = res.toFixed(2) + ' MYR';
     
@@ -599,14 +626,17 @@ window.tripApp = {
     document.getElementById('lastHistoryVal').innerText = last ? `${last.twd} TWD` : '暂无记录';
   },
 
+  // 🌟 核心防呆逻辑：严格控制输入
   onKey(k) {
     let s = this.data.calcIn;
+    
     if (k === 'AC') { s = '0'; this.data.calcExpr = ''; }
     else if (k === 'DEL') { s = s.length > 1 ? s.slice(0, -1) : '0'; }
     else if (k === '=') {
         try { 
           const val = eval(s.replace(/×/g,'*').replace(/÷/g,'/'));
           s = String(parseFloat(val.toFixed(2))); 
+          this.data.calcExpr = '';
         } catch { s = 'Error'; }
     }
     else {
@@ -615,13 +645,22 @@ window.tripApp = {
              if(['+','-','*','/','%'].includes(last)) s = s.slice(0, -1) + k;
              else s += k;
         } else {
+             // 找到当前的数字片段
              const parts = s.split(/[\+\-\*\/]/);
              const cur = parts[parts.length-1];
-             if (cur === '0' && k !== '.') {
-                 if (k === '0' || k === '00') { /* ignore */ }
-                 else { s = s.slice(0, -1) + k; }
+             
+             if (k === '0' || k === '00') {
+                 if (cur === '0') { /* 如果已经是一个单独的 0，忽略输入 */ }
+                 else if (cur === '') { s += '0'; } // 如果是空的(比如加号后)，按00也只给一个0
+                 else { s += k; }
+             } else if (k === '.') {
+                 if (cur.includes('.')) { /* 忽略多余的小数点 */ }
+                 else if (cur === '') { s += '0.'; }
+                 else { s += '.'; }
              } else {
-                 s += k;
+                 // 1-9 的数字
+                 if (cur === '0') { s = s.slice(0, -1) + k; } // 替换掉单独的 0
+                 else { s += k; }
              }
         }
         if (k !== 'AC' && k !== 'DEL' && k !== '=') this.data.calcExpr = s;
@@ -633,8 +672,9 @@ window.tripApp = {
   saveCalc() {
     try {
         const twd = parseFloat(eval(this.data.calcIn.replace(/×/g,'*').replace(/÷/g,'/')));
-        if(!twd) return;
-        const rm = twd * (this.data.rate / 100);
+        if(!twd || twd <= 0) return;
+        const assetRate = this.getAssetRate();
+        const rm = twd * (assetRate / 100);
         this.data.history.unshift({
             id: Date.now(), twd: twd.toFixed(2), rm: rm.toFixed(2), date: new Date().toLocaleDateString()
         });
@@ -642,7 +682,7 @@ window.tripApp = {
         this.data.calcExpr = '';
         this.save();
         this.renderCalc();
-        this.showToast('✅ 已保存');
+        this.showToast('✅ 已保存到历史');
     } catch {}
   },
 
@@ -687,8 +727,6 @@ window.tripApp = {
   },
 
   renderAll() {
-    if(document.getElementById('calcRateDisplay')) document.getElementById('calcRateDisplay').innerText = this.data.rate;
-    
     const totalIn = this.data.records.filter(r=>r.type==='in').reduce((a,b)=>a+(Number(b.twd)||0),0);
     const totalOut = this.data.records.filter(r=>r.type==='out').reduce((a,b)=>a+(Number(b.twd)||0),0);
     
@@ -700,18 +738,25 @@ window.tripApp = {
         const list = document.getElementById('recordsList');
         list.innerHTML = this.data.records.map((r) => `
             <div class="list-item">
-                <div class="icon">${r.icon || '💸'}</div>
-                <div class="info">
-                    <h4>${r.title}</h4>
-                    <p>${r.detail || r.date}</p> 
+                <div class="left">
+                    <div class="icon">${r.icon || '💸'}</div>
+                    <div class="info">
+                        <h4>${r.title}</h4>
+                        <p>${r.detail || r.date}</p> 
+                    </div>
                 </div>
-                <div class="amt ${r.type==='in'?'pos':'neg'}">
-                    ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(0)}
+                <div class="right">
+                    <div class="amt ${r.type==='in'?'pos':'neg'}">
+                        ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(0)}
+                    </div>
                 </div>
-                <div class="btn-del" onclick="tripApp.delRec(${r.id})">✕</div>
+                <div class="btn-del" style="margin-left:10px" onclick="tripApp.delRec(${r.id})">✕</div>
             </div>
         `).join('');
     }
+    
+    // Ensure calc is up to date with new rate if records changed
+    this.renderCalc();
   }
 };
 
