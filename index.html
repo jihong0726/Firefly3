@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v21.0</title>
+<title>UsTrip Finance v21.1</title>
 <style>
 /* --- 隐藏数字输入框箭头 --- */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
@@ -19,7 +19,7 @@ input[type=number] { -moz-appearance: textfield !important; }
 body.dark {
   --bg: #020617; --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
 
@@ -74,7 +74,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .btn-lg:active { transform: scale(0.98); }
 .icon-box { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; }
 
-/* 列表样式 */
+/* 🌟 列表优化：解除截断，允许换行 */
 .list-item {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 16px;
   margin-bottom: 12px; display: grid; 
@@ -82,9 +82,9 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
   align-items: center; gap: 14px;
 }
 .list-item .icon { font-size: 24px; width: 48px; height: 48px; background: var(--bg); border-radius: 14px; display: grid; place-items: center; }
-.list-item .info { min-width: 0; } 
-.list-item .info h4 { margin: 0; font-size: 16px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.list-item .info p { margin: 4px 0 0; font-size: 13px; color: #64748b; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-item .info { min-width: 0; display: flex; flex-direction: column; gap: 4px; } 
+.list-item .info h4 { margin: 0; font-size: 16px; font-weight: 800; line-height: 1.2; word-wrap: break-word; }
+.list-item .info p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; line-height: 1.3; word-wrap: break-word; }
 .list-item .amt { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
 .pos { color: var(--primary); } .neg { color: var(--text); }
 .btn-del { width: 32px; height: 32px; border-radius: 10px; background: #fee2e2; color: #ef4444; display: grid; place-items: center; font-size: 14px; cursor: pointer; }
@@ -135,24 +135,28 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 
 /* 下半部：键盘 */
 .calc-keyboard {
-  height: 54%; flex-shrink: 0;
+  height: 56%; flex-shrink: 0;
   background: #f1f5f9; 
   border-top-left-radius: 0; border-top-right-radius: 0; 
   padding: 24px 20px 20px 20px; position: relative; z-index: 20;
 }
 .dark .calc-keyboard { background: #1e293b; border-top: 1px solid var(--border); }
 
-/* Grid Layout */
-.keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; height: 100%; }
+/* 🌟 Grid Layout：强制 5行4列 完美对齐 */
+.keys-grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  grid-template-rows: repeat(5, 1fr); 
+  gap: 12px; height: 100%; 
+}
 .key {
-  border: none; border-radius: 24px; background: var(--card-bg); color: var(--text); font-size: 28px; font-weight: 600;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.05); cursor: pointer; transition: 0.1s;
+  border: none; border-radius: 20px; background: var(--card-bg); color: var(--text); font-size: 26px; font-weight: 600;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.05); cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center;
 }
 .key:active { transform: translateY(3px); box-shadow: none; }
 .key.op { color: var(--accent-blue); background: #eff6ff; font-weight: 700; }
 .key.ac { color: var(--danger); background: #fef2f2; font-weight: 700; }
-.key.eq { background: var(--primary); color: white; grid-row: span 2; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
-.key.zero { grid-column: span 2; width: 100%; } 
+.key.eq { background: var(--primary); color: white; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
 
 .dark .key { background: #334155; }
 .dark .key.op { background: #0f172a; }
@@ -185,7 +189,15 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; }
 .sheet-title { font-size: 20px; font-weight: 900; }
 .sheet-body { overflow-y: auto; flex: 1; }
-.hist-item { padding: 16px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+/* 🌟 抽屉里的列表同样解除截断 */
+.hist-item { 
+  padding: 16px 0; border-bottom: 1px solid var(--border); display: grid; 
+  grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; 
+}
+.hist-item .info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.hist-item .info h4 { margin: 0; font-size: 16px; font-weight: 800; line-height: 1.2; word-wrap: break-word; }
+.hist-item .info p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; line-height: 1.3; word-wrap: break-word; }
 
 /* Modal */
 .modal-overlay {
@@ -199,6 +211,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
   display: flex; flex-direction: column;
 }
 @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
 .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .modal-title { font-size: 20px; font-weight: 900; }
 .close-btn { 
@@ -323,19 +336,23 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
             <button class="key ac" onclick="tripApp.onKey('DEL')">⌫</button>
             <button class="key op" onclick="tripApp.onKey('%')">%</button>
             <button class="key op" onclick="tripApp.onKey('/')">÷</button>
+            
             <button class="key" onclick="tripApp.onKey('7')">7</button>
             <button class="key" onclick="tripApp.onKey('8')">8</button>
             <button class="key" onclick="tripApp.onKey('9')">9</button>
             <button class="key op" onclick="tripApp.onKey('*')">×</button>
+            
             <button class="key" onclick="tripApp.onKey('4')">4</button>
             <button class="key" onclick="tripApp.onKey('5')">5</button>
             <button class="key" onclick="tripApp.onKey('6')">6</button>
             <button class="key op" onclick="tripApp.onKey('-')">-</button>
+            
             <button class="key" onclick="tripApp.onKey('1')">1</button>
             <button class="key" onclick="tripApp.onKey('2')">2</button>
             <button class="key" onclick="tripApp.onKey('3')">3</button>
             <button class="key op" onclick="tripApp.onKey('+')">+</button>
-            <button class="key zero" onclick="tripApp.onKey('0')">0</button>
+            
+            <button class="key" onclick="tripApp.onKey('0')">0</button>
             <button class="key" onclick="tripApp.onKey('00')">00</button>
             <button class="key" onclick="tripApp.onKey('.')">.</button>
             <button class="key eq" onclick="tripApp.onKey('=')">=</button>
@@ -431,7 +448,7 @@ window.tripApp = {
   ],
 
   init() {
-    const saved = localStorage.getItem('ustrip_v21_final');
+    const saved = localStorage.getItem('ustrip_v21_1_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -465,14 +482,12 @@ window.tripApp = {
     });
   },
 
-  // 🌟 动态计算持仓的平均汇率
   getAssetRate() {
       let inTwd = 0, inRm = 0;
       this.data.records.forEach(r => {
           if (r.type === 'in') {
               const t = parseFloat(r.twd) || 0;
               inTwd += t;
-              // 兼容老数据：如果没有 rm，则用当时的全局汇率推算
               if (r.rm !== undefined) {
                   inRm += parseFloat(r.rm) || 0;
               } else {
@@ -529,7 +544,6 @@ window.tripApp = {
     }
     const detailStr = `${rm.toFixed(2)} MYR → ${Math.round(twd)} TWD`;
     
-    // 🌟 保存 RM，以便未来算平均汇率
     this.data.records.unshift({
         id: Date.now(), type: 'in', title: '换汇存入', twd: twd, rm: rm,
         detail: detailStr, date: new Date().toLocaleDateString()
@@ -577,7 +591,7 @@ window.tripApp = {
     document.getElementById('modalOverlay').classList.remove('open');
   },
 
-  save() { localStorage.setItem('ustrip_v21_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v21_1_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
@@ -605,9 +619,7 @@ window.tripApp = {
     this.save();
   },
 
-  // --- Calc Logic ---
   renderCalc() {
-    // 🌟 计算器页面使用资产均价
     const assetRate = this.getAssetRate();
     if(document.getElementById('calcRateDisplay')) {
         document.getElementById('calcRateDisplay').innerText = assetRate.toFixed(2);
@@ -621,12 +633,11 @@ window.tripApp = {
     } catch {}
     document.getElementById('calcResult').innerText = res.toFixed(2) + ' MYR';
     
-    // Update Widget
     const last = this.data.history[0];
     document.getElementById('lastHistoryVal').innerText = last ? `${last.twd} TWD` : '暂无记录';
   },
 
-  // 🌟 核心防呆逻辑：严格控制输入
+  /* 🌟 核心防呆逻辑：严格控制首位输入与小数点 */
   onKey(k) {
     let s = this.data.calcIn;
     
@@ -645,21 +656,20 @@ window.tripApp = {
              if(['+','-','*','/','%'].includes(last)) s = s.slice(0, -1) + k;
              else s += k;
         } else {
-             // 找到当前的数字片段
-             const parts = s.split(/[\+\-\*\/]/);
+             // 找到当前的数字片段 (以运算符分割)
+             const parts = s.split(/[\+\-\*\/\%]/);
              const cur = parts[parts.length-1];
              
              if (k === '0' || k === '00') {
-                 if (cur === '0') { /* 如果已经是一个单独的 0，忽略输入 */ }
-                 else if (cur === '') { s += '0'; } // 如果是空的(比如加号后)，按00也只给一个0
+                 if (cur === '0') { /* 已经有独立0，忽略0和00，不出现0000 */ }
+                 else if (cur === '') { s += '0'; } /* 符号后面输入00，只给一个0 */
                  else { s += k; }
              } else if (k === '.') {
-                 if (cur.includes('.')) { /* 忽略多余的小数点 */ }
+                 if (cur.includes('.')) { /* 忽略重复小数点 */ }
                  else if (cur === '') { s += '0.'; }
                  else { s += '.'; }
              } else {
-                 // 1-9 的数字
-                 if (cur === '0') { s = s.slice(0, -1) + k; } // 替换掉单独的 0
+                 if (cur === '0') { s = s.slice(0, -1) + k; } /* 直接替换掉占位的0 */
                  else { s += k; }
              }
         }
@@ -698,23 +708,25 @@ window.tripApp = {
         overlay.classList.add('show');
     }
   },
+  
   renderHistoryList() {
     const list = document.getElementById('histList');
     list.innerHTML = this.data.history.map((h, i) => `
         <div class="hist-item">
-            <div>
-                <div style="font-weight:bold; font-size:16px">${h.twd} TWD</div>
-                <div style="font-size:12px; color:var(--text); opacity:0.6">${h.date}</div>
+            <div class="info">
+                <h4>${h.twd} TWD</h4>
+                <p>${h.date}</p>
             </div>
-            <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;gap:12px">
                 <div style="text-align:right">
-                    <div style="font-weight:bold; color:var(--primary)">${h.rm} MYR</div>
+                    <div style="font-weight:bold; color:var(--primary); font-size:18px">${h.rm} MYR</div>
                 </div>
                 <div class="btn-del" onclick="tripApp.delHist(${i})">✕</div>
             </div>
         </div>
     `).join('') || '<div style="padding:20px; text-align:center; color:#999">暂无记录</div>';
   },
+  
   delHist(i) {
     if(confirm('删除?')) { this.data.history.splice(i, 1); this.save(); this.renderHistoryList(); this.renderCalc(); }
   },
@@ -738,24 +750,19 @@ window.tripApp = {
         const list = document.getElementById('recordsList');
         list.innerHTML = this.data.records.map((r) => `
             <div class="list-item">
-                <div class="left">
-                    <div class="icon">${r.icon || '💸'}</div>
-                    <div class="info">
-                        <h4>${r.title}</h4>
-                        <p>${r.detail || r.date}</p> 
-                    </div>
+                <div class="icon">${r.icon || '💸'}</div>
+                <div class="info">
+                    <h4>${r.title}</h4>
+                    <p>${r.detail || r.date}</p> 
                 </div>
-                <div class="right">
-                    <div class="amt ${r.type==='in'?'pos':'neg'}">
-                        ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(0)}
-                    </div>
+                <div class="amt ${r.type==='in'?'pos':'neg'}">
+                    ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(0)}
                 </div>
-                <div class="btn-del" style="margin-left:10px" onclick="tripApp.delRec(${r.id})">✕</div>
+                <div class="btn-del" onclick="tripApp.delRec(${r.id})">✕</div>
             </div>
         `).join('');
     }
     
-    // Ensure calc is up to date with new rate if records changed
     this.renderCalc();
   }
 };
