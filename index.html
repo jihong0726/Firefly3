@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v22.0</title>
+<title>UsTrip Finance v22.1</title>
 <style>
 /* --- 隐藏数字输入框箭头 --- */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
@@ -74,7 +74,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .btn-lg:active { transform: scale(0.98); background: var(--bg); }
 .icon-box { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; }
 
-/* 🌟 列表优化：移除右侧删除按钮，整行可点击 */
+/* 列表优化 */
 .list-item {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 16px;
   margin-bottom: 12px; display: grid; 
@@ -167,14 +167,16 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .tab-btn.active { color: var(--primary); transform: translateY(-2px); }
 .tab-btn span { font-size: 24px; }
 
-/* --- History Sheet --- */
+/* --- 🌟 修复后的 History Sheet --- */
 .sheet-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
   opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
 .sheet-overlay.show { opacity: 1; pointer-events: auto; }
 .sheet {
-  position: fixed; left: 0; right: 0; bottom: 0;
+  /* 🌟 核心修复：限制宽度并居中，防止在PC端撑满全屏 */
+  position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto;
+  width: 100%; max-width: 480px; 
   background: var(--card-bg); border-top-left-radius: 32px; border-top-right-radius: 32px;
   padding: 24px; z-index: 100;
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -249,7 +251,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 }
 .cat.active { background: #eff6ff; border-color: var(--accent-blue); color: var(--accent-blue); box-shadow: inset 0 0 0 2px var(--accent-blue); }
 
-/* 🌟 Record Detail Info Box */
+/* Record Detail Info Box */
 .detail-info-box {
   background: var(--bg); border-radius: 16px; padding: 16px; margin-bottom: 20px;
 }
@@ -344,22 +346,18 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
             <button class="key ac" onclick="tripApp.onKey('DEL')">⌫</button>
             <button class="key op" onclick="tripApp.onKey('%')">%</button>
             <button class="key op" onclick="tripApp.onKey('/')">÷</button>
-            
             <button class="key" onclick="tripApp.onKey('7')">7</button>
             <button class="key" onclick="tripApp.onKey('8')">8</button>
             <button class="key" onclick="tripApp.onKey('9')">9</button>
             <button class="key op" onclick="tripApp.onKey('*')">×</button>
-            
             <button class="key" onclick="tripApp.onKey('4')">4</button>
             <button class="key" onclick="tripApp.onKey('5')">5</button>
             <button class="key" onclick="tripApp.onKey('6')">6</button>
             <button class="key op" onclick="tripApp.onKey('-')">-</button>
-            
             <button class="key" onclick="tripApp.onKey('1')">1</button>
             <button class="key" onclick="tripApp.onKey('2')">2</button>
             <button class="key" onclick="tripApp.onKey('3')">3</button>
             <button class="key op" onclick="tripApp.onKey('+')">+</button>
-            
             <button class="key" onclick="tripApp.onKey('0')">0</button>
             <button class="key" onclick="tripApp.onKey('00')">00</button>
             <button class="key" onclick="tripApp.onKey('.')">.</button>
@@ -468,12 +466,11 @@ window.tripApp = {
     {n:'零食',i:'🍦'},{n:'礼物',i:'🎁'},{n:'医疗',i:'💊'},{n:'生活',i:'💡'},{n:'其他',i:'📦'}
   ],
   
-  // 用于记录当前正在查看/编辑的记录ID
   currentRecordId: null,
   editModeId: null,
 
   init() {
-    const saved = localStorage.getItem('ustrip_v22_final');
+    const saved = localStorage.getItem('ustrip_v22_1_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -487,16 +484,35 @@ window.tripApp = {
   },
 
   bindEvents() {
-    document.getElementById('exRateInput').addEventListener('input', () => this.updateExPreview());
-    document.getElementById('exAmount').addEventListener('input', () => this.updateExPreview());
+    const exRateInput = document.getElementById('exRateInput');
+    const exAmount = document.getElementById('exAmount');
+    const expInput = document.getElementById('expInput');
+
+    exRateInput.addEventListener('input', () => this.updateExPreview());
+    exAmount.addEventListener('input', () => this.updateExPreview());
     
     document.getElementById('exToggleBtn').addEventListener('click', () => {
         this.data.exMode = this.data.exMode === 'MYR' ? 'TWD' : 'MYR';
         const btn = document.getElementById('exToggleBtn');
         btn.className = `toggle-btn ${this.data.exMode === 'MYR' ? 'blue' : 'orange'}`;
         btn.innerText = `${this.data.exMode} ⇄`;
-        document.getElementById('exAmount').value = '';
+        exAmount.value = '';
         this.updateExPreview();
+    });
+
+    // 🌟 核心增加：回车键直接保存 (Enter Key)
+    exAmount.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.submitEx();
+        }
+    });
+
+    expInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.submitExp();
+        }
     });
   },
 
@@ -520,7 +536,6 @@ window.tripApp = {
   updateExPreview() {
     const val = parseFloat(document.getElementById('exAmount').value) || 0;
     const mode = this.data.exMode;
-    // 使用输入框里的汇率来预览
     const currentRate = parseFloat(document.getElementById('exRateInput').value) || this.data.rate;
     const prevEl = document.getElementById('exPreviewVal');
     
@@ -539,7 +554,7 @@ window.tripApp = {
   },
 
   openExchange() {
-    this.editModeId = null; // 确保不是编辑模式
+    this.editModeId = null;
     document.getElementById('modalOverlay').classList.add('open');
     document.getElementById('modalExchange').style.display = 'flex';
     document.getElementById('modalExpense').style.display = 'none';
@@ -575,22 +590,16 @@ window.tripApp = {
     const detailStr = `${rm.toFixed(2)} MYR → ${Math.round(twd)} TWD`;
     
     if (this.editModeId) {
-        // 编辑模式
         const idx = this.data.records.findIndex(x => x.id === this.editModeId);
         if(idx > -1) {
-            this.data.records[idx] = {
-                ...this.data.records[idx],
-                twd: twd, rm: rm, detail: detailStr
-            };
+            this.data.records[idx] = { ...this.data.records[idx], twd: twd, rm: rm, detail: detailStr };
         }
         this.showToast('✅ 已修改');
     } else {
-        // 新增模式
         this.data.records.unshift({
             id: Date.now(), type: 'in', title: '换汇存入', twd: twd, rm: rm,
             detail: detailStr, date: new Date().toLocaleDateString()
         });
-        // 只有新增时，才更新全局的默认输入汇率
         this.data.rate = currentRate; 
         this.showToast('✅ 已存入');
     }
@@ -633,10 +642,7 @@ window.tripApp = {
     if (this.editModeId) {
         const idx = this.data.records.findIndex(x => x.id === this.editModeId);
         if(idx > -1) {
-            this.data.records[idx] = {
-                ...this.data.records[idx],
-                title: c.n, twd: val, icon: c.i
-            };
+            this.data.records[idx] = { ...this.data.records[idx], title: c.n, twd: val, icon: c.i };
         }
         this.showToast('✅ 已修改');
     } else {
@@ -652,7 +658,6 @@ window.tripApp = {
     this.renderAll();
   },
 
-  // 🌟 打开记录详情
   openRecordDetail(id) {
       const r = this.data.records.find(x => x.id === id);
       if(!r) return;
@@ -709,7 +714,6 @@ window.tripApp = {
       document.getElementById('modalRecordDetail').style.display = 'flex';
   },
 
-  // 🌟 删除当前详情记录
   delCurrentRecord() {
       if(confirm('确定要删除这条记录吗？')) {
           this.data.records = this.data.records.filter(r => r.id !== this.currentRecordId);
@@ -720,7 +724,6 @@ window.tripApp = {
       }
   },
 
-  // 🌟 编辑当前详情记录
   editCurrentRecord() {
       const r = this.data.records.find(x => x.id === this.currentRecordId);
       if(!r) return;
@@ -761,10 +764,10 @@ window.tripApp = {
 
   closeModal() {
     document.getElementById('modalOverlay').classList.remove('open');
-    this.editModeId = null; // 清除编辑状态
+    this.editModeId = null; 
   },
 
-  save() { localStorage.setItem('ustrip_v22_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v22_1_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
@@ -915,7 +918,6 @@ window.tripApp = {
         document.getElementById('assetOut').innerText = '总花: '+totalOut.toFixed(0);
         
         const list = document.getElementById('recordsList');
-        // 🌟 绑定点击事件，移除删除按钮
         list.innerHTML = this.data.records.map((r) => `
             <div class="list-item" onclick="tripApp.openRecordDetail(${r.id})">
                 <div class="icon">${r.icon || '💸'}</div>
