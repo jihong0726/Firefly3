@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v23.2</title>
+<title>UsTrip Finance v23.3</title>
 <style>
 /* --- 隐藏数字输入框箭头 --- */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
@@ -39,9 +39,10 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .header h1 { font-size: 22px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
 .header-actions { display: flex; gap: 10px; }
 .btn-icon {
-  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg);
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--card-bg);
   display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text);
-  transition: 0.2s;
+  transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .btn-icon:active { transform: scale(0.92); }
 
@@ -92,7 +93,6 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 
 /* --- Calc Page --- */
 .calc-layout { display: flex; flex-direction: column; height: 100%; }
-
 .calc-screen {
   flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between;
   padding: 16px 24px 0 24px; position: relative;
@@ -100,20 +100,16 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 
 .history-card-widget {
   background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 24px; padding: 16px 20px;
+  border: 1px solid var(--border); border-radius: 24px; padding: 16px 20px;
   display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  transition: 0.2s;
+  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: 0.2s;
 }
 .dark .history-card-widget { background: rgba(30, 41, 59, 0.6); }
 .history-card-widget:active { transform: scale(0.98); }
 .hc-label { font-size: 13px; font-weight: 800; color: #64748b; display: flex; align-items: center; gap: 8px; }
 .hc-val { font-size: 16px; font-weight: 900; color: var(--text); }
 
-.calc-display-area {
-  display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px;
-}
+.calc-display-area { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px; }
 .calc-expr { font-size: 20px; color: #64748b; margin-bottom: 4px; height: 28px; text-align: right; font-family: monospace; opacity: 0.6; }
 .calc-main-row { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; width: 100%; }
 .calc-val { font-size: 72px; font-weight: 800; line-height: 1; word-break: break-all; letter-spacing: -2px; }
@@ -123,28 +119,20 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
   background: var(--primary); color: white; padding: 24px 30px; 
   border-top-left-radius: 32px; border-top-right-radius: 32px; 
   border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-  margin-top: auto; 
-  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+  margin-top: auto; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
   box-shadow: 0 -4px 20px rgba(16, 185, 129, 0.3); transition: background 0.1s;
   position: relative; z-index: 25; 
 }
 .calc-res-bar:active { background: #059669; }
 
 .calc-keyboard {
-  height: 56%; flex-shrink: 0;
-  background: #f1f5f9; 
+  height: 56%; flex-shrink: 0; background: #f1f5f9; 
   border-top-left-radius: 0; border-top-right-radius: 0; 
   padding: 24px 20px 20px 20px; position: relative; z-index: 20;
 }
 .dark .calc-keyboard { background: #1e293b; border-top: 1px solid var(--border); }
 
-/* Grid Layout */
-.keys-grid { 
-  display: grid; 
-  grid-template-columns: repeat(4, 1fr); 
-  grid-template-rows: repeat(5, 1fr); 
-  gap: 12px; height: 100%; 
-}
+.keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 12px; height: 100%; }
 .key {
   border: none; border-radius: 20px; background: var(--card-bg); color: var(--text); font-size: 26px; font-weight: 600;
   box-shadow: 0 4px 0 rgba(0,0,0,0.05); cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center;
@@ -153,7 +141,6 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .key.op { color: var(--accent-blue); background: #eff6ff; font-weight: 700; }
 .key.ac { color: var(--danger); background: #fef2f2; font-weight: 700; }
 .key.eq { background: var(--primary); color: white; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
-
 .dark .key { background: #334155; }
 .dark .key.op { background: #0f172a; }
 .dark .key.ac { background: #331515; }
@@ -186,10 +173,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; }
 .sheet-title { font-size: 20px; font-weight: 900; }
 .sheet-body { overflow-y: auto; flex: 1; }
-.hist-item { 
-  padding: 16px 0; border-bottom: 1px solid var(--border); display: grid; 
-  grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; 
-}
+.hist-item { padding: 16px 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; }
 .hist-item .info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .hist-item .info h4 { margin: 0; font-size: 16px; font-weight: 800; line-height: 1.2; word-wrap: break-word; }
 .hist-item .info p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; line-height: 1.3; word-wrap: break-word; }
@@ -207,7 +191,6 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
   display: flex; flex-direction: column; max-height: 85vh; overflow-y: auto;
 }
 @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
 .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .modal-title { font-size: 20px; font-weight: 900; }
 .close-btn { 
@@ -216,25 +199,22 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 }
 .dark .close-btn { background: #334155; color: #94a3b8; }
 
-/* Settings Preset Row */
-.preset-row { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
-.preset-row::-webkit-scrollbar { display: none; }
-.preset-btn { 
-  background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
-  padding: 10px 16px; font-size: 14px; font-weight: 800; color: var(--text);
-  cursor: pointer; white-space: nowrap; transition: 0.1s; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-}
-.preset-btn:active { transform: scale(0.95); background: var(--border); }
-
 /* Input components */
 .smart-input {
   display: flex; align-items: center; justify-content: space-between;
   background: var(--bg); border: 2px solid transparent; border-radius: 20px; padding: 6px 6px 6px 16px;
-  margin-bottom: 16px; transition: 0.2s;
+  margin-bottom: 16px; transition: 0.2s; position: relative;
 }
 .smart-input:focus-within { background: var(--card-bg); border-color: var(--accent-blue); }
-.smart-input input {
+.smart-input input, .smart-input select {
   flex: 1; border: none; background: transparent; font-size: 32px; font-weight: 800; outline: none; color: var(--text); min-width: 0;
+}
+/* 🌟 下拉菜单专用样式 */
+.dropdown-select {
+  font-size: 16px !important; padding: 10px 0; cursor: pointer; appearance: none;
+}
+.select-icon {
+  position: absolute; right: 16px; pointer-events: none; font-size: 12px; color: var(--muted);
 }
 
 .toggle-btn {
@@ -249,9 +229,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 }
 .dark .full-btn { background: #fff; color: #0f172a; }
 
-.rate-box {
-  background: var(--bg); padding: 16px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-}
+.rate-box { background: var(--bg); padding: 16px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .rate-input { width: 90px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-weight: bold; text-align: center; font-size: 18px; color: var(--text); outline: none;}
 
 .cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
@@ -411,13 +389,25 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
       <div class="close-btn" onclick="tripApp.closeModal()">✕</div>
     </div>
     
-    <div style="font-size:12px; font-weight:bold; color:var(--text); opacity:0.6; margin-bottom:8px">快捷选择</div>
-    <div class="preset-row">
-      <div class="preset-btn" onclick="tripApp.applyPreset('台币', 'TWD')">🇹🇼 台湾 (TWD)</div>
-      <div class="preset-btn" onclick="tripApp.applyPreset('韩元', 'KRW')">🇰🇷 韩国 (KRW)</div>
-      <div class="preset-btn" onclick="tripApp.applyPreset('日元', 'JPY')">🇯🇵 日本 (JPY)</div>
+    <div style="font-size:12px; font-weight:bold; color:var(--text); opacity:0.6; margin-bottom:8px">快捷选择目的地</div>
+    <div class="smart-input" style="padding: 0 16px; margin-bottom: 24px;">
+      <select id="presetSelect" class="dropdown-select" onchange="tripApp.handlePresetChange(this)">
+        <option value="">-- 请选择目的地 --</option>
+        <option value="台币,TWD">🇹🇼 台湾 (TWD 台币)</option>
+        <option value="韩元,KRW">🇰🇷 韩国 (KRW 韩元)</option>
+        <option value="日元,JPY">🇯🇵 日本 (JPY 日元)</option>
+        <option value="泰铢,THB">🇹🇭 泰国 (THB 泰铢)</option>
+        <option value="人民币,CNY">🇨🇳 中国大陆 (CNY 人民币)</option>
+        <option value="港币,HKD">🇭🇰 香港 (HKD 港币)</option>
+        <option value="新币,SGD">🇸🇬 新加坡 (SGD 新币)</option>
+        <option value="美元,USD">🇺🇸 美国 (USD 美元)</option>
+        <option value="欧元,EUR">🇪🇺 欧洲 (EUR 欧元)</option>
+        <option value="英镑,GBP">🇬🇧 英国 (GBP 英镑)</option>
+      </select>
+      <span class="select-icon">▼</span>
     </div>
 
+    <div style="font-size:12px; font-weight:bold; color:var(--text); opacity:0.6; margin-bottom:8px">自定义配置</div>
     <div class="smart-input" style="padding: 10px 16px;">
       <span style="font-size:14px; font-weight:bold; color:var(--muted); width:80px">旅行地/名称</span>
       <input type="text" id="setTargetName" placeholder="如: 韩元" style="font-size:18px; text-align:right">
@@ -521,7 +511,7 @@ window.tripApp = {
   editModeId: null,
 
   init() {
-    const saved = localStorage.getItem('ustrip_v23_2_final');
+    const saved = localStorage.getItem('ustrip_v23_3_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
@@ -551,14 +541,18 @@ window.tripApp = {
       document.getElementById('setTargetName').value = this.data.targetName;
       document.getElementById('setTargetCcy').value = this.data.targetCcy;
       document.getElementById('setBaseCcy').value = this.data.baseCcy;
+      document.getElementById('presetSelect').selectedIndex = 0; // 重置下拉菜单
 
       document.getElementById('modalOverlay').classList.add('open');
       document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
       document.getElementById('modalSettings').style.display = 'flex';
   },
 
-  // 🌟 Quick Preset Logic
-  applyPreset(name, ccy) {
+  // 🌟 Dropdown Logic
+  handlePresetChange(selectElement) {
+      const val = selectElement.value;
+      if (!val) return; 
+      const [name, ccy] = val.split(',');
       document.getElementById('setTargetName').value = name;
       document.getElementById('setTargetCcy').value = ccy;
   },
@@ -870,7 +864,7 @@ window.tripApp = {
     this.editModeId = null; 
   },
 
-  save() { localStorage.setItem('ustrip_v23_2_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v23_3_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
