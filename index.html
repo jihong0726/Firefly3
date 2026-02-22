@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v23.0</title>
+<title>UsTrip Finance v23.1</title>
 <style>
 /* --- 隐藏数字输入框箭头 --- */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
@@ -38,10 +38,13 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 }
 .header h1 { font-size: 22px; font-weight: 900; margin: 0; letter-spacing: -0.5px; }
 .header-actions { display: flex; gap: 10px; }
+
+/* 🌟 修复后的顶部圆形按钮 */
 .btn-icon {
-  width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg);
+  width: 42px; height: 42px; border-radius: 50%; /* 完美正圆形 */
+  border: 1px solid var(--border); background: var(--card-bg);
   display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text);
-  transition: 0.2s;
+  transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .btn-icon:active { transform: scale(0.92); }
 
@@ -75,7 +78,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .btn-lg:active { transform: scale(0.98); background: var(--bg); }
 .icon-box { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; }
 
-/* 列表优化 */
+/* 列表样式 */
 .list-item {
   background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 16px;
   margin-bottom: 12px; display: grid; 
@@ -92,6 +95,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 
 /* --- Calc Page --- */
 .calc-layout { display: flex; flex-direction: column; height: 100%; }
+
 .calc-screen {
   flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between;
   padding: 16px 24px 0 24px; position: relative;
@@ -167,7 +171,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .tab-btn.active { color: var(--primary); transform: translateY(-2px); }
 .tab-btn span { font-size: 24px; }
 
-/* --- 🌟 History Sheet (Fixed Width for PC) --- */
+/* --- History Sheet --- */
 .sheet-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;
   opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -185,6 +189,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; }
 .sheet-title { font-size: 20px; font-weight: 900; }
 .sheet-body { overflow-y: auto; flex: 1; }
+
 .hist-item { 
   padding: 16px 0; border-bottom: 1px solid var(--border); display: grid; 
   grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; 
@@ -249,8 +254,13 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
 }
 .cat.active { background: #eff6ff; border-color: var(--accent-blue); color: var(--accent-blue); box-shadow: inset 0 0 0 2px var(--accent-blue); }
 
-.detail-info-box { background: var(--bg); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
-.detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
+/* 🌟 Record Detail Info Box */
+.detail-info-box {
+  background: var(--bg); border-radius: 16px; padding: 16px; margin-bottom: 20px;
+}
+.detail-row {
+  display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;
+}
 .detail-row:last-child { margin-bottom: 0; }
 .detail-label { color: #64748b; font-size: 14px; font-weight: bold; }
 .detail-val { font-weight: 800; font-size: 15px; color: var(--text); }
@@ -274,10 +284,10 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
     <h1 id="headerTitle">我的金库</h1>
     <div class="header-actions">
       <div class="btn-icon" onclick="tripApp.openSettings()">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </div>
       <div class="btn-icon" onclick="tripApp.toggleTheme()">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </div>
     </div>
   </div>
@@ -315,7 +325,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
         <div class="calc-screen">
           <div class="history-card-widget" onclick="tripApp.toggleHistory()">
             <div class="hc-label">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="8" cy="8" r="7"/><path d="M8 4v4l3 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
               最近记录
             </div>
             <div class="hc-val" id="lastHistoryVal">暂无记录</div>
@@ -486,9 +496,8 @@ window.tripApp = {
     records: [],
     rate: 12.63,
     calcIn: '0',
-    exMode: 'BASE', // 'BASE' or 'TARGET'
+    exMode: 'BASE',
     expCat: 0,
-    // 🌟 Dynamic Currency Settings
     targetName: '台币',
     targetCcy: 'TWD',
     baseName: '马币',
@@ -503,27 +512,25 @@ window.tripApp = {
   editModeId: null,
 
   init() {
-    const saved = localStorage.getItem('ustrip_v23_final');
+    const saved = localStorage.getItem('ustrip_v23_1_final');
     if (saved) {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {}
     }
     if (!Array.isArray(this.data.history)) this.data.history = [];
     if (!Array.isArray(this.data.records)) this.data.records = [];
     
-    // Set default currencies if missing
     if(!this.data.targetCcy) {
         this.data.targetName = '台币'; this.data.targetCcy = 'TWD';
         this.data.baseName = '马币'; this.data.baseCcy = 'MYR';
     }
 
     this.renderTheme();
-    this.updateDynamicUI(); // Apply currency text globally
+    this.updateDynamicUI();
     this.setTab(this.data.tab);
     this.renderAll();
     this.bindEvents();
   },
 
-  // 🌟 Update all dynamic text in the DOM
   updateDynamicUI() {
       document.querySelectorAll('.dyn-target-name').forEach(el => el.innerText = this.data.targetName);
       document.querySelectorAll('.dyn-target-ccy').forEach(el => el.innerText = this.data.targetCcy);
@@ -531,7 +538,6 @@ window.tripApp = {
       document.querySelectorAll('.dyn-base-ccy').forEach(el => el.innerText = this.data.baseCcy);
   },
 
-  // 🌟 Settings Logic
   openSettings() {
       document.getElementById('setTargetName').value = this.data.targetName;
       document.getElementById('setTargetCcy').value = this.data.targetCcy;
@@ -551,7 +557,6 @@ window.tripApp = {
       this.data.targetCcy = tc;
       this.data.baseCcy = bc;
       
-      // Auto infer base name based on common codes
       if(bc === 'MYR') this.data.baseName = '马币';
       else if(bc === 'CNY') this.data.baseName = '人民币';
       else this.data.baseName = bc;
@@ -621,17 +626,17 @@ window.tripApp = {
 
   updateExPreview() {
     const val = parseFloat(document.getElementById('exAmount').value) || 0;
-    const mode = this.data.exMode; // 'BASE' or 'TARGET'
+    const mode = this.data.exMode; 
     const currentRate = parseFloat(document.getElementById('exRateInput').value) || this.data.rate;
     const prevEl = document.getElementById('exPreviewVal');
     
     let res = 0;
     let unit = '';
-    if (mode === 'BASE') { // Input Base -> Convert to Target
+    if (mode === 'BASE') { 
         const twd = val * (100 / currentRate);
         res = Math.round(twd);
         unit = this.data.targetCcy;
-    } else { // Input Target -> Convert to Base
+    } else { 
         const myr = val * (currentRate / 100);
         res = myr.toFixed(2);
         unit = this.data.baseCcy;
@@ -850,7 +855,7 @@ window.tripApp = {
     this.editModeId = null; 
   },
 
-  save() { localStorage.setItem('ustrip_v23_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v23_1_final', JSON.stringify(this.data)); },
   
   showToast(msg) {
     const t = document.getElementById('toast');
@@ -872,6 +877,7 @@ window.tripApp = {
     document.getElementById('page-calc').style.display = t==='calc' ? 'flex' : 'none';
     document.getElementById('tab-assets').className = t==='assets' ? 'tab-btn active' : 'tab-btn';
     document.getElementById('tab-calc').className = t==='calc' ? 'tab-btn active' : 'tab-btn';
+    
     if(t==='assets') this.renderAll();
     else this.renderCalc();
     this.save();
