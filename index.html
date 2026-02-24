@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v24.0</title>
+<title>UsTrip Finance v24.1</title>
 <style>
-/* --- 基础设置 --- */
+/* --- 隐藏数字输入框箭头 --- */
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
 input[type=number] { -moz-appearance: textfield !important; }
 
+/* --- 基础变量 --- */
 :root {
   --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; --border: #e2e8f0;
   --primary: #10b981; --accent-blue: #3b82f6; --accent-orange: #f97316; --danger: #ef4444;
@@ -253,8 +254,8 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family:
       <div class="page-assets-inner">
         
         <div class="total-asset-box">
-          <div class="total-label">总资产预估 (MYR) <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
-          <div class="total-val">≈ <span id="totalEstMYR" style="color:var(--text); font-size:inherit; margin:0">0.00</span></div>
+          <div class="total-label">总资产预估 (MYR)</div>
+          <div class="total-val"><span id="totalEstMYR" style="color:var(--text); font-size:inherit; margin:0">0.00</span></div>
         </div>
 
         <div class="grid-2">
@@ -439,7 +440,7 @@ window.tripApp = {
   currentRecordId: null, editModeId: null,
 
   init() {
-    const saved = localStorage.getItem('ustrip_v24_final');
+    const saved = localStorage.getItem('ustrip_v24_1_final');
     if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {} }
     if (!Array.isArray(this.data.history)) this.data.history = [];
     if (!Array.isArray(this.data.records)) this.data.records = [];
@@ -485,13 +486,11 @@ window.tripApp = {
       this.showToast(`✅ 已切换至 ${this.data.targetCcy}`);
   },
 
-  // 🌟 一键切换旅程 (点击资产卡片)
   switchWallet(ccy) {
       if(this.data.targetCcy === ccy) return;
       this.data.targetCcy = ccy;
-      // try to infer name from preset
       const preset = Object.entries(this.flags).find(([k,v]) => k === ccy);
-      this.data.targetName = ccy; // fallback
+      this.data.targetName = ccy; 
       this.updateDynamicUI(); this.save(); this.renderAll();
       this.showToast(`✅ 已激活 ${ccy} 账本`);
   },
@@ -516,7 +515,6 @@ window.tripApp = {
     expInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); this.submitExp(); } });
   },
 
-  // 🌟 获取特定币种的加权平均汇率
   getAssetRate(targetCcy) {
       let inCcy = 0, inBase = 0;
       this.data.records.forEach(r => {
@@ -527,7 +525,7 @@ window.tripApp = {
           }
       });
       if (inCcy > 0) return (inBase / inCcy) * 100;
-      return this.data.rate; // 没记录则返回默认
+      return this.data.rate; 
   },
 
   updateExPreview() {
@@ -678,7 +676,6 @@ window.tripApp = {
       if(!r) return;
       this.editModeId = r.id;
       
-      // Auto switch active currency to the record's currency for editing context
       if(r.ccy && r.ccy !== this.data.targetCcy) { this.switchWallet(r.ccy); }
 
       if(r.type === 'in') {
@@ -705,7 +702,7 @@ window.tripApp = {
   },
 
   closeModal() { document.getElementById('modalOverlay').classList.remove('open'); this.editModeId = null; },
-  save() { localStorage.setItem('ustrip_v24_final', JSON.stringify(this.data)); },
+  save() { localStorage.setItem('ustrip_v24_1_final', JSON.stringify(this.data)); },
   showToast(msg) {
     const t = document.getElementById('toast'); t.innerText = msg;
     t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1500);
@@ -734,7 +731,6 @@ window.tripApp = {
     } catch {}
     document.getElementById('calcResult').innerText = `${res.toFixed(2)} MYR`;
     
-    // Only show history for ACTIVE currency
     const activeHistory = this.data.history.filter(h => !h.ccy || h.ccy === this.data.targetCcy);
     const last = activeHistory[0];
     document.getElementById('lastHistoryVal').innerText = last ? `${last.twd} ${this.data.targetCcy}` : '暂无记录';
@@ -787,10 +783,8 @@ window.tripApp = {
   
   renderHistoryList() {
     const list = document.getElementById('histList');
-    // Only show history for current currency
     const activeHistory = this.data.history.filter(h => !h.ccy || h.ccy === this.data.targetCcy);
     list.innerHTML = activeHistory.map((h, idx) => {
-        // Find real index in original array to delete correctly
         const realIdx = this.data.history.findIndex(x => x.id === h.id);
         return `
         <div class="hist-item">
@@ -811,11 +805,9 @@ window.tripApp = {
     }
   },
 
-  // 🌟 核心：计算总资产和多币种分类账本
   renderAll() {
     const assetsObj = {};
     
-    // Group records by currency
     this.data.records.forEach(r => {
         const c = r.ccy || 'TWD';
         if (!assetsObj[c]) assetsObj[c] = { inCcy: 0, inBase: 0, outCcy: 0 };
@@ -830,12 +822,10 @@ window.tripApp = {
     let totalEstMYR = 0;
     let assetsHtml = '';
 
-    // Generate Portfolio List
     for (let c in assetsObj) {
         const a = assetsObj[c];
         const balance = a.inCcy - a.outCcy;
         
-        // Show if there is balance OR if it's the currently active currency (even if 0)
         if (balance > 0 || c === this.data.targetCcy || a.inCcy > 0) {
             const avgRate = a.inCcy > 0 ? (a.inBase / a.inCcy) : (c === this.data.targetCcy ? this.data.rate/100 : 0);
             const estMyr = balance * avgRate;
@@ -862,7 +852,6 @@ window.tripApp = {
         }
     }
     
-    // Fallback if no assets exist
     if (assetsHtml === '') {
         assetsHtml = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:14px; background:var(--card-bg); border-radius:20px; border:1px dashed var(--border)">暂无资产，请点击上方存入资金</div>`;
     }
@@ -871,7 +860,6 @@ window.tripApp = {
         document.getElementById('totalEstMYR').innerText = totalEstMYR.toFixed(2);
         document.getElementById('multiAssetsList').innerHTML = assetsHtml;
         
-        // Render Global Recent Records (all currencies)
         const list = document.getElementById('recordsList');
         list.innerHTML = this.data.records.map((r) => `
             <div class="list-item" onclick="tripApp.openRecordDetail(${r.id})">
