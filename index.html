@@ -1,885 +1,103 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="zh-Hans">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>UsTrip Finance v24.1</title>
-<style>
-/* --- 隐藏数字输入框箭头 --- */
-input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
-input[type=number] { -moz-appearance: textfield !important; }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>汇率兑换</title>
+  <style>
+    :root{
+      --primary: #007aff; 
+      --text: #1c1c1e; --sub: #8e8e93;
+      --glass-bg: #ffffff; 
+      --glass-border: 1px solid rgba(0,0,0,0.05);
+      --glass-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      --bg-color: #f5f5f7;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --text: #f2f2f7; --sub: #98989d;
+        --glass-bg: #1c1c1e;
+        --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        --bg-color: #000;
+      }
+    }
 
-/* --- 基础变量 --- */
-:root {
-  --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; --border: #e2e8f0;
-  --primary: #10b981; --accent-blue: #3b82f6; --accent-orange: #f97316; --danger: #ef4444;
-  --safe-b: env(safe-area-inset-bottom, 20px);
-  --safe-t: env(safe-area-inset-top, 20px);
-}
-body.dark {
-  --bg: #020617; --text: #f1f5f9; --card-bg: #1e293b; --border: #334155;
-}
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-
-html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-
-#app {
-  display: flex; flex-direction: column; height: 100%; width: 100%;
-  max-width: 480px; margin: 0 auto; background: var(--bg);
-  position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.05);
-}
-
-/* Header */
-.header {
-  flex: 0 0 auto; height: 60px; padding: 0 24px;
-  display: flex; justify-content: space-between; align-items: center;
-  z-index: 10; padding-top: var(--safe-t);
-}
-.header h1 { font-size: 20px; font-weight: 900; margin: 0; letter-spacing: -0.5px; display:flex; align-items:center; gap:8px;}
-/* 状态指示器，显示当前激活的货币 */
-.active-ccy-badge {
-  font-size: 11px; padding: 4px 8px; border-radius: 8px; background: rgba(16, 185, 129, 0.15);
-  color: var(--primary); font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.header-actions { display: flex; gap: 10px; }
-.btn-icon {
-  width: 40px; height: 40px; border-radius: 50%;
-  border: 1px solid var(--border); background: var(--card-bg);
-  display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text);
-  transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.btn-icon:active { transform: scale(0.92); }
-
-/* Pages */
-.main { flex: 1; position: relative; overflow: hidden; }
-.page {
-  position: absolute; inset: 0; display: none; flex-direction: column;
-  background: var(--bg); overflow: hidden;
-}
-.page.active { display: flex; }
-
-/* --- 🌟 首页看板重构 --- */
-.page-assets-inner { flex: 1; overflow-y: auto; padding: 10px 20px 120px 20px; }
-
-/* 总资产估值区 */
-.total-asset-box { padding: 10px 4px 24px; text-align: left; }
-.total-label { font-size: 14px; font-weight: 600; color: #64748b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-.total-val { font-size: 46px; font-weight: 900; letter-spacing: -1px; line-height: 1.1; margin-bottom: 4px; }
-.total-val span { font-size: 20px; font-weight: bold; color: #64748b; margin-left: 4px; letter-spacing: 0; }
-
-/* 快捷操作区 */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
-.btn-lg {
-  background: var(--card-bg); border: 1px solid var(--border); padding: 16px; border-radius: 20px;
-  display: flex; align-items: center; gap: 12px; font-weight: 800; cursor: pointer; transition: 0.1s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-}
-.btn-lg:active { transform: scale(0.96); background: var(--bg); }
-.icon-box { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; }
-
-/* 标题栏 (多处复用) */
-.section-title { font-size: 16px; font-weight: 900; margin: 0 0 12px 0; color: var(--text); display: flex; justify-content: space-between; align-items: center;}
-
-/* 🌟 持仓资产列表 (OKX 风格) */
-.asset-item {
-  background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 16px;
-  margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
-  cursor: pointer; transition: 0.15s; position: relative; overflow: hidden;
-}
-.asset-item:active { transform: scale(0.98); }
-.asset-item.active-wallet { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.03); }
-.asset-item.active-wallet::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent-blue);
-}
-.asset-item .left { display: flex; align-items: center; gap: 12px; }
-.asset-item .icon-circle { font-size: 26px; }
-.asset-item .ccy-name { font-size: 16px; font-weight: 900; }
-.asset-item .ccy-cost { font-size: 12px; color: #64748b; font-weight: 600; margin-top: 4px; }
-.asset-item .right { text-align: right; }
-.asset-item .amt { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
-.asset-item .est-val { font-size: 12px; color: #64748b; font-weight: 600; margin-top: 4px; }
-
-/* 最近记录列表 */
-.list-item {
-  background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 14px 16px;
-  margin-bottom: 10px; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 14px; cursor: pointer; transition: 0.1s;
-}
-.list-item:active { transform: scale(0.98); }
-.list-item .icon { font-size: 22px; width: 44px; height: 44px; background: var(--bg); border-radius: 12px; display: grid; place-items: center; }
-.list-item .info { min-width: 0; display: flex; flex-direction: column; gap: 4px; } 
-.list-item .info h4 { margin: 0; font-size: 15px; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.list-item .info p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.list-item .amt { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
-.pos { color: var(--primary); } .neg { color: var(--text); }
-
-/* --- Calc Page --- */
-.calc-layout { display: flex; flex-direction: column; height: 100%; }
-.calc-screen { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 24px 0 24px; position: relative; }
-
-.history-card-widget {
-  background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid var(--border);
-  border-radius: 24px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: 0.2s;
-}
-.dark .history-card-widget { background: rgba(30, 41, 59, 0.6); }
-.history-card-widget:active { transform: scale(0.98); }
-.hc-label { font-size: 13px; font-weight: 800; color: #64748b; display: flex; align-items: center; gap: 8px; }
-.hc-val { font-size: 16px; font-weight: 900; color: var(--text); }
-
-.calc-display-area { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px; }
-.calc-expr { font-size: 20px; color: #64748b; margin-bottom: 4px; height: 28px; text-align: right; font-family: monospace; opacity: 0.6; }
-.calc-main-row { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; width: 100%; }
-.calc-val { font-size: 72px; font-weight: 800; line-height: 1; word-break: break-all; letter-spacing: -2px; }
-.calc-unit { font-size: 24px; font-weight: 800; color: #94a3b8; }
-
-.calc-res-bar {
-  background: var(--primary); color: white; padding: 24px 30px; 
-  border-top-left-radius: 32px; border-top-right-radius: 32px; 
-  margin-top: auto; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-  box-shadow: 0 -4px 20px rgba(16, 185, 129, 0.3); transition: background 0.1s; position: relative; z-index: 25; 
-}
-.calc-res-bar:active { background: #059669; }
-
-.calc-keyboard {
-  height: 56%; flex-shrink: 0; background: #f1f5f9; padding: 24px 20px 20px 20px; position: relative; z-index: 20;
-}
-.dark .calc-keyboard { background: #1e293b; border-top: 1px solid var(--border); }
-.keys-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 12px; height: 100%; }
-.key {
-  border: none; border-radius: 20px; background: var(--card-bg); color: var(--text); font-size: 26px; font-weight: 600;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.05); cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center;
-}
-.key:active { transform: translateY(3px); box-shadow: none; }
-.key.op { color: var(--accent-blue); background: #eff6ff; font-weight: 700; }
-.key.ac { color: var(--danger); background: #fef2f2; font-weight: 700; }
-.key.eq { background: var(--primary); color: white; box-shadow: 0 4px 0 rgba(16, 185, 129, 0.3); }
-.dark .key { background: #334155; }
-.dark .key.op { background: #0f172a; }
-.dark .key.ac { background: #331515; }
-
-/* Tab */
-.bottom-nav {
-  flex: 0 0 auto; background: var(--card-bg); border-top: 1px solid var(--border);
-  padding-bottom: var(--safe-b); height: calc(76px + var(--safe-b)); display: flex; align-items: center; z-index: 50;
-}
-.tab-inner { display: flex; width: 100%; justify-content: space-around; }
-.tab-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: #94a3b8; cursor: pointer; flex: 1; font-weight: 600; transition: 0.2s; }
-.tab-btn.active { color: var(--primary); transform: translateY(-2px); }
-.tab-btn span { font-size: 24px; }
-
-/* History Sheet */
-.sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-.sheet-overlay.show { opacity: 1; pointer-events: auto; }
-.sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; width: 100%; max-width: 480px; 
-  background: var(--card-bg); border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px; z-index: 100;
-  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 80vh; display: flex; flex-direction: column;
-}
-.sheet.show { transform: translateY(0); }
-.sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; }
-.sheet-title { font-size: 20px; font-weight: 900; }
-.sheet-body { overflow-y: auto; flex: 1; }
-.hist-item { padding: 16px 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; }
-.hist-item .info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.hist-item .info h4 { margin: 0; font-size: 16px; font-weight: 800; line-height: 1.2; word-wrap: break-word; }
-.hist-item .info p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; line-height: 1.3; word-wrap: break-word; }
-.btn-del { width: 32px; height: 32px; border-radius: 8px; background: #fee2e2; color: #ef4444; display: grid; place-items: center; font-size: 14px; cursor: pointer; }
-
-/* Modals */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--card-bg); width: 88%; max-width: 380px; border-radius: 32px; padding: 24px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: pop 0.2s ease-out; display: flex; flex-direction: column; max-height: 85vh; overflow-y: auto;
-}
-@keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.modal-title { font-size: 20px; font-weight: 900; }
-.close-btn { width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; color: #64748b; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; }
-.dark .close-btn { background: #334155; color: #94a3b8; }
-
-.smart-input { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 2px solid transparent; border-radius: 20px; padding: 6px 6px 6px 16px; margin-bottom: 16px; transition: 0.2s; position: relative; }
-.smart-input:focus-within { background: var(--card-bg); border-color: var(--accent-blue); }
-.smart-input input, .smart-input select { flex: 1; border: none; background: transparent; font-size: 32px; font-weight: 800; outline: none; color: var(--text); min-width: 0; }
-.dropdown-select { font-size: 16px !important; padding: 10px 0; cursor: pointer; appearance: none; }
-.select-icon { position: absolute; right: 16px; pointer-events: none; font-size: 12px; color: var(--muted); }
-
-.toggle-btn { padding: 10px 16px; border-radius: 14px; color: white; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px; }
-.toggle-btn.blue { background: var(--accent-blue); }
-.toggle-btn.orange { background: var(--accent-orange); }
-
-.full-btn { width: 100%; border: none; padding: 16px; border-radius: 18px; background: #0f172a; color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-.dark .full-btn { background: #fff; color: #0f172a; }
-
-.rate-box { background: var(--bg); padding: 16px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.rate-input { width: 90px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-weight: bold; text-align: center; font-size: 18px; color: var(--text); outline: none;}
-
-.cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
-.cat { aspect-ratio: 1; border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: var(--card-bg); transition: 0.1s; }
-.cat.active { background: #eff6ff; border-color: var(--accent-blue); color: var(--accent-blue); box-shadow: inset 0 0 0 2px var(--accent-blue); }
-
-.detail-info-box { background: var(--bg); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
-.detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
-.detail-row:last-child { margin-bottom: 0; }
-.detail-label { color: #64748b; font-size: 14px; font-weight: bold; }
-.detail-val { font-weight: 800; font-size: 15px; color: var(--text); }
-
-.toast {
-  position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100%); background: rgba(15, 23, 42, 0.95); color: white; padding: 12px 24px; border-radius: 99px;
-  font-weight: bold; font-size: 14px; opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 200; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-</style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; padding: 20px; background: var(--bg-color); color: var(--text); font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    
+    .converter-card { background: var(--glass-bg); border-radius: 24px; border: var(--glass-border); box-shadow: var(--glass-shadow); padding: 24px; width: 100%; max-width: 400px; }
+    .card-title { font-size: 20px; font-weight: 800; margin-bottom: 24px; text-align: center; }
+    
+    .input-group { background: rgba(120,120,128,0.05); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; transition: 0.2s; }
+    .input-group:focus-within { border-color: var(--primary); background: rgba(0,122,255,0.03); }
+    
+    .currency-select { border: none; background: transparent; font-size: 18px; font-weight: 700; color: var(--text); outline: none; -webkit-appearance: none; cursor: pointer; }
+    .amount-input { border: none; background: transparent; text-align: right; font-size: 28px; font-weight: 800; color: var(--primary); width: 100%; outline: none; padding-left: 10px; }
+    .amount-input::placeholder { color: rgba(120,120,128,0.3); }
+    
+    .result-group { padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .myr-label { font-size: 18px; font-weight: 700; color: var(--sub); }
+    .myr-val { font-size: 32px; font-weight: 800; color: var(--text); }
+    
+    .rate-hint { text-align: center; font-size: 13px; color: var(--sub); margin-top: 10px; font-weight: 500; background: rgba(120,120,128,0.08); padding: 8px; border-radius: 10px; }
+  </style>
 </head>
 <body>
 
-<div id="toast" class="toast">✅ 已保存</div>
-
-<div id="app">
-  <div class="header">
-    <h1>我的金库 <div class="active-ccy-badge" id="headerActiveCcy">TWD</div></h1>
-    <div class="header-actions">
-      <div class="btn-icon" onclick="tripApp.openSettings()">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </div>
-      <div class="btn-icon" onclick="tripApp.toggleTheme()">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </div>
-    </div>
-  </div>
-
-  <div class="main">
-    <div id="page-assets" class="page active">
-      <div class="page-assets-inner">
-        
-        <div class="total-asset-box">
-          <div class="total-label">总资产预估 (MYR)</div>
-          <div class="total-val"><span id="totalEstMYR" style="color:var(--text); font-size:inherit; margin:0">0.00</span></div>
-        </div>
-
-        <div class="grid-2">
-          <div class="btn-lg" onclick="tripApp.openExchange()">
-            <div class="icon-box" style="background:#dbeafe; color:#2563eb">💱</div>存入<span class="dyn-target-ccy" style="font-size:12px; color:#64748b">TWD</span>
-          </div>
-          <div class="btn-lg" onclick="tripApp.openExpense()">
-            <div class="icon-box" style="background:#ffedd5; color:#ea580c">💸</div>记账<span class="dyn-target-ccy" style="font-size:12px; color:#64748b">TWD</span>
-          </div>
-        </div>
-
-        <div class="section-title">我的资产 (钱包)</div>
-        <div id="multiAssetsList" style="margin-bottom:30px;"></div>
-
-        <div class="section-title">最近操作记录</div>
-        <div id="recordsList"></div>
-      </div>
-    </div>
-
-    <div id="page-calc" class="page calc-page">
-      <div class="calc-layout">
-        <div class="calc-screen">
-          <div class="history-card-widget" onclick="tripApp.toggleHistory()">
-            <div class="hc-label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>最近记录</div>
-            <div class="hc-val" id="lastHistoryVal">暂无记录</div>
-          </div>
-
-          <div class="calc-display-area">
-            <div class="calc-expr" id="calcExpr"></div>
-            <div class="calc-main-row">
-              <div class="calc-val" id="calcInput">0</div>
-              <div class="calc-unit dyn-target-ccy">TWD</div>
-            </div>
-          </div>
-
-          <div class="calc-res-bar" onclick="tripApp.saveCalc()">
-            <div>
-              <div style="font-size:12px; opacity:0.8">折合 MYR (<span class="dyn-target-ccy">TWD</span> 成本均价 100 = <span id="calcRateDisplay">12.63</span>)</div>
-              <div style="font-size:24px; font-weight:800;" id="calcResult">0.00 MYR</div>
-            </div>
-            <div style="font-size:24px">💾</div>
-          </div>
-        </div>
-
-        <div class="calc-keyboard">
-          <div class="keys-grid">
-            <button class="key ac" onclick="tripApp.onKey('AC')">AC</button>
-            <button class="key ac" onclick="tripApp.onKey('DEL')">⌫</button>
-            <button class="key op" onclick="tripApp.onKey('%')">%</button>
-            <button class="key op" onclick="tripApp.onKey('/')">÷</button>
-            <button class="key" onclick="tripApp.onKey('7')">7</button><button class="key" onclick="tripApp.onKey('8')">8</button><button class="key" onclick="tripApp.onKey('9')">9</button><button class="key op" onclick="tripApp.onKey('*')">×</button>
-            <button class="key" onclick="tripApp.onKey('4')">4</button><button class="key" onclick="tripApp.onKey('5')">5</button><button class="key" onclick="tripApp.onKey('6')">6</button><button class="key op" onclick="tripApp.onKey('-')">-</button>
-            <button class="key" onclick="tripApp.onKey('1')">1</button><button class="key" onclick="tripApp.onKey('2')">2</button><button class="key" onclick="tripApp.onKey('3')">3</button><button class="key op" onclick="tripApp.onKey('+')">+</button>
-            <button class="key" onclick="tripApp.onKey('0')">0</button><button class="key" onclick="tripApp.onKey('00')">00</button><button class="key" onclick="tripApp.onKey('.')">.</button><button class="key eq" onclick="tripApp.onKey('=')">=</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bottom-nav">
-    <div class="tab-inner">
-      <div class="tab-btn active" id="tab-assets" onclick="tripApp.setTab('assets')"><span style="font-size:22px">👛</span> 金库</div>
-      <div class="tab-btn" id="tab-calc" onclick="tripApp.setTab('calc')"><span style="font-size:22px">🧮</span> 换算</div>
-    </div>
-  </div>
-</div>
-
-<div class="sheet-overlay" id="historyOverlay" onclick="tripApp.toggleHistory()"></div>
-<div class="sheet" id="historySheet">
-  <div class="sheet-header">
-    <div class="sheet-title">历史记录</div>
-    <div style="font-size:12px; color:#ef4444; font-weight:bold; cursor:pointer" onclick="tripApp.clearHistory()">清空</div>
-  </div>
-  <div class="sheet-body" id="histList"></div>
-</div>
-
-<div id="modalOverlay" class="modal-overlay" onclick="if(event.target===this) tripApp.closeModal()">
+<div class="converter-card">
+  <div class="card-title">汇率兑换</div>
   
-  <div class="modal" id="modalSettings" style="display:none">
-    <div class="modal-head">
-      <div class="modal-title">创建/切换旅程</div>
-      <div class="close-btn" onclick="tripApp.closeModal()">✕</div>
-    </div>
-    
-    <div style="font-size:12px; font-weight:bold; color:var(--text); opacity:0.6; margin-bottom:8px">选择国家/地区 (将自动激活该币种)</div>
-    <div class="smart-input" style="padding: 0 16px; margin-bottom: 24px;">
-      <select id="presetSelect" class="dropdown-select" onchange="tripApp.handlePresetChange(this)">
-        <option value="">-- 请选择目的地 --</option>
-        <option value="台湾,TWD">🇹🇼 台湾 (TWD 台币)</option>
-        <option value="韩国,KRW">🇰🇷 韩国 (KRW 韩元)</option>
-        <option value="日本,JPY">🇯🇵 日本 (JPY 日元)</option>
-        <option value="泰国,THB">🇹🇭 泰国 (THB 泰铢)</option>
-        <option value="中国大陆,CNY">🇨🇳 中国大陆 (CNY 人民币)</option>
-        <option value="香港,HKD">🇭🇰 香港 (HKD 港币)</option>
-        <option value="新加坡,SGD">🇸🇬 新加坡 (SGD 新币)</option>
-        <option value="美国,USD">🇺🇸 美国 (USD 美元)</option>
-        <option value="欧洲,EUR">🇪🇺 欧洲 (EUR 欧元)</option>
-        <option value="英国,GBP">🇬🇧 英国 (GBP 英镑)</option>
-      </select>
-      <span class="select-icon">▼</span>
-    </div>
-
-    <div style="font-size:12px; font-weight:bold; color:var(--text); opacity:0.6; margin-bottom:8px">当前激活配置</div>
-    <div class="smart-input" style="padding: 10px 16px;">
-      <span style="font-size:14px; font-weight:bold; color:var(--muted); width:80px">旅行地</span>
-      <input type="text" id="setTargetName" placeholder="如: 台湾" style="font-size:18px; text-align:right">
-    </div>
-    <div class="smart-input" style="padding: 10px 16px; margin-bottom:24px;">
-      <span style="font-size:14px; font-weight:bold; color:var(--muted); width:80px">目标货币</span>
-      <input type="text" id="setTargetCcy" placeholder="如: TWD" style="font-size:18px; text-align:right">
-    </div>
-
-    <button class="full-btn" onclick="tripApp.saveSettings()">保存并激活</button>
+  <div class="input-group">
+    <select id="currencySelect" class="currency-select" onchange="handleCalculate()">
+      <option value="JPY">🇯🇵 JPY</option>
+      <option value="THB">🇹🇭 THB</option>
+      <option value="TWD">🇹🇼 TWD</option>
+      <option value="KRW">🇰🇷 KRW</option>
+    </select>
+    <input type="number" id="foreignAmount" class="amount-input" placeholder="0" inputmode="decimal" oninput="handleCalculate()">
   </div>
 
-  <div class="modal" id="modalExchange" style="display:none">
-    <div class="modal-head">
-      <div class="modal-title" id="exModalTitle">存入资金</div>
-      <div class="close-btn" onclick="tripApp.closeModal()">✕</div>
-    </div>
-    <div class="rate-box">
-      <div style="font-size:12px; font-weight:800; color:#64748b">100 <span class="dyn-target-ccy">TWD</span> 等于</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <input class="rate-input" type="number" id="exRateInput" value="12.63">
-        <span style="font-size:14px;font-weight:900">MYR</span>
-      </div>
-    </div>
-    <div style="margin-bottom:8px; font-size:12px; font-weight:bold; color:var(--text); opacity:0.6">输入金额</div>
-    <div class="smart-input">
-      <input type="number" id="exAmount" placeholder="0" autofocus>
-      <div class="toggle-btn blue" id="exToggleBtn">MYR ⇄</div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 8px; margin-bottom:20px;">
-      <span style="font-size:12px;font-weight:bold;color:#64748b">自动换算为</span>
-      <span style="font-size:24px;font-weight:900;color:var(--accent-orange)" id="exPreviewVal">0 <span style="font-size:14px" class="dyn-target-ccy">TWD</span></span>
-    </div>
-    <button class="full-btn" id="exSubmitBtn" onclick="tripApp.submitEx()">确认存入</button>
+  <div class="result-group">
+    <div class="myr-label">🇲🇾 RM</div>
+    <div class="myr-val" id="myrResult">0.00</div>
   </div>
 
-  <div class="modal" id="modalExpense" style="display:none">
-    <div class="modal-head">
-      <div class="modal-title" id="expModalTitle">记录开销</div>
-      <div class="close-btn" onclick="tripApp.closeModal()">✕</div>
-    </div>
-    <div class="cats" id="catGrid"></div>
-    <div class="smart-input" style="border-color:var(--accent-orange)">
-      <input type="number" id="expInput" placeholder="0" autofocus>
-      <span style="font-weight:900; color:var(--accent-orange); margin-right:10px" class="dyn-target-ccy">TWD</span>
-    </div>
-    <button class="full-btn" id="expSubmitBtn" onclick="tripApp.submitExp()">确认记账</button>
-  </div>
-
-  <div class="modal" id="modalRecordDetail" style="display:none">
-    <div class="modal-head">
-      <div class="modal-title">记录详情</div>
-      <div class="close-btn" onclick="tripApp.closeModal()">✕</div>
-    </div>
-    <div id="recordDetailContent"></div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:20px;">
-      <button class="full-btn" style="background:#fee2e2; color:#ef4444; margin-top:0;" onclick="tripApp.delCurrentRecord()">删除</button>
-      <button class="full-btn" style="background:var(--accent-blue); margin-top:0;" onclick="tripApp.editCurrentRecord()">编辑</button>
-    </div>
+  <div class="rate-hint" id="rateHint">
+    当前预设加载中...
   </div>
 </div>
 
 <script>
-'use strict';
+  // 预设数据池
+  const PRESETS = {
+    'JPY': { unit: 100, myrVal: 2.5350 },
+    'THB': { unit: 100, myrVal: 12.6000 },
+    'TWD': { unit: 100, myrVal: 12.5800 },
+    'KRW': { unit: 1000, myrVal: 2.7150 }
+  };
 
-window.tripApp = {
-  data: {
-    tab: 'assets', theme: 'light', history: [], records: [],
-    rate: 12.63, calcIn: '0', exMode: 'BASE', expCat: 0,
-    targetName: '台湾', targetCcy: 'TWD', baseCcy: 'MYR'
-  },
-  cats: [
-    {n:'饮食',i:'🍔'},{n:'交通',i:'🚗'},{n:'购物',i:'🛍️'},{n:'娱乐',i:'🎮'},{n:'住宿',i:'🏨'},
-    {n:'零食',i:'🍦'},{n:'礼物',i:'🎁'},{n:'医疗',i:'💊'},{n:'生活',i:'💡'},{n:'其他',i:'📦'}
-  ],
-  flags: { 'TWD':'🇹🇼', 'KRW':'🇰🇷', 'JPY':'🇯🇵', 'THB':'🇹🇭', 'CNY':'🇨🇳', 'HKD':'🇭🇰', 'SGD':'🇸🇬', 'USD':'🇺🇸', 'EUR':'🇪🇺', 'GBP':'🇬🇧', 'MYR':'🇲🇾' },
+  const el = id => document.getElementById(id);
   
-  currentRecordId: null, editModeId: null,
-
-  init() {
-    const saved = localStorage.getItem('ustrip_v24_1_final');
-    if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch (e) {} }
-    if (!Array.isArray(this.data.history)) this.data.history = [];
-    if (!Array.isArray(this.data.records)) this.data.records = [];
-    
-    // Backwards compatibility for old records without ccy
-    this.data.records.forEach(r => { if(!r.ccy) r.ccy = 'TWD'; });
-
-    this.renderTheme();
-    this.updateDynamicUI();
-    this.setTab(this.data.tab);
-    this.renderAll();
-    this.bindEvents();
-  },
-
-  updateDynamicUI() {
-      document.querySelectorAll('.dyn-target-name').forEach(el => el.innerText = this.data.targetName);
-      document.querySelectorAll('.dyn-target-ccy').forEach(el => el.innerText = this.data.targetCcy);
-      document.querySelectorAll('.dyn-base-ccy').forEach(el => el.innerText = this.data.baseCcy);
-      document.getElementById('headerActiveCcy').innerText = `${this.flags[this.data.targetCcy]||'🌎'} ${this.data.targetCcy}`;
-  },
-
-  openSettings() {
-      document.getElementById('setTargetName').value = this.data.targetName;
-      document.getElementById('setTargetCcy').value = this.data.targetCcy;
-      document.getElementById('presetSelect').selectedIndex = 0;
-      document.getElementById('modalOverlay').classList.add('open');
-      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-      document.getElementById('modalSettings').style.display = 'flex';
-  },
-
-  handlePresetChange(selectElement) {
-      const val = selectElement.value;
-      if (!val) return; 
-      const [name, ccy] = val.split(',');
-      document.getElementById('setTargetName').value = name;
-      document.getElementById('setTargetCcy').value = ccy;
-  },
-  
-  saveSettings() {
-      this.data.targetName = document.getElementById('setTargetName').value.trim() || '台湾';
-      this.data.targetCcy = document.getElementById('setTargetCcy').value.trim().toUpperCase() || 'TWD';
-      this.updateDynamicUI(); this.save(); this.renderAll(); this.closeModal();
-      this.showToast(`✅ 已切换至 ${this.data.targetCcy}`);
-  },
-
-  switchWallet(ccy) {
-      if(this.data.targetCcy === ccy) return;
-      this.data.targetCcy = ccy;
-      const preset = Object.entries(this.flags).find(([k,v]) => k === ccy);
-      this.data.targetName = ccy; 
-      this.updateDynamicUI(); this.save(); this.renderAll();
-      this.showToast(`✅ 已激活 ${ccy} 账本`);
-  },
-
-  bindEvents() {
-    const exRateInput = document.getElementById('exRateInput');
-    const exAmount = document.getElementById('exAmount');
-    const expInput = document.getElementById('expInput');
-
-    exRateInput.addEventListener('input', () => this.updateExPreview());
-    exAmount.addEventListener('input', () => this.updateExPreview());
-    
-    document.getElementById('exToggleBtn').addEventListener('click', () => {
-        this.data.exMode = this.data.exMode === 'BASE' ? 'TARGET' : 'BASE';
-        const btn = document.getElementById('exToggleBtn');
-        btn.className = `toggle-btn ${this.data.exMode === 'BASE' ? 'blue' : 'orange'}`;
-        btn.innerText = `${this.data.exMode === 'BASE' ? this.data.baseCcy : this.data.targetCcy} ⇄`;
-        exAmount.value = ''; this.updateExPreview();
-    });
-
-    exAmount.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); this.submitEx(); } });
-    expInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); this.submitExp(); } });
-  },
-
-  getAssetRate(targetCcy) {
-      let inCcy = 0, inBase = 0;
-      this.data.records.forEach(r => {
-          if (r.type === 'in' && r.ccy === targetCcy) {
-              const t = parseFloat(r.twd) || 0;
-              inCcy += t;
-              inBase += r.rm !== undefined ? parseFloat(r.rm) : (t * (this.data.rate / 100));
-          }
-      });
-      if (inCcy > 0) return (inBase / inCcy) * 100;
-      return this.data.rate; 
-  },
-
-  updateExPreview() {
-    const val = parseFloat(document.getElementById('exAmount').value) || 0;
-    const mode = this.data.exMode; 
-    const currentRate = parseFloat(document.getElementById('exRateInput').value) || this.getAssetRate(this.data.targetCcy);
-    const prevEl = document.getElementById('exPreviewVal');
-    
-    let res = 0, unit = '';
-    if (mode === 'BASE') { 
-        res = Math.round(val * (100 / currentRate)); unit = this.data.targetCcy;
-    } else { 
-        res = (val * (currentRate / 100)).toFixed(2); unit = this.data.baseCcy;
-    }
-    prevEl.innerHTML = `${res} <span style="font-size:14px">${unit}</span>`;
-  },
-
-  openExchange() {
-    this.editModeId = null;
-    document.getElementById('modalOverlay').classList.add('open');
-    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    document.getElementById('modalExchange').style.display = 'flex';
-    document.getElementById('exModalTitle').innerText = '存入资金';
-    document.getElementById('exSubmitBtn').innerText = '确认存入';
-
-    this.data.exMode = 'BASE';
-    const btn = document.getElementById('exToggleBtn');
-    btn.className = 'toggle-btn blue'; btn.innerText = `${this.data.baseCcy} ⇄`;
-    document.getElementById('exAmount').value = '';
-    document.getElementById('exRateInput').value = this.getAssetRate(this.data.targetCcy).toFixed(2);
-    this.updateExPreview();
-    setTimeout(() => document.getElementById('exAmount').focus(), 50);
-  },
-
-  submitEx() {
-    const val = parseFloat(document.getElementById('exAmount').value);
-    if (!val) return;
-    const currentRate = parseFloat(document.getElementById('exRateInput').value) || this.data.rate;
-    let twd = 0, rm = 0;
-    if (this.data.exMode === 'BASE') { rm = val; twd = val * (100 / currentRate); } 
-    else { twd = val; rm = val * (currentRate / 100); }
-    const detailStr = `${rm.toFixed(2)} ${this.data.baseCcy} → ${Math.round(twd)} ${this.data.targetCcy}`;
-    
-    if (this.editModeId) {
-        const idx = this.data.records.findIndex(x => x.id === this.editModeId);
-        if(idx > -1) this.data.records[idx] = { ...this.data.records[idx], twd: twd, rm: rm, detail: detailStr };
-        this.showToast('✅ 已修改');
-    } else {
-        this.data.records.unshift({
-            id: Date.now(), type: 'in', title: '换汇存入', twd: twd, rm: rm,
-            ccy: this.data.targetCcy, detail: detailStr, date: new Date().toLocaleDateString()
-        });
-        this.data.rate = currentRate; 
-        this.showToast('✅ 已存入');
-    }
-    this.save(); this.closeModal(); this.renderAll();
-  },
-
-  openExpense() {
-    this.editModeId = null;
-    document.getElementById('modalOverlay').classList.add('open');
-    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    document.getElementById('modalExpense').style.display = 'flex';
-    document.getElementById('expModalTitle').innerText = '记录开销';
-    document.getElementById('expSubmitBtn').innerText = '确认记账';
-    document.getElementById('expInput').value = '';
-    this.renderCats();
-    setTimeout(() => document.getElementById('expInput').focus(), 50);
-  },
-
-  renderCats() {
-    const grid = document.getElementById('catGrid');
-    grid.innerHTML = this.cats.map((c, i) => `
-      <div class="cat ${this.data.expCat===i?'active':''}" onclick="tripApp.data.expCat=${i}; tripApp.renderCats()">
-        <div style="font-size:24px; margin-bottom:4px">${c.i}</div>
-        <div style="font-size:12px; font-weight:bold; color:#64748b">${c.n}</div>
-      </div>
-    `).join('');
-  },
-
-  submitExp() {
-    const val = parseFloat(document.getElementById('expInput').value);
-    if(!val) return;
-    const c = this.cats[this.data.expCat];
-    if (this.editModeId) {
-        const idx = this.data.records.findIndex(x => x.id === this.editModeId);
-        if(idx > -1) this.data.records[idx] = { ...this.data.records[idx], title: c.n, twd: val, icon: c.i };
-        this.showToast('✅ 已修改');
-    } else {
-        this.data.records.unshift({
-            id: Date.now(), type: 'out', title: c.n, twd: val, icon: c.i,
-            ccy: this.data.targetCcy, date: new Date().toLocaleDateString()
-        });
-        this.showToast('✅ 已记录');
-    }
-    this.save(); this.closeModal(); this.renderAll();
-  },
-
-  openRecordDetail(id) {
-      const r = this.data.records.find(x => x.id === id);
-      if(!r) return;
-      this.currentRecordId = id;
-      const ccy = r.ccy || 'TWD';
-
-      let html = '';
-      if(r.type === 'in') {
-          const usedRate = (r.rm / r.twd * 100).toFixed(2);
-          html = `
-              <div style="text-align:center; padding: 10px 0 20px;">
-                  <div style="font-size:14px; color:var(--muted); font-weight:bold; margin-bottom:8px;">换汇存入</div>
-                  <div style="font-size:48px; font-weight:900; color:var(--primary); line-height:1;">+${Math.round(r.twd)}</div>
-                  <div style="font-size:16px; font-weight:bold; color:var(--text); margin-top:8px;">${ccy}</div>
-              </div>
-              <div class="detail-info-box">
-                  <div class="detail-row"><span class="detail-label">支付</span><span class="detail-val">${parseFloat(r.rm).toFixed(2)} ${this.data.baseCcy}</span></div>
-                  <div class="detail-row"><span class="detail-label">成交汇率</span><span class="detail-val">100 ${ccy} = ${usedRate} ${this.data.baseCcy}</span></div>
-                  <div class="detail-row"><span class="detail-label">记录时间</span><span class="detail-val">${r.date}</span></div>
-              </div>
-          `;
-      } else {
-          html = `
-              <div style="text-align:center; padding: 10px 0 20px;">
-                  <div style="font-size:14px; color:var(--muted); font-weight:bold; margin-bottom:8px;">日常开销</div>
-                  <div style="font-size:48px; font-weight:900; color:var(--text); line-height:1;">-${Math.round(r.twd)}</div>
-                  <div style="font-size:16px; font-weight:bold; color:var(--text); margin-top:8px;">${ccy}</div>
-              </div>
-              <div class="detail-info-box">
-                  <div class="detail-row"><span class="detail-label">消费分类</span><span class="detail-val">${r.icon} ${r.title}</span></div>
-                  <div class="detail-row"><span class="detail-label">记录时间</span><span class="detail-val">${r.date}</span></div>
-              </div>
-          `;
-      }
-      document.getElementById('recordDetailContent').innerHTML = html;
-      document.getElementById('modalOverlay').classList.add('open');
-      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-      document.getElementById('modalRecordDetail').style.display = 'flex';
-  },
-
-  delCurrentRecord() {
-      if(confirm('确定要删除这条记录吗？')) {
-          this.data.records = this.data.records.filter(r => r.id !== this.currentRecordId);
-          this.save(); this.closeModal(); this.renderAll(); this.showToast('✅ 已删除');
-      }
-  },
-
-  editCurrentRecord() {
-      const r = this.data.records.find(x => x.id === this.currentRecordId);
-      if(!r) return;
-      this.editModeId = r.id;
+  // 核心计算与渲染逻辑
+  function handleCalculate() {
+      const code = el('currencySelect').value;
+      const amount = parseFloat(el('foreignAmount').value) || 0;
+      const preset = PRESETS[code];
       
-      if(r.ccy && r.ccy !== this.data.targetCcy) { this.switchWallet(r.ccy); }
-
-      if(r.type === 'in') {
-          document.getElementById('modalRecordDetail').style.display = 'none';
-          document.getElementById('modalExchange').style.display = 'flex';
-          document.getElementById('exModalTitle').innerText = '编辑存入';
-          document.getElementById('exSubmitBtn').innerText = '保存修改';
-          document.getElementById('exRateInput').value = (r.rm / r.twd * 100).toFixed(2);
-          this.data.exMode = 'BASE';
-          const btn = document.getElementById('exToggleBtn');
-          btn.className = 'toggle-btn blue'; btn.innerText = `${this.data.baseCcy} ⇄`;
-          document.getElementById('exAmount').value = r.rm;
-          this.updateExPreview();
+      // 更新下方提示文字 (例如: 100 JPY = RM 2.5350)
+      el('rateHint').innerText = `预设汇率：${preset.unit} ${code} = RM ${preset.myrVal.toFixed(4)}`;
+      
+      // 计算马币
+      if(amount > 0) {
+          const totalMYR = (amount / preset.unit) * preset.myrVal;
+          el('myrResult').innerText = totalMYR.toFixed(2);
       } else {
-          document.getElementById('modalRecordDetail').style.display = 'none';
-          document.getElementById('modalExpense').style.display = 'flex';
-          document.getElementById('expModalTitle').innerText = '编辑开销';
-          document.getElementById('expSubmitBtn').innerText = '保存修改';
-          document.getElementById('expInput').value = r.twd;
-          const catIdx = this.cats.findIndex(c => c.n === r.title);
-          this.data.expCat = catIdx > -1 ? catIdx : 0;
-          this.renderCats();
+          el('myrResult').innerText = "0.00";
       }
-  },
-
-  closeModal() { document.getElementById('modalOverlay').classList.remove('open'); this.editModeId = null; },
-  save() { localStorage.setItem('ustrip_v24_1_final', JSON.stringify(this.data)); },
-  showToast(msg) {
-    const t = document.getElementById('toast'); t.innerText = msg;
-    t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1500);
-  },
-  renderTheme() { document.body.className = this.data.theme; },
-  toggleTheme() { this.data.theme = this.data.theme === 'light' ? 'dark' : 'light'; this.renderTheme(); this.save(); },
-
-  setTab(t) {
-    this.data.tab = t;
-    document.getElementById('page-assets').style.display = t==='assets' ? 'flex' : 'none';
-    document.getElementById('page-calc').style.display = t==='calc' ? 'flex' : 'none';
-    document.getElementById('tab-assets').className = t==='assets' ? 'tab-btn active' : 'tab-btn';
-    document.getElementById('tab-calc').className = t==='calc' ? 'tab-btn active' : 'tab-btn';
-    if(t==='assets') this.renderAll(); else this.renderCalc();
-    this.save();
-  },
-
-  renderCalc() {
-    const assetRate = this.getAssetRate(this.data.targetCcy);
-    if(document.getElementById('calcRateDisplay')) document.getElementById('calcRateDisplay').innerText = assetRate.toFixed(2);
-    document.getElementById('calcInput').innerText = this.data.calcIn;
-    let res = 0;
-    try { 
-      const twd = parseFloat(eval(this.data.calcIn.replace(/×/g,'*').replace(/÷/g,'/')));
-      if(!isNaN(twd)) res = twd * (assetRate / 100);
-    } catch {}
-    document.getElementById('calcResult').innerText = `${res.toFixed(2)} MYR`;
-    
-    const activeHistory = this.data.history.filter(h => !h.ccy || h.ccy === this.data.targetCcy);
-    const last = activeHistory[0];
-    document.getElementById('lastHistoryVal').innerText = last ? `${last.twd} ${this.data.targetCcy}` : '暂无记录';
-  },
-
-  onKey(k) {
-    let s = this.data.calcIn;
-    if (k === 'AC') { s = '0'; this.data.calcExpr = ''; }
-    else if (k === 'DEL') { s = s.length > 1 ? s.slice(0, -1) : '0'; }
-    else if (k === '=') {
-        try { const val = eval(s.replace(/×/g,'*').replace(/÷/g,'/')); s = String(parseFloat(val.toFixed(2))); this.data.calcExpr = ''; } catch { s = 'Error'; }
-    }
-    else {
-        if (['+','-','*','/','%'].includes(k)) {
-             const last = s.slice(-1);
-             if(['+','-','*','/','%'].includes(last)) s = s.slice(0, -1) + k; else s += k;
-        } else {
-             const parts = s.split(/[\+\-\*\/\%]/); const cur = parts[parts.length-1];
-             if (k === '0' || k === '00') {
-                 if (cur === '0') { } else if (cur === '') { s += '0'; } else { s += k; }
-             } else if (k === '.') {
-                 if (cur.includes('.')) { } else if (cur === '') { s += '0.'; } else { s += '.'; }
-             } else {
-                 if (cur === '0') { s = s.slice(0, -1) + k; } else { s += k; }
-             }
-        }
-        if (k !== 'AC' && k !== 'DEL' && k !== '=') this.data.calcExpr = s;
-    }
-    this.data.calcIn = s; this.renderCalc();
-  },
-
-  saveCalc() {
-    try {
-        const twd = parseFloat(eval(this.data.calcIn.replace(/×/g,'*').replace(/÷/g,'/')));
-        if(!twd || twd <= 0) return;
-        const assetRate = this.getAssetRate(this.data.targetCcy);
-        const rm = twd * (assetRate / 100);
-        this.data.history.unshift({
-            id: Date.now(), twd: twd.toFixed(2), rm: rm.toFixed(2), ccy: this.data.targetCcy, date: new Date().toLocaleDateString()
-        });
-        this.data.calcIn = '0'; this.data.calcExpr = ''; this.save(); this.renderCalc(); this.showToast('✅ 已保存');
-    } catch {}
-  },
-
-  toggleHistory() {
-    const overlay = document.getElementById('historyOverlay'); const sheet = document.getElementById('historySheet');
-    if(sheet.classList.contains('show')) { sheet.classList.remove('show'); overlay.classList.remove('show'); } 
-    else { this.renderHistoryList(); sheet.classList.add('show'); overlay.classList.add('show'); }
-  },
-  
-  renderHistoryList() {
-    const list = document.getElementById('histList');
-    const activeHistory = this.data.history.filter(h => !h.ccy || h.ccy === this.data.targetCcy);
-    list.innerHTML = activeHistory.map((h, idx) => {
-        const realIdx = this.data.history.findIndex(x => x.id === h.id);
-        return `
-        <div class="hist-item">
-            <div class="info"><h4>${h.twd} ${h.ccy||'TWD'}</h4><p>${h.date}</p></div>
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="text-align:right"><div style="font-weight:bold; color:var(--primary); font-size:18px">${h.rm} MYR</div></div>
-                <div class="btn-del" onclick="tripApp.delHist(${realIdx})">✕</div>
-            </div>
-        </div>
-        `}).join('') || '<div style="padding:20px; text-align:center; color:#999">暂无记录</div>';
-  },
-  
-  delHist(i) { if(confirm('删除?')) { this.data.history.splice(i, 1); this.save(); this.renderHistoryList(); this.renderCalc(); } },
-  clearHistory() {
-    if(confirm('清空当前币种的计算历史?')) { 
-        this.data.history = this.data.history.filter(h => h.ccy && h.ccy !== this.data.targetCcy);
-        this.save(); this.renderHistoryList(); this.renderCalc(); 
-    }
-  },
-
-  renderAll() {
-    const assetsObj = {};
-    
-    this.data.records.forEach(r => {
-        const c = r.ccy || 'TWD';
-        if (!assetsObj[c]) assetsObj[c] = { inCcy: 0, inBase: 0, outCcy: 0 };
-        if (r.type === 'in') {
-            assetsObj[c].inCcy += parseFloat(r.twd || 0);
-            assetsObj[c].inBase += parseFloat(r.rm || 0);
-        } else {
-            assetsObj[c].outCcy += parseFloat(r.twd || 0);
-        }
-    });
-
-    let totalEstMYR = 0;
-    let assetsHtml = '';
-
-    for (let c in assetsObj) {
-        const a = assetsObj[c];
-        const balance = a.inCcy - a.outCcy;
-        
-        if (balance > 0 || c === this.data.targetCcy || a.inCcy > 0) {
-            const avgRate = a.inCcy > 0 ? (a.inBase / a.inCcy) : (c === this.data.targetCcy ? this.data.rate/100 : 0);
-            const estMyr = balance * avgRate;
-            if (balance > 0) totalEstMYR += estMyr;
-
-            const flag = this.flags[c] || '💵';
-            const isActive = c === this.data.targetCcy ? 'active-wallet' : '';
-            
-            assetsHtml += `
-                <div class="asset-item ${isActive}" onclick="tripApp.switchWallet('${c}')">
-                    <div class="left">
-                        <div class="icon-circle">${flag}</div>
-                        <div>
-                            <div class="ccy-name">${c}</div>
-                            <div class="ccy-cost">成本均价: ${(avgRate*100).toFixed(2)}</div>
-                        </div>
-                    </div>
-                    <div class="right">
-                        <div class="amt">${balance.toFixed(0)}</div>
-                        <div class="est-val">≈ ${estMyr.toFixed(2)} MYR</div>
-                    </div>
-                </div>
-            `;
-        }
-    }
-    
-    if (assetsHtml === '') {
-        assetsHtml = `<div style="text-align:center; padding:20px; color:#94a3b8; font-size:14px; background:var(--card-bg); border-radius:20px; border:1px dashed var(--border)">暂无资产，请点击上方存入资金</div>`;
-    }
-
-    if(document.getElementById('totalEstMYR')) {
-        document.getElementById('totalEstMYR').innerText = totalEstMYR.toFixed(2);
-        document.getElementById('multiAssetsList').innerHTML = assetsHtml;
-        
-        const list = document.getElementById('recordsList');
-        list.innerHTML = this.data.records.map((r) => `
-            <div class="list-item" onclick="tripApp.openRecordDetail(${r.id})">
-                <div class="icon">${r.icon || '💸'}</div>
-                <div class="info">
-                    <h4>${r.title}</h4>
-                    <p>${r.detail || r.date}</p> 
-                </div>
-                <div class="amt ${r.type==='in'?'pos':'neg'}">
-                    ${r.type==='in'?'+':'-'}${Number(r.twd).toFixed(0)} <span style="font-size:12px; opacity:0.5">${r.ccy||'TWD'}</span>
-                </div>
-            </div>
-        `).join('') || '<div style="text-align:center; padding:20px; color:#999; font-size:12px;">没有任何记录</div>';
-    }
-    
-    this.renderCalc();
   }
-};
 
-window.tripApp.init();
+  // 初始化加载
+  handleCalculate();
 </script>
 </body>
 </html>
